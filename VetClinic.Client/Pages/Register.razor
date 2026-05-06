@@ -1,0 +1,78 @@
+@page "/register"
+@inject VetClinic.Client.Services.AuthService AuthService
+@inject NavigationManager Navigation
+
+<PageTitle>Register</PageTitle>
+
+<h1>Register</h1>
+
+<div>
+    <label>Full name</label>
+    <input @bind="fullName" placeholder="Full name" />
+</div>
+
+<div>
+    <label>Email</label>
+    <input @bind="email" placeholder="Email" />
+</div>
+
+<div>
+    <label>Password</label>
+    <input type="password" @bind="password" placeholder="Password" />
+</div>
+
+<div>
+    <label>Phone</label>
+    <input @bind="phoneNumber" placeholder="Phone" />
+</div>
+
+<div>
+    <label>Address</label>
+    <input @bind="address" placeholder="Address" />
+</div>
+
+@if (!string.IsNullOrWhiteSpace(errorMessage))
+{
+    <p>@errorMessage</p>
+}
+
+<button @onclick="RegisterUser" type="button">Register</button>
+
+@code {
+    private string fullName = string.Empty;
+    private string email = string.Empty;
+    private string password = string.Empty;
+    private string phoneNumber = string.Empty;
+    private string address = string.Empty;
+    private string errorMessage = string.Empty;
+
+    private async Task RegisterUser()
+    {
+        if (string.IsNullOrWhiteSpace(fullName) ||
+            string.IsNullOrWhiteSpace(email) ||
+            string.IsNullOrWhiteSpace(password))
+        {
+            errorMessage = "Fill in all fields.";
+            return;
+        }
+
+        errorMessage = string.Empty;
+
+        var result = await AuthService.RegisterOwnerAsync(new VetClinic.Shared.Requests.RegisterOwnerRequest
+        {
+            FullName = fullName,
+            Email = email,
+            Password = password,
+            PhoneNumber = phoneNumber,
+            Address = address
+        });
+
+        if (result is null)
+        {
+            errorMessage = "Registration failed.";
+            return;
+        }
+
+        Navigation.NavigateTo("/");
+    }
+}

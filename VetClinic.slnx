@@ -1,0 +1,5 @@
+<Solution>
+  <Project Path="VetClinic.Api/VetClinic.Api.csproj" />
+  <Project Path="VetClinic.Client/VetClinic.Client.csproj" />
+  <Project Path="VetClinic.Shared/VetClinic.Shared.csproj" />
+</Solution>
