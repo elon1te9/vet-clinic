@@ -16,6 +16,8 @@ builder.Services.AddScoped<UserApiService>();
 builder.Services.AddScoped<AppointmentApiService>();
 builder.Services.AddScoped<ClinicServiceApiService>();
 builder.Services.AddScoped<MedicalRecordApiService>();
+builder.Services.AddScoped<VaccinationApiService>();
+builder.Services.AddScoped<NotificationApiService>();
 
 var host = builder.Build();
 var authService = host.Services.GetRequiredService<AuthService>();

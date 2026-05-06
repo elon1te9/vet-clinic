@@ -1,0 +1,72 @@
+@page "/notifications"
+@inject VetClinic.Client.Services.NotificationApiService NotificationApiService
+
+<PageTitle>Уведомления</PageTitle>
+
+<h1>Уведомления</h1>
+
+@if (!string.IsNullOrWhiteSpace(message))
+{
+    <p>@message</p>
+}
+
+@if (notifications.Count == 0)
+{
+    <p>Уведомлений нет.</p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Дата</th>
+                <th>Тип</th>
+                <th>Заголовок</th>
+                <th>Сообщение</th>
+                <th>Прочитано</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var notification in notifications)
+            {
+                <tr>
+                    <td>@notification.CreatedAt.ToLocalTime().ToString("dd.MM.yyyy HH:mm")</td>
+                    <td>@notification.Type</td>
+                    <td>@notification.Title</td>
+                    <td>@notification.Message</td>
+                    <td>@(notification.IsRead ? "Да" : "Нет")</td>
+                    <td>
+                        @if (!notification.IsRead)
+                        {
+                            <button @onclick="() => MarkAsRead(notification.Id)" type="button">Прочитать</button>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private List<VetClinic.Shared.Responses.NotificationResponse> notifications = [];
+    private string message = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadNotificationsAsync();
+    }
+
+    private async Task LoadNotificationsAsync()
+    {
+        notifications = await NotificationApiService.GetMyAsync();
+    }
+
+    private async Task MarkAsRead(int id)
+    {
+        var result = await NotificationApiService.MarkAsReadAsync(id);
+        message = result ? "Уведомление прочитано." : "Не удалось прочитать уведомление.";
+
+        await LoadNotificationsAsync();
+    }
+}

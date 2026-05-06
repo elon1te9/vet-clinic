@@ -1,0 +1,75 @@
+@page "/vaccinations/calendar"
+@inject VetClinic.Client.Services.VaccinationApiService VaccinationApiService
+
+<PageTitle>Календарь вакцинаций</PageTitle>
+
+<h1>Календарь вакцинаций</h1>
+
+<h2>Ближайшие вакцинации</h2>
+
+@if (upcoming.Count == 0)
+{
+    <p>Ближайших вакцинаций нет.</p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Дата</th>
+                <th>Питомец</th>
+                <th>Вакцина</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var vaccination in upcoming)
+            {
+                <tr>
+                    <td>@vaccination.NextDueAt?.ToLocalTime().ToString("dd.MM.yyyy")</td>
+                    <td>@vaccination.PetName</td>
+                    <td>@vaccination.Name</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+<h2>Просроченные вакцинации</h2>
+
+@if (overdue.Count == 0)
+{
+    <p>Просроченных вакцинаций нет.</p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Дата</th>
+                <th>Питомец</th>
+                <th>Вакцина</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var vaccination in overdue)
+            {
+                <tr>
+                    <td>@vaccination.NextDueAt?.ToLocalTime().ToString("dd.MM.yyyy")</td>
+                    <td>@vaccination.PetName</td>
+                    <td>@vaccination.Name</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private List<VetClinic.Shared.Responses.VaccinationResponse> upcoming = [];
+    private List<VetClinic.Shared.Responses.VaccinationResponse> overdue = [];
+
+    protected override async Task OnInitializedAsync()
+    {
+        upcoming = await VaccinationApiService.GetUpcomingAsync();
+        overdue = await VaccinationApiService.GetOverdueAsync();
+    }
+}

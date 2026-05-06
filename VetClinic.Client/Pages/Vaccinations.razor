@@ -1,0 +1,165 @@
+@page "/vaccinations"
+@inject VetClinic.Client.Services.VaccinationApiService VaccinationApiService
+@inject VetClinic.Client.Services.PetApiService PetApiService
+@inject VetClinic.Client.Services.LocalStorageService LocalStorageService
+
+<PageTitle>Вакцинации</PageTitle>
+
+<h1>Вакцинации</h1>
+
+@if (role == "Admin" || role == "Veterinarian")
+{
+    <h2>Новая вакцинация</h2>
+
+    <div>
+        <label>Питомец</label>
+        <select @bind="petId">
+            @foreach (var pet in pets)
+            {
+                <option value="@pet.Id">@pet.Name</option>
+            }
+        </select>
+    </div>
+
+    <div>
+        <label>Название вакцины</label>
+        <input @bind="name" />
+    </div>
+
+    <div>
+        <label>Дата вакцинации</label>
+        <InputDate @bind-Value="doneAt" />
+    </div>
+
+    <div>
+        <label>Следующая дата</label>
+        <InputDate @bind-Value="nextDueAt" />
+    </div>
+
+    <div>
+        <label>Статус</label>
+        <select @bind="statusText">
+            <option value="Completed">Completed</option>
+            <option value="Planned">Planned</option>
+            <option value="Overdue">Overdue</option>
+            <option value="Cancelled">Cancelled</option>
+        </select>
+    </div>
+
+    <div>
+        <label>Заметки</label>
+        <input @bind="notes" />
+    </div>
+
+    <button @onclick="CreateVaccination" type="button">Сохранить</button>
+}
+
+@if (!string.IsNullOrWhiteSpace(message))
+{
+    <p>@message</p>
+}
+
+@if (vaccinations.Count == 0)
+{
+    <p>Вакцинации не найдены.</p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Питомец</th>
+                <th>Вакцина</th>
+                <th>Дата</th>
+                <th>Следующая</th>
+                <th>Статус</th>
+                <th>Врач</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var vaccination in vaccinations)
+            {
+                <tr>
+                    <td>@vaccination.PetName</td>
+                    <td>@vaccination.Name</td>
+                    <td>@vaccination.DoneAt.ToLocalTime().ToString("dd.MM.yyyy")</td>
+                    <td>@vaccination.NextDueAt?.ToLocalTime().ToString("dd.MM.yyyy")</td>
+                    <td>@vaccination.Status</td>
+                    <td>@vaccination.VeterinarianFullName</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private List<VetClinic.Shared.Responses.VaccinationResponse> vaccinations = [];
+    private List<VetClinic.Shared.Responses.PetResponse> pets = [];
+    private string role = string.Empty;
+    private int petId;
+    private string name = string.Empty;
+    private DateTime? doneAt = DateTime.Today;
+    private DateTime? nextDueAt;
+    private string statusText = "Completed";
+    private string notes = string.Empty;
+    private string message = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        role = await LocalStorageService.GetItemAsync("role") ?? string.Empty;
+
+        pets = role == "Owner"
+            ? await PetApiService.GetMyAsync()
+            : await PetApiService.GetAllAsync();
+
+        petId = pets.FirstOrDefault()?.Id ?? 0;
+
+        await LoadVaccinationsAsync();
+    }
+
+    private async Task LoadVaccinationsAsync()
+    {
+        vaccinations = role == "Admin"
+            ? await VaccinationApiService.GetAllAsync()
+            : await VaccinationApiService.GetMyAsync();
+
+        if (vaccinations.Count == 0)
+        {
+            message = "Список вакцинаций пока пуст.";
+        }
+    }
+
+    private async Task CreateVaccination()
+    {
+        if (petId <= 0 || string.IsNullOrWhiteSpace(name) || doneAt is null)
+        {
+            message = "Выберите питомца, дату и название вакцины.";
+            return;
+        }
+
+        Enum.TryParse<VetClinic.Shared.Enums.VaccinationStatus>(statusText, out var status);
+
+        var result = await VaccinationApiService.CreateAsync(new VetClinic.Shared.Requests.CreateVaccinationRequest
+        {
+            PetId = petId,
+            Name = name,
+            DoneAt = doneAt.Value,
+            NextDueAt = nextDueAt,
+            Status = status,
+            Notes = string.IsNullOrWhiteSpace(notes) ? null : notes
+        });
+
+        if (result is null)
+        {
+            message = "Не удалось создать вакцинацию.";
+            return;
+        }
+
+        name = string.Empty;
+        nextDueAt = null;
+        notes = string.Empty;
+        message = "Вакцинация создана.";
+
+        await LoadVaccinationsAsync();
+    }
+}

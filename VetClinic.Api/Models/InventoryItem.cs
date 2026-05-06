@@ -16,4 +16,5 @@ public class InventoryItem
     public DateTime? UpdatedAt { get; set; }
 
     public ICollection<InventoryTransaction> Transactions { get; set; } = new List<InventoryTransaction>();
+    public ICollection<Vaccination> Vaccinations { get; set; } = new List<Vaccination>();
 }

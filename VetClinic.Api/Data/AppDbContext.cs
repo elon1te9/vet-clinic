@@ -15,8 +15,10 @@ public class AppDbContext : IdentityDbContext<ApplicationUser>
     public DbSet<Appointment> Appointments => Set<Appointment>();
     public DbSet<ClinicService> ClinicServices => Set<ClinicService>();
     public DbSet<MedicalRecord> MedicalRecords => Set<MedicalRecord>();
+    public DbSet<Vaccination> Vaccinations => Set<Vaccination>();
     public DbSet<InventoryItem> InventoryItems => Set<InventoryItem>();
     public DbSet<InventoryTransaction> InventoryTransactions => Set<InventoryTransaction>();
+    public DbSet<Notification> Notifications => Set<Notification>();
 
     protected override void OnModelCreating(ModelBuilder builder)
     {
@@ -70,6 +72,30 @@ public class AppDbContext : IdentityDbContext<ApplicationUser>
             .HasForeignKey(m => m.VeterinarianId)
             .OnDelete(DeleteBehavior.Restrict);
 
+        builder.Entity<Vaccination>()
+            .HasOne(v => v.Pet)
+            .WithMany(p => p.Vaccinations)
+            .HasForeignKey(v => v.PetId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        builder.Entity<Vaccination>()
+            .HasOne(v => v.Veterinarian)
+            .WithMany(u => u.Vaccinations)
+            .HasForeignKey(v => v.VeterinarianId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        builder.Entity<Vaccination>()
+            .HasOne(v => v.VaccineInventoryItem)
+            .WithMany(i => i.Vaccinations)
+            .HasForeignKey(v => v.VaccineInventoryItemId)
+            .OnDelete(DeleteBehavior.SetNull);
+
+        builder.Entity<Notification>()
+            .HasOne(n => n.User)
+            .WithMany(u => u.Notifications)
+            .HasForeignKey(n => n.UserId)
+            .OnDelete(DeleteBehavior.Restrict);
+
         builder.Entity<InventoryTransaction>()
             .HasOne(t => t.InventoryItem)
             .WithMany(i => i.Transactions)
@@ -94,6 +120,14 @@ public class AppDbContext : IdentityDbContext<ApplicationUser>
 
         builder.Entity<Appointment>()
             .Property(a => a.Status)
+            .HasConversion<string>();
+
+        builder.Entity<Vaccination>()
+            .Property(v => v.Status)
+            .HasConversion<string>();
+
+        builder.Entity<Notification>()
+            .Property(n => n.Type)
             .HasConversion<string>();
 
         builder.Entity<Pet>().Property(p => p.Weight).HasPrecision(10, 2);
