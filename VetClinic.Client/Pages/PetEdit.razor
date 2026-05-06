@@ -1,0 +1,128 @@
+@page "/pets/edit/{Id:int}"
+@inject VetClinic.Client.Services.PetApiService PetApiService
+@inject NavigationManager Navigation
+
+<PageTitle>Редактирование питомца</PageTitle>
+
+<h1>Редактирование питомца</h1>
+
+@if (petLoaded)
+{
+    <div>
+        <label>Имя</label>
+        <input @bind="name" />
+    </div>
+
+    <div>
+        <label>Вид</label>
+        <input @bind="species" />
+    </div>
+
+    <div>
+        <label>Порода</label>
+        <input @bind="breed" />
+    </div>
+
+    <div>
+        <label>Пол</label>
+        <select @bind="gender">
+            <option value="Unknown">Не указан</option>
+            <option value="Male">Самец</option>
+            <option value="Female">Самка</option>
+        </select>
+    </div>
+
+    <div>
+        <label>Дата рождения</label>
+        <InputDate @bind-Value="birthDate" />
+    </div>
+
+    <div>
+        <label>Вес</label>
+        <input @bind="weightText" />
+    </div>
+
+    <div>
+        <label>Окрас</label>
+        <input @bind="color" />
+</div>
+
+    <div>
+        <label>Особенности здоровья</label>
+        <input @bind="healthNotes" />
+    </div>
+
+    <button @onclick="SavePet" type="button">Сохранить</button>
+}
+
+@if (!string.IsNullOrWhiteSpace(message))
+{
+    <p>@message</p>
+}
+
+@code {
+    [Parameter] public int Id { get; set; }
+
+    private bool petLoaded;
+    private string name = string.Empty;
+    private string species = string.Empty;
+    private string breed = string.Empty;
+    private string gender = "Unknown";
+    private DateTime? birthDate;
+    private string weightText = string.Empty;
+    private string color = string.Empty;
+    private string healthNotes = string.Empty;
+    private string message = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var pet = await PetApiService.GetByIdAsync(Id);
+        if (pet is null)
+        {
+            message = "Питомец не найден.";
+            return;
+        }
+
+        name = pet.Name;
+        species = pet.Species;
+        breed = pet.Breed ?? string.Empty;
+        gender = pet.Gender.ToString();
+        birthDate = pet.BirthDate;
+        weightText = pet.Weight?.ToString() ?? string.Empty;
+        color = pet.Color ?? string.Empty;
+        healthNotes = pet.HealthNotes ?? string.Empty;
+        petLoaded = true;
+    }
+
+    private async Task SavePet()
+    {
+        if (string.IsNullOrWhiteSpace(name) || string.IsNullOrWhiteSpace(species))
+        {
+            message = "Заполните имя и вид питомца.";
+            return;
+        }
+
+        Enum.TryParse<VetClinic.Shared.Enums.PetGender>(gender, out var petGender);
+        decimal.TryParse(weightText, out var weight);
+
+        var result = await PetApiService.UpdateAsync(Id, new VetClinic.Shared.Requests.UpdatePetRequest
+        {
+            Name = name,
+            Species = species,
+            Breed = string.IsNullOrWhiteSpace(breed) ? null : breed,
+            Gender = petGender,
+            BirthDate = birthDate,
+            Weight = string.IsNullOrWhiteSpace(weightText) ? null : weight,
+            Color = string.IsNullOrWhiteSpace(color) ? null : color,
+            HealthNotes = string.IsNullOrWhiteSpace(healthNotes) ? null : healthNotes
+        });
+
+        if (result is null)
+        {
+            message = "Не удалось обновить питомца.";
+            return;
+        }
+
+        Navigation.NavigateTo("/pets");
+    }
+}

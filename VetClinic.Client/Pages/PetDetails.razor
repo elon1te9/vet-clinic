@@ -1,0 +1,39 @@
+@page "/pets/{Id:int}"
+@inject VetClinic.Client.Services.PetApiService PetApiService
+
+<PageTitle>Карточка питомца</PageTitle>
+
+<h1>Карточка питомца</h1>
+
+@if (pet is null)
+{
+    <p>@message</p>
+}
+else
+{
+    <p><strong>Имя:</strong> @pet.Name</p>
+    <p><strong>Вид:</strong> @pet.Species</p>
+    <p><strong>Порода:</strong> @pet.Breed</p>
+    <p><strong>Пол:</strong> @pet.Gender</p>
+    <p><strong>Дата рождения:</strong> @pet.BirthDate?.ToString("dd.MM.yyyy")</p>
+    <p><strong>Вес:</strong> @pet.Weight</p>
+    <p><strong>Окрас:</strong> @pet.Color</p>
+    <p><strong>Особенности здоровья:</strong> @pet.HealthNotes</p>
+    <p><strong>Владелец:</strong> @pet.OwnerFullName</p>
+}
+
+@code {
+    [Parameter] public int Id { get; set; }
+
+    private VetClinic.Shared.Responses.PetResponse? pet;
+    private string message = "Загрузка...";
+
+    protected override async Task OnInitializedAsync()
+    {
+        pet = await PetApiService.GetByIdAsync(Id);
+        if (pet is null)
+        {
+            message = "Питомец не найден.";
+        }
+    }
+}

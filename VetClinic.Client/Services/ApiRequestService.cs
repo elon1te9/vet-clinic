@@ -46,4 +46,53 @@ public class ApiRequestService
             return default;
         }
     }
+
+    public async Task<TResponse?> PutAsync<TRequest, TResponse>(string url, TRequest request)
+    {
+        try
+        {
+            var response = await _httpClient.PutAsJsonAsync(url, request);
+            if (!response.IsSuccessStatusCode)
+            {
+                return default;
+            }
+
+            if (response.Content.Headers.ContentLength == 0)
+            {
+                return default;
+            }
+
+            return await response.Content.ReadFromJsonAsync<TResponse>();
+        }
+        catch
+        {
+            return default;
+        }
+    }
+
+    public async Task<bool> PutAsync<TRequest>(string url, TRequest request)
+    {
+        try
+        {
+            var response = await _httpClient.PutAsJsonAsync(url, request);
+            return response.IsSuccessStatusCode;
+        }
+        catch
+        {
+            return false;
+        }
+    }
+
+    public async Task<bool> DeleteAsync(string url)
+    {
+        try
+        {
+            var response = await _httpClient.DeleteAsync(url);
+            return response.IsSuccessStatusCode;
+        }
+        catch
+        {
+            return false;
+        }
+    }
 }

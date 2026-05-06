@@ -2,33 +2,33 @@
 @inject VetClinic.Client.Services.AuthService AuthService
 @inject NavigationManager Navigation
 
-<PageTitle>Register</PageTitle>
+<PageTitle>Регистрация</PageTitle>
 
-<h1>Register</h1>
+<h1>Регистрация</h1>
 
 <div>
-    <label>Full name</label>
-    <input @bind="fullName" placeholder="Full name" />
+    <label>ФИО</label>
+    <input @bind="fullName" placeholder="Введите ФИО" />
 </div>
 
 <div>
     <label>Email</label>
-    <input @bind="email" placeholder="Email" />
+    <input @bind="email" placeholder="Введите email" />
 </div>
 
 <div>
-    <label>Password</label>
-    <input type="password" @bind="password" placeholder="Password" />
+    <label>Пароль</label>
+    <input type="password" @bind="password" placeholder="Введите пароль" />
 </div>
 
 <div>
-    <label>Phone</label>
-    <input @bind="phoneNumber" placeholder="Phone" />
+    <label>Телефон</label>
+    <input @bind="phoneNumber" placeholder="Введите телефон" />
 </div>
 
 <div>
-    <label>Address</label>
-    <input @bind="address" placeholder="Address" />
+    <label>Адрес</label>
+    <input @bind="address" placeholder="Введите адрес" />
 </div>
 
 @if (!string.IsNullOrWhiteSpace(errorMessage))
@@ -36,7 +36,7 @@
     <p>@errorMessage</p>
 }
 
-<button @onclick="RegisterUser" type="button">Register</button>
+<button @onclick="RegisterUser" type="button">Зарегистрироваться</button>
 
 @code {
     private string fullName = string.Empty;
@@ -52,7 +52,7 @@
             string.IsNullOrWhiteSpace(email) ||
             string.IsNullOrWhiteSpace(password))
         {
-            errorMessage = "Fill in all fields.";
+            errorMessage = "Заполните все поля.";
             return;
         }
 
@@ -69,7 +69,7 @@
 
         if (result is null)
         {
-            errorMessage = "Registration failed.";
+            errorMessage = "Не удалось выполнить регистрацию.";
             return;
         }
 

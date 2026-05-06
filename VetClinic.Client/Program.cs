@@ -11,6 +11,8 @@ builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri("http://
 builder.Services.AddScoped<ApiRequestService>();
 builder.Services.AddScoped<LocalStorageService>();
 builder.Services.AddScoped<AuthService>();
+builder.Services.AddScoped<PetApiService>();
+builder.Services.AddScoped<UserApiService>();
 
 var host = builder.Build();
 var authService = host.Services.GetRequiredService<AuthService>();

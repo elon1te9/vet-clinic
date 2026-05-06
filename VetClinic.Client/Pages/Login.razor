@@ -2,18 +2,18 @@
 @inject VetClinic.Client.Services.AuthService AuthService
 @inject NavigationManager Navigation
 
-<PageTitle>Login</PageTitle>
+<PageTitle>Вход</PageTitle>
 
-<h1>Login</h1>
+<h1>Вход</h1>
 
 <div>
     <label>Email</label>
-    <input @bind="email" placeholder="Email" />
+    <input @bind="email" placeholder="Введите email" />
 </div>
 
 <div>
-    <label>Password</label>
-    <input type="password" @bind="password" placeholder="Password" />
+    <label>Пароль</label>
+    <input type="password" @bind="password" placeholder="Введите пароль" />
 </div>
 
 @if (!string.IsNullOrWhiteSpace(errorMessage))
@@ -21,7 +21,7 @@
     <p>@errorMessage</p>
 }
 
-<button @onclick="LoginUser" type="button">Login</button>
+<button @onclick="LoginUser" type="button">Войти</button>
 
 @code {
     private string email = string.Empty;
@@ -32,7 +32,7 @@
     {
         if (string.IsNullOrWhiteSpace(email) || string.IsNullOrWhiteSpace(password))
         {
-            errorMessage = "Fill in all fields.";
+            errorMessage = "Заполните все поля.";
             return;
         }
 
@@ -46,7 +46,7 @@
 
         if (result is null)
         {
-            errorMessage = "Invalid email or password.";
+            errorMessage = "Неверный email или пароль.";
             return;
         }
 

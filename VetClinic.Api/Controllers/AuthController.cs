@@ -21,7 +21,7 @@ public class AuthController : ControllerBase
     public async Task<IActionResult> RegisterOwner(RegisterOwnerRequest request)
     {
         var result = await _authService.RegisterOwnerAsync(request);
-        return result is null ? BadRequest("Registration failed.") : Ok(result);
+        return result is null ? BadRequest("Не удалось выполнить регистрацию.") : Ok(result);
     }
 
     [HttpPost("register-staff")]
@@ -29,7 +29,7 @@ public class AuthController : ControllerBase
     public async Task<IActionResult> RegisterStaff(RegisterStaffRequest request)
     {
         var result = await _authService.RegisterStaffAsync(request);
-        return result is null ? BadRequest("Registration failed.") : Ok(result);
+        return result is null ? BadRequest("Не удалось выполнить регистрацию.") : Ok(result);
     }
 
     [HttpPost("login")]
@@ -37,7 +37,7 @@ public class AuthController : ControllerBase
     public async Task<IActionResult> Login(LoginRequest request)
     {
         var result = await _authService.LoginAsync(request);
-        return result is null ? Unauthorized("Invalid email or password.") : Ok(result);
+        return result is null ? Unauthorized("Неверный email или пароль.") : Ok(result);
     }
 
     [HttpGet("me")]

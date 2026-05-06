@@ -1,0 +1,106 @@
+@page "/pets"
+@inject VetClinic.Client.Services.PetApiService PetApiService
+@inject VetClinic.Client.Services.LocalStorageService LocalStorageService
+@inject NavigationManager Navigation
+
+<PageTitle>Питомцы</PageTitle>
+
+<h1>Питомцы</h1>
+
+@if (!string.IsNullOrWhiteSpace(message))
+{
+    <p>@message</p>
+}
+
+@if (canCreate)
+{
+    <button @onclick="OpenCreatePage" type="button">Добавить питомца</button>
+}
+
+@if (pets.Count == 0)
+{
+    <p>Питомцы не найдены.</p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Имя</th>
+                <th>Вид</th>
+                <th>Порода</th>
+                <th>Владелец</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var pet in pets)
+            {
+                <tr>
+                    <td>@pet.Name</td>
+                    <td>@pet.Species</td>
+                    <td>@pet.Breed</td>
+                    <td>@pet.OwnerFullName</td>
+                    <td>
+                        <button @onclick="() => OpenDetails(pet.Id)" type="button">Открыть</button>
+                        @if (canEdit)
+                        {
+                            <button @onclick="() => OpenEdit(pet.Id)" type="button">Изменить</button>
+                            <button @onclick="() => DeletePet(pet.Id)" type="button">Удалить</button>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private List<VetClinic.Shared.Responses.PetResponse> pets = [];
+    private string role = string.Empty;
+    private string message = string.Empty;
+
+    private bool canCreate => role == "Owner" || role == "Admin";
+    private bool canEdit => role == "Owner" || role == "Admin";
+
+    protected override async Task OnInitializedAsync()
+    {
+        role = await LocalStorageService.GetItemAsync("role") ?? string.Empty;
+        await LoadPetsAsync();
+    }
+
+    private async Task LoadPetsAsync()
+    {
+        message = string.Empty;
+        pets = role == "Owner"
+            ? await PetApiService.GetMyAsync()
+            : await PetApiService.GetAllAsync();
+
+        if (pets.Count == 0)
+        {
+            message = "Список питомцев пока пуст.";
+        }
+    }
+
+    private void OpenCreatePage()
+    {
+        Navigation.NavigateTo("/pets/create");
+    }
+
+    private void OpenDetails(int id)
+    {
+        Navigation.NavigateTo($"/pets/{id}");
+    }
+
+    private void OpenEdit(int id)
+    {
+        Navigation.NavigateTo($"/pets/edit/{id}");
+    }
+
+    private async Task DeletePet(int id)
+    {
+        var result = await PetApiService.DeleteAsync(id);
+        message = result ? "Питомец удалён." : "Не удалось удалить питомца.";
+        await LoadPetsAsync();
+    }
+}

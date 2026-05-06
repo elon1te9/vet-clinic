@@ -51,6 +51,8 @@ builder.Services
 
 builder.Services.AddAuthorization();
 builder.Services.AddScoped<IAuthService, AuthService>();
+builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<IPetService, PetService>();
 
 builder.Services.AddCors(options =>
 {

@@ -25,7 +25,7 @@ public static class DbInitializer
 
         var adminEmail = configuration["SeedAdmin:Email"] ?? "admin@vetclinic.local";
         var adminPassword = configuration["SeedAdmin:Password"] ?? "Password123!";
-        var adminFullName = configuration["SeedAdmin:FullName"] ?? "System Administrator";
+        var adminFullName = configuration["SeedAdmin:FullName"] ?? "Системный администратор";
 
         var admin = await userManager.FindByEmailAsync(adminEmail);
         if (admin is null)

@@ -1,0 +1,58 @@
+@page "/users"
+@inject VetClinic.Client.Services.UserApiService UserApiService
+@inject VetClinic.Client.Services.LocalStorageService LocalStorageService
+
+<PageTitle>Пользователи</PageTitle>
+
+<h1>Пользователи</h1>
+
+@if (!string.IsNullOrWhiteSpace(message))
+{
+    <p>@message</p>
+}
+
+@if (users.Count > 0)
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>ФИО</th>
+                <th>Email</th>
+                <th>Роль</th>
+                <th>Активен</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var user in users)
+            {
+                <tr>
+                    <td>@user.FullName</td>
+                    <td>@user.Email</td>
+                    <td>@user.Role</td>
+                    <td>@(user.IsActive ? "Да" : "Нет")</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private List<VetClinic.Shared.Responses.UserResponse> users = [];
+    private string message = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var role = await LocalStorageService.GetItemAsync("role") ?? string.Empty;
+        if (role != "Admin")
+        {
+            message = "Эта страница доступна только администратору.";
+            return;
+        }
+
+        users = await UserApiService.GetUsersAsync();
+        if (users.Count == 0)
+        {
+            message = "Пользователи не найдены.";
+        }
+    }
+}
