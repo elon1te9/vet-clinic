@@ -73,8 +73,9 @@ public class VaccinationService : IVaccinationService
             return [];
         }
 
-        var vaccinations = await VaccinationsWithDetails()
-            .Where(v => v.PetId == petId)
+        var vaccinations = await FilterByRole(
+                VaccinationsWithDetails().Where(v => v.PetId == petId),
+                user)
             .OrderByDescending(v => v.DoneAt)
             .ToListAsync();
 
@@ -118,12 +119,17 @@ public class VaccinationService : IVaccinationService
             return null;
         }
 
+        var veterinarianId = _userManager.GetUserId(user);
+        if (!user.IsInRole(nameof(UserRole.Veterinarian)) || string.IsNullOrWhiteSpace(veterinarianId))
+        {
+            return null;
+        }
+
         var pet = await _context.Pets
             .Include(p => p.Owner)
             .FirstOrDefaultAsync(p => p.Id == request.PetId);
 
-        var veterinarianId = _userManager.GetUserId(user);
-        if (pet is null || string.IsNullOrWhiteSpace(veterinarianId))
+        if (pet is null)
         {
             return null;
         }
@@ -149,7 +155,7 @@ public class VaccinationService : IVaccinationService
         _context.Vaccinations.Add(vaccination);
         await _context.SaveChangesAsync();
 
-        if (vaccination.NextDueAt.HasValue)
+        if (vaccination.NextDueAt.HasValue && vaccination.NextDueAt.Value >= DateTime.UtcNow.Date)
         {
             await _notificationService.CreateAsync(
                 pet.OwnerId,
@@ -215,13 +221,23 @@ public class VaccinationService : IVaccinationService
 
     private IQueryable<Vaccination> FilterByRole(IQueryable<Vaccination> query, ClaimsPrincipal user)
     {
-        if (user.IsInRole(nameof(UserRole.Admin)) || user.IsInRole(nameof(UserRole.Veterinarian)))
+        if (user.IsInRole(nameof(UserRole.Admin)))
         {
             return query;
         }
 
         var userId = _userManager.GetUserId(user);
-        if (user.IsInRole(nameof(UserRole.Owner)) && !string.IsNullOrWhiteSpace(userId))
+        if (string.IsNullOrWhiteSpace(userId))
+        {
+            return query.Where(v => false);
+        }
+
+        if (user.IsInRole(nameof(UserRole.Veterinarian)))
+        {
+            return query.Where(v => v.VeterinarianId == userId);
+        }
+
+        if (user.IsInRole(nameof(UserRole.Owner)))
         {
             return query.Where(v => v.Pet != null && v.Pet.OwnerId == userId);
         }

@@ -59,6 +59,34 @@ public class NotificationService : INotificationService
         return true;
     }
 
+    public async Task<bool> MarkAllAsReadAsync(ClaimsPrincipal user)
+    {
+        var userId = _userManager.GetUserId(user);
+        if (string.IsNullOrWhiteSpace(userId))
+        {
+            return false;
+        }
+
+        var currentUser = await _userManager.FindByIdAsync(userId);
+        if (currentUser is null)
+        {
+            return false;
+        }
+
+        var notifications = await _context.Notifications
+            .Where(n => n.UserId == userId && !n.IsRead)
+            .ToListAsync();
+
+        foreach (var notification in notifications)
+        {
+            notification.IsRead = true;
+        }
+
+        await _context.SaveChangesAsync();
+
+        return true;
+    }
+
     public async Task CreateAsync(string userId, string title, string message, NotificationType type)
     {
         if (string.IsNullOrWhiteSpace(userId))

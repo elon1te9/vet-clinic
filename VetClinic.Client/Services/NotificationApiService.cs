@@ -20,4 +20,9 @@ public class NotificationApiService
     {
         return await _apiRequestService.PutAsync($"api/notifications/{id}/read", new { });
     }
+
+    public async Task<bool> MarkAllAsReadAsync()
+    {
+        return await _apiRequestService.PutAsync("api/notifications/read-all", new { });
+    }
 }

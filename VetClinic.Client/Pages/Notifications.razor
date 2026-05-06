@@ -10,6 +10,11 @@
     <p>@message</p>
 }
 
+@if (notifications.Count > 0)
+{
+    <button @onclick="MarkAllAsRead" type="button">Прочитать все</button>
+}
+
 @if (notifications.Count == 0)
 {
     <p>Уведомлений нет.</p>
@@ -66,6 +71,14 @@ else
     {
         var result = await NotificationApiService.MarkAsReadAsync(id);
         message = result ? "Уведомление прочитано." : "Не удалось прочитать уведомление.";
+
+        await LoadNotificationsAsync();
+    }
+
+    private async Task MarkAllAsRead()
+    {
+        var result = await NotificationApiService.MarkAllAsReadAsync();
+        message = result ? "Все уведомления прочитаны." : "Не удалось прочитать уведомления.";
 
         await LoadNotificationsAsync();
     }

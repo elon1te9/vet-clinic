@@ -26,6 +26,13 @@ public class NotificationsController : ControllerBase
     public async Task<IActionResult> MarkAsRead(int id)
     {
         var result = await _notificationService.MarkAsReadAsync(id, User);
-        return result ? NoContent() : BadRequest("Не удалось прочитать уведомление.");
+        return result ? NoContent() : BadRequest("Could not mark notification as read.");
+    }
+
+    [HttpPut("read-all")]
+    public async Task<IActionResult> MarkAllAsRead()
+    {
+        var result = await _notificationService.MarkAllAsReadAsync(User);
+        return result ? NoContent() : BadRequest("Could not mark notifications as read.");
     }
 }

@@ -18,7 +18,7 @@ public class VaccinationsController : ControllerBase
     }
 
     [HttpGet]
-    [Authorize(Roles = "Admin,Veterinarian")]
+    [Authorize(Roles = "Admin")]
     public async Task<IActionResult> GetAll()
     {
         return Ok(await _vaccinationService.GetAllAsync());
@@ -51,7 +51,7 @@ public class VaccinationsController : ControllerBase
     }
 
     [HttpPost]
-    [Authorize(Roles = "Admin,Veterinarian")]
+    [Authorize(Roles = "Veterinarian")]
     public async Task<IActionResult> Create(CreateVaccinationRequest request)
     {
         var result = await _vaccinationService.CreateAsync(request, User);
