@@ -1,0 +1,119 @@
+@page "/appointments/create"
+@inject VetClinic.Client.Services.AppointmentApiService AppointmentApiService
+@inject VetClinic.Client.Services.ClinicServiceApiService ClinicServiceApiService
+@inject VetClinic.Client.Services.PetApiService PetApiService
+@inject VetClinic.Client.Services.UserApiService UserApiService
+@inject VetClinic.Client.Services.LocalStorageService LocalStorageService
+@inject NavigationManager Navigation
+
+<PageTitle>Записаться на приём</PageTitle>
+
+<h1>Записаться на приём</h1>
+
+<div>
+    <label>Питомец</label>
+    <select @bind="petId">
+        @foreach (var pet in pets)
+        {
+            <option value="@pet.Id">@pet.Name</option>
+        }
+    </select>
+</div>
+
+<div>
+    <label>Врач</label>
+    <select @bind="doctorId">
+        @foreach (var doctor in doctors)
+        {
+            <option value="@doctor.Id">@doctor.FullName</option>
+        }
+    </select>
+</div>
+
+<div>
+    <label>Услуга</label>
+    <select @bind="serviceId">
+        @foreach (var service in services)
+        {
+            <option value="@service.Id">@service.Name (@service.Price руб.)</option>
+        }
+    </select>
+</div>
+
+<div>
+    <label>Дата</label>
+    <InputDate @bind-Value="appointmentDate" />
+</div>
+
+<div>
+    <label>Время</label>
+    <input type="time" @bind="appointmentTime" />
+</div>
+
+<div>
+    <label>Причина визита</label>
+    <input @bind="reason" />
+</div>
+
+@if (!string.IsNullOrWhiteSpace(message))
+{
+    <p>@message</p>
+}
+
+<button @onclick="CreateAppointment" type="button">Записаться</button>
+
+@code {
+    private List<VetClinic.Shared.Responses.PetResponse> pets = [];
+    private List<VetClinic.Shared.Responses.UserResponse> doctors = [];
+    private List<VetClinic.Shared.Responses.ClinicServiceResponse> services = [];
+    private int petId;
+    private string doctorId = string.Empty;
+    private int serviceId;
+    private DateTime? appointmentDate = DateTime.Today;
+    private TimeOnly? appointmentTime = new(9, 0);
+    private string reason = string.Empty;
+    private string message = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var role = await LocalStorageService.GetItemAsync("role") ?? string.Empty;
+
+        pets = role == "Admin"
+            ? await PetApiService.GetAllAsync()
+            : await PetApiService.GetMyAsync();
+
+        doctors = await UserApiService.GetDoctorsAsync();
+        services = (await ClinicServiceApiService.GetAllAsync()).Where(s => s.IsActive).ToList();
+
+        petId = pets.FirstOrDefault()?.Id ?? 0;
+        doctorId = doctors.FirstOrDefault()?.Id ?? string.Empty;
+        serviceId = services.FirstOrDefault()?.Id ?? 0;
+    }
+
+    private async Task CreateAppointment()
+    {
+        if (petId <= 0 || serviceId <= 0 || string.IsNullOrWhiteSpace(doctorId) || appointmentDate is null || appointmentTime is null)
+        {
+            message = "Выберите питомца, врача, услугу, дату и время.";
+            return;
+        }
+
+        var startAt = appointmentDate.Value.Date.Add(appointmentTime.Value.ToTimeSpan());
+        var result = await AppointmentApiService.CreateAsync(new VetClinic.Shared.Requests.CreateAppointmentRequest
+        {
+            PetId = petId,
+            VeterinarianId = doctorId,
+            ServiceId = serviceId,
+            StartAt = startAt,
+            Reason = string.IsNullOrWhiteSpace(reason) ? null : reason
+        });
+
+        if (result is null)
+        {
+            message = "Не удалось создать запись. Возможно, выбранное время занято.";
+            return;
+        }
+
+        Navigation.NavigateTo("/appointments/my");
+    }
+}

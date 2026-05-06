@@ -13,6 +13,8 @@ builder.Services.AddScoped<LocalStorageService>();
 builder.Services.AddScoped<AuthService>();
 builder.Services.AddScoped<PetApiService>();
 builder.Services.AddScoped<UserApiService>();
+builder.Services.AddScoped<AppointmentApiService>();
+builder.Services.AddScoped<ClinicServiceApiService>();
 
 var host = builder.Build();
 var authService = host.Services.GetRequiredService<AuthService>();

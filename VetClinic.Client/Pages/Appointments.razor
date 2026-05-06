@@ -1,0 +1,98 @@
+@page "/appointments"
+@inject VetClinic.Client.Services.AppointmentApiService AppointmentApiService
+@inject VetClinic.Client.Services.LocalStorageService LocalStorageService
+
+<PageTitle>Записи на приём</PageTitle>
+
+<h1>Записи на приём</h1>
+
+@if (!string.IsNullOrWhiteSpace(message))
+{
+    <p>@message</p>
+}
+
+@if (appointments.Count == 0)
+{
+    <p>Записи не найдены.</p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Дата</th>
+                <th>Питомец</th>
+                <th>Владелец</th>
+                <th>Врач</th>
+                <th>Услуга</th>
+                <th>Статус</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var appointment in appointments)
+            {
+                <tr>
+                    <td>@FormatDate(appointment.StartAt)</td>
+                    <td>@appointment.PetName</td>
+                    <td>@appointment.OwnerFullName</td>
+                    <td>@appointment.VeterinarianFullName</td>
+                    <td>@appointment.ServiceName</td>
+                    <td>@appointment.Status</td>
+                    <td>
+                        @if (canChangeStatus)
+                        {
+                            <button @onclick="() => ChangeStatus(appointment.Id, VetClinic.Shared.Enums.AppointmentStatus.Confirmed)" type="button">Подтвердить</button>
+                            <button @onclick="() => ChangeStatus(appointment.Id, VetClinic.Shared.Enums.AppointmentStatus.Completed)" type="button">Завершить</button>
+                            <button @onclick="() => ChangeStatus(appointment.Id, VetClinic.Shared.Enums.AppointmentStatus.Cancelled)" type="button">Отменить</button>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private List<VetClinic.Shared.Responses.AppointmentResponse> appointments = [];
+    private string role = string.Empty;
+    private string message = string.Empty;
+
+    private bool canChangeStatus => role == "Admin" || role == "Veterinarian";
+
+    protected override async Task OnInitializedAsync()
+    {
+        role = await LocalStorageService.GetItemAsync("role") ?? string.Empty;
+        await LoadAppointmentsAsync();
+    }
+
+    private async Task LoadAppointmentsAsync()
+    {
+        message = string.Empty;
+
+        appointments = role == "Veterinarian"
+            ? await AppointmentApiService.GetMyAsync()
+            : await AppointmentApiService.GetAllAsync();
+
+        if (appointments.Count == 0)
+        {
+            message = "Список записей пока пуст.";
+        }
+    }
+
+    private async Task ChangeStatus(int id, VetClinic.Shared.Enums.AppointmentStatus status)
+    {
+        var result = await AppointmentApiService.UpdateStatusAsync(id, new VetClinic.Shared.Requests.UpdateAppointmentStatusRequest
+        {
+            Status = status
+        });
+
+        message = result is null ? "Не удалось изменить статус записи." : "Статус записи изменён.";
+        await LoadAppointmentsAsync();
+    }
+
+    private static string FormatDate(DateTime value)
+    {
+        return value.ToLocalTime().ToString("dd.MM.yyyy HH:mm");
+    }
+}

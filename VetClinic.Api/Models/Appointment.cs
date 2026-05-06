@@ -10,7 +10,7 @@ public class Appointment
     public DateTime StartAt { get; set; }
     public DateTime EndAt { get; set; }
     public string? Reason { get; set; }
-    public string Status { get; set; } = "Scheduled";
+    public string Status { get; set; } = "Planned";
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public DateTime? UpdatedAt { get; set; }
 
