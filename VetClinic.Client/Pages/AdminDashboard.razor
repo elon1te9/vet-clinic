@@ -1,0 +1,177 @@
+@page "/admin/dashboard"
+@implements IDisposable
+@using VetClinic.Shared.Responses
+@inject VetClinic.Client.Services.AdminDashboardApiService AdminDashboardApiService
+@inject VetClinic.Client.Services.SignalRNotificationService SignalRNotificationService
+
+<PageTitle>Админ-панель</PageTitle>
+
+<h1>Админ-панель</h1>
+
+@if (!string.IsNullOrWhiteSpace(message))
+{
+    <p>@message</p>
+}
+
+@if (dashboard is null)
+{
+    <p>Данные не загружены.</p>
+}
+else
+{
+    <div class="dashboard-cards">
+        <VetClinic.Client.Components.DashboardCard Title="Приёмов сегодня" Value="@dashboard.AppointmentsTodayCount.ToString()" />
+        <VetClinic.Client.Components.DashboardCard Title="Выручка сегодня" Value="@dashboard.RevenueToday.ToString()" />
+        <VetClinic.Client.Components.DashboardCard Title="Активных госпитализаций" Value="@dashboard.ActiveHospitalizationsCount.ToString()" />
+        <VetClinic.Client.Components.DashboardCard Title="Критических остатков" Value="@dashboard.LowStockItemsCount.ToString()" />
+        <VetClinic.Client.Components.DashboardCard Title="Ближайших вакцинаций" Value="@dashboard.UpcomingVaccinationsCount.ToString()" />
+    </div>
+
+    <h2>Последние записи на приём</h2>
+    @if (dashboard.RecentAppointments.Count == 0)
+    {
+        <p>Записей нет.</p>
+    }
+    else
+    {
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Дата</th>
+                    <th>Питомец</th>
+                    <th>Врач</th>
+                    <th>Услуга</th>
+                    <th>Статус</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var appointment in dashboard.RecentAppointments)
+                {
+                    <tr>
+                        <td>@appointment.StartAt.ToLocalTime().ToString("dd.MM.yyyy HH:mm")</td>
+                        <td>@appointment.PetName</td>
+                        <td>@appointment.VeterinarianFullName</td>
+                        <td>@appointment.ServiceName</td>
+                        <td>@appointment.Status</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+
+    <h2>Загрузка врачей сегодня</h2>
+    @if (dashboard.DoctorsLoad.Count == 0)
+    {
+        <p>Данных нет.</p>
+    }
+    else
+    {
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Врач</th>
+                    <th>Приёмов</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in dashboard.DoctorsLoad)
+                {
+                    <tr>
+                        <td>@item.VeterinarianFullName</td>
+                        <td>@item.AppointmentsCount</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+
+    <h2>Складские предупреждения</h2>
+    @if (dashboard.LowStockItems.Count == 0)
+    {
+        <p>Критических остатков нет.</p>
+    }
+    else
+    {
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Позиция</th>
+                    <th>Остаток</th>
+                    <th>Минимум</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in dashboard.LowStockItems)
+                {
+                    <tr>
+                        <td>@item.Name</td>
+                        <td>@item.Quantity @item.Unit</td>
+                        <td>@item.MinQuantity @item.Unit</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+
+    <h2>Ближайшие вакцинации</h2>
+    @if (dashboard.UpcomingVaccinations.Count == 0)
+    {
+        <p>Ближайших вакцинаций нет.</p>
+    }
+    else
+    {
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Дата</th>
+                    <th>Питомец</th>
+                    <th>Вакцинация</th>
+                    <th>Владелец</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var vaccination in dashboard.UpcomingVaccinations)
+                {
+                    <tr>
+                        <td>@vaccination.NextDueAt?.ToLocalTime().ToString("dd.MM.yyyy")</td>
+                        <td>@vaccination.PetName</td>
+                        <td>@vaccination.Name</td>
+                        <td>@vaccination.OwnerFullName</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+}
+
+@code {
+    private AdminDashboardResponse? dashboard;
+    private string message = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        SignalRNotificationService.NotificationReceived += OnNotificationReceived;
+        await SignalRNotificationService.StartAsync();
+        await LoadDashboardAsync();
+    }
+
+    private async Task LoadDashboardAsync()
+    {
+        dashboard = await AdminDashboardApiService.GetDashboardAsync();
+        message = dashboard is null ? "Не удалось загрузить админ-панель." : string.Empty;
+    }
+
+    private void OnNotificationReceived(NotificationResponse notification)
+    {
+        _ = InvokeAsync(async () =>
+        {
+            await LoadDashboardAsync();
+            StateHasChanged();
+        });
+    }
+
+    public void Dispose()
+    {
+        SignalRNotificationService.NotificationReceived -= OnNotificationReceived;
+    }
+}

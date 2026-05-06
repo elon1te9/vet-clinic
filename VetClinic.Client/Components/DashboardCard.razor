@@ -1,0 +1,12 @@
+<div class="dashboard-card">
+    <h3>@Title</h3>
+    <p>@Value</p>
+</div>
+
+@code {
+    [Parameter]
+    public string Title { get; set; } = string.Empty;
+
+    [Parameter]
+    public string Value { get; set; } = string.Empty;
+}

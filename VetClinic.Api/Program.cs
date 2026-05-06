@@ -81,6 +81,7 @@ builder.Services.AddScoped<IHospitalizationService, HospitalizationService>();
 builder.Services.AddScoped<IFinanceService, FinanceService>();
 builder.Services.AddScoped<IReportService, ReportService>();
 builder.Services.AddScoped<INotificationService, NotificationService>();
+builder.Services.AddScoped<IAdminDashboardService, AdminDashboardService>();
 builder.Services.AddScoped<ClinicServiceService>();
 
 builder.Services.AddCors(options =>

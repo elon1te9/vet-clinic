@@ -23,6 +23,7 @@ builder.Services.AddScoped<HospitalizationApiService>();
 builder.Services.AddScoped<FinanceApiService>();
 builder.Services.AddScoped<ReportApiService>();
 builder.Services.AddScoped<NotificationApiService>();
+builder.Services.AddScoped<AdminDashboardApiService>();
 builder.Services.AddScoped<SignalRNotificationService>();
 
 var host = builder.Build();
