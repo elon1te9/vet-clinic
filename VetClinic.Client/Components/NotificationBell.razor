@@ -1,6 +1,7 @@
 @implements IDisposable
 @inject VetClinic.Client.Services.NotificationApiService NotificationApiService
 @inject VetClinic.Client.Services.SignalRNotificationService SignalRNotificationService
+@inject VetClinic.Client.Services.LocalStorageService LocalStorageService
 
 <a href="notifications">Уведомления (@unreadCount)</a>
 
@@ -9,6 +10,13 @@
 
     protected override async Task OnInitializedAsync()
     {
+        var token = await LocalStorageService.GetItemAsync("token");
+        if (string.IsNullOrWhiteSpace(token))
+        {
+            unreadCount = 0;
+            return;
+        }
+
         SignalRNotificationService.NotificationReceived += OnNotificationReceived;
 
         var notifications = await NotificationApiService.GetMyAsync();

@@ -24,12 +24,18 @@ public class SignalRNotificationService : IAsyncDisposable
             return;
         }
 
+        var token = await _localStorageService.GetItemAsync("token");
+        if (string.IsNullOrWhiteSpace(token))
+        {
+            return;
+        }
+
         var hubUrl = new Uri(_httpClient.BaseAddress!, "/hubs/notifications").ToString();
 
         _connection = new HubConnectionBuilder()
             .WithUrl(hubUrl, options =>
             {
-                options.AccessTokenProvider = async () => await _localStorageService.GetItemAsync("token");
+                options.AccessTokenProvider = () => Task.FromResult<string?>(token);
             })
             .WithAutomaticReconnect()
             .Build();
@@ -43,8 +49,9 @@ public class SignalRNotificationService : IAsyncDisposable
         {
             await _connection.StartAsync();
         }
-        catch
+        catch (Exception ex)
         {
+            Console.WriteLine($"SignalR connection error: {ex.Message}");
             _connection = null;
         }
     }
