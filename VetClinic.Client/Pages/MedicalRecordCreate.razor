@@ -85,10 +85,11 @@
     private decimal? temperature;
     private decimal? weight;
     private string message = string.Empty;
+    private string role = string.Empty;
 
     protected override async Task OnInitializedAsync()
     {
-        var role = await LocalStorageService.GetItemAsync("role") ?? string.Empty;
+        role = await LocalStorageService.GetItemAsync("role") ?? string.Empty;
 
         pets = await PetApiService.GetAllAsync();
         appointments = role == "Admin"
@@ -110,6 +111,12 @@
         if (int.TryParse(appointmentIdText, out var parsedAppointmentId))
         {
             appointmentId = parsedAppointmentId;
+        }
+
+        if ((role == "Veterinarian" || role == "Admin") && !appointmentId.HasValue)
+        {
+            message = "Выберите приём для создания медицинской записи.";
+            return;
         }
 
         var result = await MedicalRecordApiService.CreateAsync(new VetClinic.Shared.Requests.CreateMedicalRecordRequest

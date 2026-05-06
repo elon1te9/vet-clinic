@@ -61,7 +61,7 @@ public class MedicalRecordService : IMedicalRecordService
 
     public async Task<MedicalRecordResponse?> CreateAsync(CreateMedicalRecordRequest request, ClaimsPrincipal user)
     {
-        if (request.PetId <= 0)
+        if (request.PetId <= 0 || !request.AppointmentId.HasValue)
         {
             return null;
         }
@@ -76,13 +76,12 @@ public class MedicalRecordService : IMedicalRecordService
         }
 
         var appointment = await ResolveAppointmentAsync(request.AppointmentId, request.PetId, user);
-        if (request.AppointmentId.HasValue && appointment is null)
+        if (appointment is null)
         {
             return null;
         }
 
-        if (request.AppointmentId.HasValue &&
-            await _context.MedicalRecords.AnyAsync(r => r.AppointmentId == request.AppointmentId.Value))
+        if (await _context.MedicalRecords.AnyAsync(r => r.AppointmentId == request.AppointmentId.Value))
         {
             return null;
         }
@@ -125,13 +124,18 @@ public class MedicalRecordService : IMedicalRecordService
 
     public async Task<MedicalRecordResponse?> UpdateAsync(int id, CreateMedicalRecordRequest request, ClaimsPrincipal user)
     {
-        if (request.PetId <= 0)
+        if (request.PetId <= 0 || !request.AppointmentId.HasValue)
         {
             return null;
         }
 
         var record = await RecordsWithDetails().FirstOrDefaultAsync(r => r.Id == id);
         if (record is null || !CanEditRecord(user, record))
+        {
+            return null;
+        }
+
+        if (user.IsInRole(nameof(UserRole.Veterinarian)) && request.PetId != record.PetId)
         {
             return null;
         }
@@ -143,19 +147,19 @@ public class MedicalRecordService : IMedicalRecordService
         }
 
         var appointment = await ResolveAppointmentAsync(request.AppointmentId, request.PetId, user);
-        if (request.AppointmentId.HasValue && appointment is null)
+        if (appointment is null)
         {
             return null;
         }
 
-        if (request.AppointmentId.HasValue &&
-            await _context.MedicalRecords.AnyAsync(r => r.Id != id && r.AppointmentId == request.AppointmentId.Value))
+        if (await _context.MedicalRecords.AnyAsync(r => r.Id != id && r.AppointmentId == request.AppointmentId.Value))
         {
             return null;
         }
 
         record.AppointmentId = request.AppointmentId;
         record.PetId = request.PetId;
+        record.VeterinarianId = appointment.VeterinarianId;
         record.VisitDate = ToUtc(request.VisitDate);
         record.Complaints = request.Complaints;
         record.Diagnosis = request.Diagnosis;
@@ -169,6 +173,7 @@ public class MedicalRecordService : IMedicalRecordService
 
         record.Pet = pet;
         record.Appointment = appointment;
+        record.Veterinarian = await _userManager.FindByIdAsync(record.VeterinarianId);
 
         return MapRecord(record);
     }
