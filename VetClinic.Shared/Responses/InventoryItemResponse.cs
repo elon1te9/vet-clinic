@@ -1,8 +1,8 @@
 using VetClinic.Shared.Enums;
 
-namespace VetClinic.Api.Models;
+namespace VetClinic.Shared.Responses;
 
-public class InventoryItem
+public class InventoryItemResponse
 {
     public int Id { get; set; }
     public string Name { get; set; } = string.Empty;
@@ -13,10 +13,7 @@ public class InventoryItem
     public DateTime? ExpirationDate { get; set; }
     public decimal Price { get; set; }
     public string? Supplier { get; set; }
-    public bool IsActive { get; set; } = true;
-    public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
+    public bool IsActive { get; set; }
+    public DateTime CreatedAt { get; set; }
     public DateTime? UpdatedAt { get; set; }
-
-    public ICollection<InventoryTransaction> Transactions { get; set; } = new List<InventoryTransaction>();
-    public ICollection<Vaccination> Vaccinations { get; set; } = new List<Vaccination>();
 }

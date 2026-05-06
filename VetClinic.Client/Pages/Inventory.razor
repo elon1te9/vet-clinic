@@ -1,0 +1,120 @@
+@page "/inventory"
+@inject VetClinic.Client.Services.InventoryApiService InventoryApiService
+@inject VetClinic.Client.Services.LocalStorageService LocalStorageService
+
+<PageTitle>Склад</PageTitle>
+
+<h1>Склад</h1>
+
+@if (!string.IsNullOrWhiteSpace(message))
+{
+    <p>@message</p>
+}
+
+@if (role == "Admin")
+{
+    <p><a href="inventory/create">Создать складскую позицию</a></p>
+}
+
+<h2>Критические остатки</h2>
+@if (lowStockItems.Count == 0)
+{
+    <p>Критических остатков нет.</p>
+}
+else
+{
+    <ul>
+        @foreach (var item in lowStockItems)
+        {
+            <li>@item.Name: @item.Quantity @item.Unit, минимум @item.MinQuantity</li>
+        }
+    </ul>
+}
+
+<h2>Истекающие сроки годности</h2>
+@if (expiringItems.Count == 0)
+{
+    <p>Истекающих позиций нет.</p>
+}
+else
+{
+    <ul>
+        @foreach (var item in expiringItems)
+        {
+            <li>@item.Name: @item.ExpirationDate?.ToLocalTime().ToString("dd.MM.yyyy")</li>
+        }
+    </ul>
+}
+
+<h2>Все позиции</h2>
+@if (items.Count == 0)
+{
+    <p>Склад пуст.</p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Название</th>
+                <th>Категория</th>
+                <th>Остаток</th>
+                <th>Минимум</th>
+                <th>Срок годности</th>
+                <th>Цена</th>
+                <th>Активна</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in items)
+            {
+                <tr>
+                    <td>@item.Name</td>
+                    <td>@item.Category</td>
+                    <td>@item.Quantity @item.Unit</td>
+                    <td>@item.MinQuantity @item.Unit</td>
+                    <td>@item.ExpirationDate?.ToLocalTime().ToString("dd.MM.yyyy")</td>
+                    <td>@item.Price</td>
+                    <td>@(item.IsActive ? "Да" : "Нет")</td>
+                    <td>
+                        @if (role == "Admin")
+                        {
+                            <a href="@($"inventory/edit/{item.Id}")">Редактировать</a>
+                            <button @onclick="() => DeleteItem(item.Id)" type="button">Удалить</button>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private List<VetClinic.Shared.Responses.InventoryItemResponse> items = [];
+    private List<VetClinic.Shared.Responses.InventoryItemResponse> lowStockItems = [];
+    private List<VetClinic.Shared.Responses.InventoryItemResponse> expiringItems = [];
+    private string role = string.Empty;
+    private string message = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        role = await LocalStorageService.GetItemAsync("role") ?? string.Empty;
+        await LoadAsync();
+    }
+
+    private async Task LoadAsync()
+    {
+        items = await InventoryApiService.GetAllAsync();
+        lowStockItems = await InventoryApiService.GetLowStockAsync();
+        expiringItems = await InventoryApiService.GetExpiringAsync();
+    }
+
+    private async Task DeleteItem(int id)
+    {
+        var result = await InventoryApiService.DeleteAsync(id);
+        message = result ? "Позиция отключена." : "Не удалось удалить позицию.";
+
+        await LoadAsync();
+    }
+}

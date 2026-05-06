@@ -1,0 +1,102 @@
+@page "/inventory/create"
+@inject VetClinic.Client.Services.InventoryApiService InventoryApiService
+@inject NavigationManager NavigationManager
+
+<PageTitle>Новая складская позиция</PageTitle>
+
+<h1>Новая складская позиция</h1>
+
+@if (!string.IsNullOrWhiteSpace(message))
+{
+    <p>@message</p>
+}
+
+<div>
+    <label>Название</label>
+    <input @bind="name" />
+</div>
+
+<div>
+    <label>Категория</label>
+    <select @bind="categoryText">
+        @foreach (var category in Enum.GetValues<VetClinic.Shared.Enums.InventoryCategory>())
+        {
+            <option value="@category">@category</option>
+        }
+    </select>
+</div>
+
+<div>
+    <label>Единица</label>
+    <input @bind="unit" />
+</div>
+
+<div>
+    <label>Количество</label>
+    <input type="number" step="0.01" @bind="quantity" />
+</div>
+
+<div>
+    <label>Минимум</label>
+    <input type="number" step="0.01" @bind="minQuantity" />
+</div>
+
+<div>
+    <label>Срок годности</label>
+    <InputDate @bind-Value="expirationDate" />
+</div>
+
+<div>
+    <label>Цена</label>
+    <input type="number" step="0.01" @bind="price" />
+</div>
+
+<div>
+    <label>Поставщик</label>
+    <input @bind="supplier" />
+</div>
+
+<button @onclick="CreateItem" type="button">Сохранить</button>
+
+@code {
+    private string name = string.Empty;
+    private string categoryText = VetClinic.Shared.Enums.InventoryCategory.Medicine.ToString();
+    private string unit = string.Empty;
+    private decimal quantity;
+    private decimal minQuantity;
+    private DateTime? expirationDate;
+    private decimal price;
+    private string supplier = string.Empty;
+    private string message = string.Empty;
+
+    private async Task CreateItem()
+    {
+        if (string.IsNullOrWhiteSpace(name) || string.IsNullOrWhiteSpace(unit))
+        {
+            message = "Введите название и единицу измерения.";
+            return;
+        }
+
+        Enum.TryParse<VetClinic.Shared.Enums.InventoryCategory>(categoryText, out var category);
+
+        var result = await InventoryApiService.CreateAsync(new VetClinic.Shared.Requests.CreateInventoryItemRequest
+        {
+            Name = name,
+            Category = category,
+            Unit = unit,
+            Quantity = quantity,
+            MinQuantity = minQuantity,
+            ExpirationDate = expirationDate,
+            Price = price,
+            Supplier = string.IsNullOrWhiteSpace(supplier) ? null : supplier
+        });
+
+        if (result is null)
+        {
+            message = "Не удалось создать позицию.";
+            return;
+        }
+
+        NavigationManager.NavigateTo("inventory");
+    }
+}

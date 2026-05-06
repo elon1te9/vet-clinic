@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using VetClinic.Api.Models;
+using VetClinic.Shared.Enums;
 
 namespace VetClinic.Api.Data;
 
@@ -77,6 +78,36 @@ public static class DbInitializer
                     Description = "Осмотр и введение вакцины",
                     Price = 1500,
                     DurationMinutes = 25,
+                    IsActive = true
+                });
+
+            await context.SaveChangesAsync();
+        }
+
+        if (!await context.InventoryItems.AnyAsync())
+        {
+            context.InventoryItems.AddRange(
+                new InventoryItem
+                {
+                    Name = "Vaccine Nobivac",
+                    Category = InventoryCategory.Vaccine,
+                    Unit = "pcs",
+                    Quantity = 10,
+                    MinQuantity = 3,
+                    ExpirationDate = DateTime.SpecifyKind(DateTime.UtcNow.Date.AddMonths(6), DateTimeKind.Utc),
+                    Price = 700,
+                    Supplier = "VetSupplier",
+                    IsActive = true
+                },
+                new InventoryItem
+                {
+                    Name = "Bandage",
+                    Category = InventoryCategory.Consumable,
+                    Unit = "pcs",
+                    Quantity = 25,
+                    MinQuantity = 5,
+                    Price = 80,
+                    Supplier = "MedStore",
                     IsActive = true
                 });
 

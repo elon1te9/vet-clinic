@@ -1,0 +1,145 @@
+@page "/inventory/transactions"
+@inject VetClinic.Client.Services.InventoryApiService InventoryApiService
+@inject VetClinic.Client.Services.LocalStorageService LocalStorageService
+
+<PageTitle>Операции склада</PageTitle>
+
+<h1>Операции склада</h1>
+
+@if (!string.IsNullOrWhiteSpace(message))
+{
+    <p>@message</p>
+}
+
+@if (role == "Admin" || role == "Assistant")
+{
+    <h2>Новая операция</h2>
+
+    <div>
+        <label>Позиция</label>
+        <select @bind="inventoryItemId">
+            @foreach (var item in items)
+            {
+                <option value="@item.Id">@item.Name (@item.Quantity @item.Unit)</option>
+            }
+        </select>
+    </div>
+
+    <div>
+        <label>Тип</label>
+        <select @bind="typeText">
+            @foreach (var type in Enum.GetValues<VetClinic.Shared.Enums.InventoryTransactionType>())
+            {
+                <option value="@type">@type</option>
+            }
+        </select>
+    </div>
+
+    <div>
+        <label>Количество</label>
+        <input type="number" step="0.01" @bind="quantity" />
+    </div>
+
+    <div>
+        <label>Причина</label>
+        <input @bind="reason" />
+    </div>
+
+    <div>
+        <label>MedicalRecordId</label>
+        <input type="number" @bind="relatedMedicalRecordId" />
+    </div>
+
+    <button @onclick="CreateTransaction" type="button">Сохранить</button>
+}
+
+<h2>Журнал операций</h2>
+@if (transactions.Count == 0)
+{
+    <p>Операций нет.</p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Дата</th>
+                <th>Позиция</th>
+                <th>Тип</th>
+                <th>Количество</th>
+                <th>Причина</th>
+                <th>Пользователь</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var transaction in transactions)
+            {
+                <tr>
+                    <td>@transaction.CreatedAt.ToLocalTime().ToString("dd.MM.yyyy HH:mm")</td>
+                    <td>@transaction.InventoryItemName</td>
+                    <td>@transaction.Type</td>
+                    <td>@transaction.Quantity</td>
+                    <td>@transaction.Reason</td>
+                    <td>@transaction.CreatedByUserFullName</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private List<VetClinic.Shared.Responses.InventoryItemResponse> items = [];
+    private List<VetClinic.Shared.Responses.InventoryTransactionResponse> transactions = [];
+    private string role = string.Empty;
+    private int inventoryItemId;
+    private string typeText = VetClinic.Shared.Enums.InventoryTransactionType.Outgoing.ToString();
+    private decimal quantity = 1;
+    private string reason = string.Empty;
+    private int? relatedMedicalRecordId;
+    private string message = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        role = await LocalStorageService.GetItemAsync("role") ?? string.Empty;
+        await LoadAsync();
+    }
+
+    private async Task LoadAsync()
+    {
+        items = await InventoryApiService.GetAllAsync();
+        transactions = await InventoryApiService.GetTransactionsAsync();
+        inventoryItemId = items.FirstOrDefault()?.Id ?? 0;
+    }
+
+    private async Task CreateTransaction()
+    {
+        if (inventoryItemId <= 0 || quantity <= 0)
+        {
+            message = "Выберите позицию и укажите количество.";
+            return;
+        }
+
+        Enum.TryParse<VetClinic.Shared.Enums.InventoryTransactionType>(typeText, out var type);
+
+        var result = await InventoryApiService.CreateTransactionAsync(new VetClinic.Shared.Requests.CreateInventoryTransactionRequest
+        {
+            InventoryItemId = inventoryItemId,
+            Type = type,
+            Quantity = quantity,
+            Reason = string.IsNullOrWhiteSpace(reason) ? null : reason,
+            RelatedMedicalRecordId = relatedMedicalRecordId
+        });
+
+        if (result is null)
+        {
+            message = "Не удалось создать операцию.";
+            return;
+        }
+
+        reason = string.Empty;
+        relatedMedicalRecordId = null;
+        message = "Операция создана.";
+
+        await LoadAsync();
+    }
+}

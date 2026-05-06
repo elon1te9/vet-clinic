@@ -130,6 +130,14 @@ public class AppDbContext : IdentityDbContext<ApplicationUser>
             .Property(n => n.Type)
             .HasConversion<string>();
 
+        builder.Entity<InventoryItem>()
+            .Property(i => i.Category)
+            .HasConversion<string>();
+
+        builder.Entity<InventoryTransaction>()
+            .Property(t => t.Type)
+            .HasConversion<string>();
+
         builder.Entity<Pet>().Property(p => p.Weight).HasPrecision(10, 2);
         builder.Entity<ClinicService>().Property(s => s.Price).HasPrecision(10, 2);
         builder.Entity<MedicalRecord>().Property(m => m.Temperature).HasPrecision(5, 2);
