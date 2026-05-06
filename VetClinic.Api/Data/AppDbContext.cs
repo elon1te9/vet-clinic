@@ -88,6 +88,10 @@ public class AppDbContext : IdentityDbContext<ApplicationUser>
             .HasForeignKey(t => t.CreatedByUserId)
             .OnDelete(DeleteBehavior.Restrict);
 
+        builder.Entity<Pet>()
+            .Property(p => p.Gender)
+            .HasConversion<string>();
+
         builder.Entity<Pet>().Property(p => p.Weight).HasPrecision(10, 2);
         builder.Entity<ClinicService>().Property(s => s.Price).HasPrecision(10, 2);
         builder.Entity<MedicalRecord>().Property(m => m.Temperature).HasPrecision(5, 2);

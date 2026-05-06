@@ -1,0 +1,51 @@
+@page "/owners"
+@inject VetClinic.Client.Services.UserApiService UserApiService
+
+<PageTitle>Владельцы</PageTitle>
+
+<h1>Владельцы</h1>
+
+@if (!string.IsNullOrWhiteSpace(message))
+{
+    <p>@message</p>
+}
+
+@if (owners.Count > 0)
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>ФИО</th>
+                <th>Email</th>
+                <th>Телефон</th>
+                <th>Активен</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var owner in owners)
+            {
+                <tr>
+                    <td>@owner.FullName</td>
+                    <td>@owner.Email</td>
+                    <td>@owner.PhoneNumber</td>
+                    <td>@(owner.IsActive ? "Да" : "Нет")</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private List<VetClinic.Shared.Responses.UserResponse> owners = [];
+    private string message = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        owners = await UserApiService.GetOwnersAsync();
+
+        if (owners.Count == 0)
+        {
+            message = "Владельцы не найдены.";
+        }
+    }
+}

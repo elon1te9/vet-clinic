@@ -1,3 +1,5 @@
+using VetClinic.Shared.Enums;
+
 namespace VetClinic.Api.Models;
 
 public class Pet
@@ -7,7 +9,7 @@ public class Pet
     public string Name { get; set; } = string.Empty;
     public string Species { get; set; } = string.Empty;
     public string? Breed { get; set; }
-    public string Gender { get; set; } = string.Empty;
+    public PetGender Gender { get; set; } = PetGender.Unknown;
     public DateTime? BirthDate { get; set; }
     public decimal? Weight { get; set; }
     public string? Color { get; set; }

@@ -23,12 +23,13 @@ public class PetService : IPetService
 
     public async Task<List<PetResponse>> GetAllAsync()
     {
-        return await _context.Pets
+        var pets = await _context.Pets
             .AsNoTracking()
             .Include(p => p.Owner)
             .OrderByDescending(p => p.CreatedAt)
-            .Select(p => MapPet(p))
             .ToListAsync();
+
+        return pets.Select(MapPet).ToList();
     }
 
     public async Task<List<PetResponse>> GetMyAsync(ClaimsPrincipal user)
@@ -39,13 +40,14 @@ public class PetService : IPetService
             return [];
         }
 
-        return await _context.Pets
+        var pets = await _context.Pets
             .AsNoTracking()
             .Include(p => p.Owner)
             .Where(p => p.OwnerId == userId)
             .OrderByDescending(p => p.CreatedAt)
-            .Select(p => MapPet(p))
             .ToListAsync();
+
+        return pets.Select(MapPet).ToList();
     }
 
     public async Task<PetResponse?> GetByIdAsync(int id, ClaimsPrincipal user)
@@ -88,7 +90,7 @@ public class PetService : IPetService
             Name = request.Name.Trim(),
             Species = request.Species.Trim(),
             Breed = request.Breed,
-            Gender = request.Gender.ToString(),
+            Gender = request.Gender,
             BirthDate = request.BirthDate,
             Weight = request.Weight,
             Color = request.Color,
@@ -133,7 +135,7 @@ public class PetService : IPetService
         pet.Name = request.Name.Trim();
         pet.Species = request.Species.Trim();
         pet.Breed = request.Breed;
-        pet.Gender = request.Gender.ToString();
+        pet.Gender = request.Gender;
         pet.BirthDate = request.BirthDate;
         pet.Weight = request.Weight;
         pet.Color = request.Color;
@@ -201,8 +203,6 @@ public class PetService : IPetService
 
     private static PetResponse MapPet(Pet pet)
     {
-        Enum.TryParse<PetGender>(pet.Gender, out var gender);
-
         return new PetResponse
         {
             Id = pet.Id,
@@ -211,7 +211,7 @@ public class PetService : IPetService
             Name = pet.Name,
             Species = pet.Species,
             Breed = pet.Breed,
-            Gender = gender,
+            Gender = pet.Gender,
             BirthDate = pet.BirthDate,
             Weight = pet.Weight,
             Color = pet.Color,
