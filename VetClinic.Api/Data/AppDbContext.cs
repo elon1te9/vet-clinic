@@ -21,6 +21,7 @@ public class AppDbContext : IdentityDbContext<ApplicationUser>
     public DbSet<Surgery> Surgeries => Set<Surgery>();
     public DbSet<Hospitalization> Hospitalizations => Set<Hospitalization>();
     public DbSet<CareLog> CareLogs => Set<CareLog>();
+    public DbSet<Invoice> Invoices => Set<Invoice>();
     public DbSet<Notification> Notifications => Set<Notification>();
 
     protected override void OnModelCreating(ModelBuilder builder)
@@ -153,6 +154,24 @@ public class AppDbContext : IdentityDbContext<ApplicationUser>
             .HasForeignKey(c => c.StaffId)
             .OnDelete(DeleteBehavior.Restrict);
 
+        builder.Entity<Invoice>()
+            .HasOne(i => i.Appointment)
+            .WithOne(a => a.Invoice)
+            .HasForeignKey<Invoice>(i => i.AppointmentId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        builder.Entity<Invoice>()
+            .HasOne(i => i.Owner)
+            .WithMany(u => u.Invoices)
+            .HasForeignKey(i => i.OwnerId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        builder.Entity<Invoice>()
+            .HasOne(i => i.Service)
+            .WithMany(s => s.Invoices)
+            .HasForeignKey(i => i.ServiceId)
+            .OnDelete(DeleteBehavior.Restrict);
+
         builder.Entity<Pet>()
             .Property(p => p.Gender)
             .HasConversion<string>();
@@ -185,6 +204,10 @@ public class AppDbContext : IdentityDbContext<ApplicationUser>
             .Property(h => h.Status)
             .HasConversion<string>();
 
+        builder.Entity<Invoice>()
+            .Property(i => i.Status)
+            .HasConversion<string>();
+
         builder.Entity<Pet>().Property(p => p.Weight).HasPrecision(10, 2);
         builder.Entity<ClinicService>().Property(s => s.Price).HasPrecision(10, 2);
         builder.Entity<MedicalRecord>().Property(m => m.Temperature).HasPrecision(5, 2);
@@ -194,5 +217,6 @@ public class AppDbContext : IdentityDbContext<ApplicationUser>
         builder.Entity<InventoryItem>().Property(i => i.Price).HasPrecision(10, 2);
         builder.Entity<InventoryTransaction>().Property(t => t.Quantity).HasPrecision(10, 2);
         builder.Entity<CareLog>().Property(c => c.Temperature).HasPrecision(5, 2);
+        builder.Entity<Invoice>().Property(i => i.Amount).HasPrecision(10, 2);
     }
 }

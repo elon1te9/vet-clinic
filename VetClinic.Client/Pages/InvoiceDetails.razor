@@ -1,0 +1,60 @@
+@page "/invoices/{Id:int}"
+@using VetClinic.Shared.Enums
+@using VetClinic.Shared.Responses
+@inject VetClinic.Client.Services.FinanceApiService FinanceApiService
+@inject VetClinic.Client.Services.LocalStorageService LocalStorageService
+
+<PageTitle>Счёт</PageTitle>
+
+<h1>Счёт</h1>
+
+@if (!string.IsNullOrWhiteSpace(message))
+{
+    <p>@message</p>
+}
+
+@if (invoice is null)
+{
+    <p>Счёт не найден.</p>
+}
+else
+{
+    <p><b>ID:</b> @invoice.Id</p>
+    <p><b>Приём:</b> @invoice.AppointmentId</p>
+    <p><b>Владелец:</b> @invoice.OwnerFullName</p>
+    <p><b>Услуга:</b> @invoice.ServiceName</p>
+    <p><b>Сумма:</b> @invoice.Amount</p>
+    <p><b>Статус:</b> @invoice.Status</p>
+    <p><b>Создан:</b> @invoice.CreatedAt.ToLocalTime().ToString("dd.MM.yyyy HH:mm")</p>
+    <p><b>Оплачен:</b> @invoice.PaidAt?.ToLocalTime().ToString("dd.MM.yyyy HH:mm")</p>
+
+    @if (role == "Admin" && invoice.Status == InvoiceStatus.Unpaid)
+    {
+        <button type="button" @onclick="PayInvoice">Оплатить</button>
+    }
+}
+
+<p><a href="invoices">Назад к счетам</a></p>
+
+@code {
+    [Parameter]
+    public int Id { get; set; }
+
+    private InvoiceResponse? invoice;
+    private string role = string.Empty;
+    private string message = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        role = await LocalStorageService.GetItemAsync("role") ?? string.Empty;
+        invoice = await FinanceApiService.GetByIdAsync(Id);
+    }
+
+    private async Task PayInvoice()
+    {
+        var result = await FinanceApiService.PayAsync(Id);
+        message = result is null ? "Не удалось оплатить счёт." : "Счёт оплачен.";
+
+        invoice = await FinanceApiService.GetByIdAsync(Id);
+    }
+}

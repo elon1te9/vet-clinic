@@ -20,6 +20,8 @@ builder.Services.AddScoped<VaccinationApiService>();
 builder.Services.AddScoped<InventoryApiService>();
 builder.Services.AddScoped<SurgeryApiService>();
 builder.Services.AddScoped<HospitalizationApiService>();
+builder.Services.AddScoped<FinanceApiService>();
+builder.Services.AddScoped<ReportApiService>();
 builder.Services.AddScoped<NotificationApiService>();
 
 var host = builder.Build();

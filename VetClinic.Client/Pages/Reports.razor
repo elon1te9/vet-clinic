@@ -1,0 +1,165 @@
+@page "/reports"
+@using VetClinic.Shared.Responses
+@inject VetClinic.Client.Services.ReportApiService ReportApiService
+
+<PageTitle>Отчёты</PageTitle>
+
+<h1>Отчёты</h1>
+
+<div>
+    <label>С</label>
+    <input type="date" @bind="from" />
+</div>
+<div>
+    <label>По</label>
+    <input type="date" @bind="to" />
+</div>
+<button type="button" @onclick="LoadReportsAsync">Показать</button>
+
+@if (!string.IsNullOrWhiteSpace(message))
+{
+    <p>@message</p>
+}
+
+@if (revenue is not null)
+{
+    <h2>Выручка</h2>
+    <p>Оплаченных счетов: @revenue.PaidInvoicesCount</p>
+    <p>Сумма: @revenue.TotalRevenue</p>
+}
+
+<h2>Нагрузка врачей</h2>
+@if (doctorLoad.Count == 0)
+{
+    <p>Данных нет.</p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Врач</th>
+                <th>Приёмов</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in doctorLoad)
+            {
+                <tr>
+                    <td>@item.VeterinarianFullName</td>
+                    <td>@item.AppointmentsCount</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+<h2>Популярные услуги</h2>
+@if (popularServices.Count == 0)
+{
+    <p>Данных нет.</p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Услуга</th>
+                <th>Приёмов</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in popularServices)
+            {
+                <tr>
+                    <td>@item.ServiceName</td>
+                    <td>@item.AppointmentsCount</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+<h2>Расход склада</h2>
+@if (inventoryUsage.Count == 0)
+{
+    <p>Данных нет.</p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Позиция</th>
+                <th>Количество</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in inventoryUsage)
+            {
+                <tr>
+                    <td>@item.InventoryItemName</td>
+                    <td>@item.QuantityUsed</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+<h2>Сводка приёмов</h2>
+@if (appointmentsSummary.Count == 0)
+{
+    <p>Данных нет.</p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Статус</th>
+                <th>Количество</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in appointmentsSummary)
+            {
+                <tr>
+                    <td>@item.Status</td>
+                    <td>@item.Count</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private DateTime from = DateTime.Today.AddMonths(-1);
+    private DateTime to = DateTime.Today;
+    private RevenueReportResponse? revenue;
+    private List<DoctorLoadReportResponse> doctorLoad = [];
+    private List<PopularServiceReportResponse> popularServices = [];
+    private List<InventoryUsageReportResponse> inventoryUsage = [];
+    private List<AppointmentsSummaryReportResponse> appointmentsSummary = [];
+    private string message = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadReportsAsync();
+    }
+
+    private async Task LoadReportsAsync()
+    {
+        if (from > to)
+        {
+            message = "Дата начала не может быть больше даты окончания.";
+            return;
+        }
+
+        revenue = await ReportApiService.GetRevenueAsync(from, to);
+        doctorLoad = await ReportApiService.GetDoctorLoadAsync(from, to);
+        popularServices = await ReportApiService.GetPopularServicesAsync(from, to);
+        inventoryUsage = await ReportApiService.GetInventoryUsageAsync(from, to);
+        appointmentsSummary = await ReportApiService.GetAppointmentsSummaryAsync(from, to);
+        message = revenue is null ? "Не удалось загрузить отчёты." : string.Empty;
+    }
+}

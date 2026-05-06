@@ -10,4 +10,5 @@ public class ClinicService
     public bool IsActive { get; set; } = true;
 
     public ICollection<Appointment> Appointments { get; set; } = new List<Appointment>();
+    public ICollection<Invoice> Invoices { get; set; } = new List<Invoice>();
 }

@@ -19,5 +19,6 @@ public class ApplicationUser : IdentityUser
     public ICollection<Surgery> VeterinarianSurgeries { get; set; } = new List<Surgery>();
     public ICollection<Surgery> AssistantSurgeries { get; set; } = new List<Surgery>();
     public ICollection<CareLog> CareLogs { get; set; } = new List<CareLog>();
+    public ICollection<Invoice> Invoices { get; set; } = new List<Invoice>();
     public ICollection<Notification> Notifications { get; set; } = new List<Notification>();
 }

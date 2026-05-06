@@ -21,4 +21,5 @@ public class Appointment
     public ApplicationUser? Veterinarian { get; set; }
     public ClinicService? Service { get; set; }
     public MedicalRecord? MedicalRecord { get; set; }
+    public Invoice? Invoice { get; set; }
 }
