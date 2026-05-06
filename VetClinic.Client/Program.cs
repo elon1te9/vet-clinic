@@ -15,6 +15,7 @@ builder.Services.AddScoped<PetApiService>();
 builder.Services.AddScoped<UserApiService>();
 builder.Services.AddScoped<AppointmentApiService>();
 builder.Services.AddScoped<ClinicServiceApiService>();
+builder.Services.AddScoped<MedicalRecordApiService>();
 
 var host = builder.Build();
 var authService = host.Services.GetRequiredService<AuthService>();

@@ -1,0 +1,41 @@
+@page "/medical-records/{Id:int}"
+@inject VetClinic.Client.Services.MedicalRecordApiService MedicalRecordApiService
+
+<PageTitle>Медицинская запись</PageTitle>
+
+<h1>Медицинская запись</h1>
+
+@if (record is null)
+{
+    <p>@message</p>
+}
+else
+{
+    <p><strong>Дата визита:</strong> @record.VisitDate.ToLocalTime().ToString("dd.MM.yyyy")</p>
+    <p><strong>Питомец:</strong> @record.PetName</p>
+    <p><strong>Владелец:</strong> @record.OwnerFullName</p>
+    <p><strong>Врач:</strong> @record.VeterinarianFullName</p>
+    <p><strong>Приём:</strong> @(record.AppointmentId?.ToString() ?? "Не указан")</p>
+    <p><strong>Жалобы:</strong> @record.Complaints</p>
+    <p><strong>Диагноз:</strong> @record.Diagnosis</p>
+    <p><strong>Лечение и назначения:</strong> @record.Treatment</p>
+    <p><strong>Рекомендации:</strong> @record.Recommendations</p>
+    <p><strong>Температура:</strong> @record.Temperature</p>
+    <p><strong>Вес:</strong> @record.Weight</p>
+}
+
+@code {
+    [Parameter] public int Id { get; set; }
+
+    private VetClinic.Shared.Responses.MedicalRecordResponse? record;
+    private string message = "Загрузка...";
+
+    protected override async Task OnInitializedAsync()
+    {
+        record = await MedicalRecordApiService.GetByIdAsync(Id);
+        if (record is null)
+        {
+            message = "Медицинская запись не найдена.";
+        }
+    }
+}

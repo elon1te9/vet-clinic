@@ -1,0 +1,129 @@
+@page "/medical-records"
+@inject VetClinic.Client.Services.MedicalRecordApiService MedicalRecordApiService
+@inject VetClinic.Client.Services.PetApiService PetApiService
+@inject VetClinic.Client.Services.LocalStorageService LocalStorageService
+@inject NavigationManager Navigation
+
+<PageTitle>Медицинские карты</PageTitle>
+
+<h1>Медицинские карты</h1>
+
+@if (role == "Veterinarian" || role == "Admin")
+{
+    <button @onclick="OpenCreatePage" type="button">Создать запись</button>
+}
+
+@if (role != "Admin")
+{
+    <div>
+        <label>Питомец</label>
+        <select @bind="selectedPetId">
+            @foreach (var pet in pets)
+            {
+                <option value="@pet.Id">@pet.Name</option>
+            }
+        </select>
+        <button @onclick="LoadByPet" type="button">Показать историю</button>
+    </div>
+}
+
+@if (!string.IsNullOrWhiteSpace(message))
+{
+    <p>@message</p>
+}
+
+@if (records.Count == 0)
+{
+    <p>Медицинские записи не найдены.</p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Дата</th>
+                <th>Питомец</th>
+                <th>Врач</th>
+                <th>Диагноз</th>
+                <th>Лечение</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var record in records)
+            {
+                <tr>
+                    <td>@record.VisitDate.ToLocalTime().ToString("dd.MM.yyyy")</td>
+                    <td>@record.PetName</td>
+                    <td>@record.VeterinarianFullName</td>
+                    <td>@record.Diagnosis</td>
+                    <td>@record.Treatment</td>
+                    <td>
+                        <button @onclick="() => OpenDetails(record.Id)" type="button">Открыть</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private List<VetClinic.Shared.Responses.MedicalRecordResponse> records = [];
+    private List<VetClinic.Shared.Responses.PetResponse> pets = [];
+    private string role = string.Empty;
+    private int selectedPetId;
+    private string message = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        role = await LocalStorageService.GetItemAsync("role") ?? string.Empty;
+
+        if (role == "Admin")
+        {
+            records = await MedicalRecordApiService.GetAllAsync();
+        }
+        else
+        {
+            pets = role == "Owner"
+                ? await PetApiService.GetMyAsync()
+                : await PetApiService.GetAllAsync();
+
+            selectedPetId = pets.FirstOrDefault()?.Id ?? 0;
+            await LoadByPet();
+        }
+
+        if (records.Count == 0)
+        {
+            message = "Список медицинских записей пока пуст.";
+        }
+    }
+
+    private async Task LoadByPet()
+    {
+        message = string.Empty;
+
+        if (selectedPetId <= 0)
+        {
+            records = [];
+            message = "Выберите питомца.";
+            return;
+        }
+
+        records = await MedicalRecordApiService.GetByPetAsync(selectedPetId);
+
+        if (records.Count == 0)
+        {
+            message = "Для выбранного питомца записей пока нет.";
+        }
+    }
+
+    private void OpenCreatePage()
+    {
+        Navigation.NavigateTo("/medical-records/create");
+    }
+
+    private void OpenDetails(int id)
+    {
+        Navigation.NavigateTo($"/medical-records/{id}");
+    }
+}
