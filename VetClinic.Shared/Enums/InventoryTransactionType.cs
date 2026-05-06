@@ -4,5 +4,6 @@ public enum InventoryTransactionType
 {
     Incoming,
     Outgoing,
-    Adjustment
+    WriteOff,
+    Correction
 }

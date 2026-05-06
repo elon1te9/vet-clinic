@@ -102,7 +102,7 @@ public static class DbInitializer
                 new InventoryItem
                 {
                     Name = "Bandage",
-                    Category = InventoryCategory.Consumable,
+                    Category = InventoryCategory.Material,
                     Unit = "pcs",
                     Quantity = 25,
                     MinQuantity = 5,

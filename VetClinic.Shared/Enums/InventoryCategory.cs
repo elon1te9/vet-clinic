@@ -5,5 +5,5 @@ public enum InventoryCategory
     Medicine,
     Vaccine,
     Food,
-    Consumable
+    Material
 }

@@ -25,6 +25,7 @@ public class InventoryService : IInventoryService
     {
         var items = await _context.InventoryItems
             .AsNoTracking()
+            .Where(i => i.IsActive)
             .OrderBy(i => i.Name)
             .ToListAsync();
 
@@ -183,7 +184,7 @@ public class InventoryService : IInventoryService
         {
             item.Quantity += request.Quantity;
         }
-        else if (request.Type == InventoryTransactionType.Outgoing)
+        else if (request.Type == InventoryTransactionType.Outgoing || request.Type == InventoryTransactionType.WriteOff)
         {
             if (item.Quantity < request.Quantity)
             {
@@ -192,9 +193,13 @@ public class InventoryService : IInventoryService
 
             item.Quantity -= request.Quantity;
         }
-        else
+        else if (request.Type == InventoryTransactionType.Correction)
         {
             item.Quantity = request.Quantity;
+        }
+        else
+        {
+            return null;
         }
 
         item.UpdatedAt = DateTime.UtcNow;
