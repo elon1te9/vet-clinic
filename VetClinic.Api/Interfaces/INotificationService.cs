@@ -9,5 +9,5 @@ public interface INotificationService
     Task<List<NotificationResponse>> GetMyAsync(ClaimsPrincipal user);
     Task<bool> MarkAsReadAsync(int id, ClaimsPrincipal user);
     Task<bool> MarkAllAsReadAsync(ClaimsPrincipal user);
-    Task CreateAsync(string userId, string title, string message, NotificationType type);
+    Task CreateAsync(string userId, string title, string message, NotificationType type, string? eventName = null);
 }

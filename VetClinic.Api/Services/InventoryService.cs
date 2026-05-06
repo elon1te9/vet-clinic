@@ -14,11 +14,16 @@ public class InventoryService : IInventoryService
 {
     private readonly AppDbContext _context;
     private readonly UserManager<ApplicationUser> _userManager;
+    private readonly INotificationService _notificationService;
 
-    public InventoryService(AppDbContext context, UserManager<ApplicationUser> userManager)
+    public InventoryService(
+        AppDbContext context,
+        UserManager<ApplicationUser> userManager,
+        INotificationService notificationService)
     {
         _context = context;
         _userManager = userManager;
+        _notificationService = notificationService;
     }
 
     public async Task<List<InventoryItemResponse>> GetAllAsync()
@@ -91,6 +96,8 @@ public class InventoryService : IInventoryService
         _context.InventoryItems.Add(item);
         await _context.SaveChangesAsync();
 
+        await NotifyAdminsAboutLowStockAsync(item);
+
         return MapItem(item);
     }
 
@@ -119,6 +126,8 @@ public class InventoryService : IInventoryService
         item.UpdatedAt = DateTime.UtcNow;
 
         await _context.SaveChangesAsync();
+
+        await NotifyAdminsAboutLowStockAsync(item);
 
         return MapItem(item);
     }
@@ -220,6 +229,8 @@ public class InventoryService : IInventoryService
         transaction.InventoryItem = item;
         transaction.CreatedByUser = await _userManager.FindByIdAsync(userId);
 
+        await NotifyAdminsAboutLowStockAsync(item);
+
         return MapTransaction(transaction);
     }
 
@@ -237,6 +248,25 @@ public class InventoryService : IInventoryService
                quantity >= 0 &&
                minQuantity >= 0 &&
                price >= 0;
+    }
+
+    private async Task NotifyAdminsAboutLowStockAsync(InventoryItem item)
+    {
+        if (!item.IsActive || item.Quantity > item.MinQuantity)
+        {
+            return;
+        }
+
+        var admins = await _userManager.GetUsersInRoleAsync(nameof(UserRole.Admin));
+        foreach (var admin in admins)
+        {
+            await _notificationService.CreateAsync(
+                admin.Id,
+                "Критический остаток",
+                $"Позиция {item.Name}: осталось {item.Quantity} {item.Unit}, минимум {item.MinQuantity}.",
+                NotificationType.Inventory,
+                "LowStockDetected");
+        }
     }
 
     private static DateTime ToUtc(DateTime value)

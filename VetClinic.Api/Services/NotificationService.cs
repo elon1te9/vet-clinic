@@ -1,7 +1,9 @@
 using System.Security.Claims;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 using VetClinic.Api.Data;
+using VetClinic.Api.Hubs;
 using VetClinic.Api.Interfaces;
 using VetClinic.Api.Models;
 using VetClinic.Shared.Enums;
@@ -13,11 +15,16 @@ public class NotificationService : INotificationService
 {
     private readonly AppDbContext _context;
     private readonly UserManager<ApplicationUser> _userManager;
+    private readonly IHubContext<NotificationHub> _hubContext;
 
-    public NotificationService(AppDbContext context, UserManager<ApplicationUser> userManager)
+    public NotificationService(
+        AppDbContext context,
+        UserManager<ApplicationUser> userManager,
+        IHubContext<NotificationHub> hubContext)
     {
         _context = context;
         _userManager = userManager;
+        _hubContext = hubContext;
     }
 
     public async Task<List<NotificationResponse>> GetMyAsync(ClaimsPrincipal user)
@@ -87,22 +94,31 @@ public class NotificationService : INotificationService
         return true;
     }
 
-    public async Task CreateAsync(string userId, string title, string message, NotificationType type)
+    public async Task CreateAsync(string userId, string title, string message, NotificationType type, string? eventName = null)
     {
         if (string.IsNullOrWhiteSpace(userId))
         {
             return;
         }
 
-        _context.Notifications.Add(new Notification
+        var notification = new Notification
         {
             UserId = userId,
             Title = title,
             Message = message,
             Type = type
-        });
+        };
 
+        _context.Notifications.Add(notification);
         await _context.SaveChangesAsync();
+
+        var response = MapNotification(notification);
+        await _hubContext.Clients.Group(userId).SendAsync("ReceiveNotification", response);
+
+        if (!string.IsNullOrWhiteSpace(eventName))
+        {
+            await _hubContext.Clients.Group(userId).SendAsync(eventName, response);
+        }
     }
 
     private static NotificationResponse MapNotification(Notification notification)

@@ -14,11 +14,16 @@ public class HospitalizationService : IHospitalizationService
 {
     private readonly AppDbContext _context;
     private readonly UserManager<ApplicationUser> _userManager;
+    private readonly INotificationService _notificationService;
 
-    public HospitalizationService(AppDbContext context, UserManager<ApplicationUser> userManager)
+    public HospitalizationService(
+        AppDbContext context,
+        UserManager<ApplicationUser> userManager,
+        INotificationService notificationService)
     {
         _context = context;
         _userManager = userManager;
+        _notificationService = notificationService;
     }
 
     public async Task<List<HospitalizationResponse>> GetAllAsync()
@@ -85,6 +90,8 @@ public class HospitalizationService : IHospitalizationService
         _context.Hospitalizations.Add(hospitalization);
         await _context.SaveChangesAsync();
 
+        await NotifyAssistantsAboutHospitalizationAsync("Новая госпитализация", $"Создана госпитализация питомца #{hospitalization.PetId}.");
+
         return await GetByIdAsync(hospitalization.Id);
     }
 
@@ -118,6 +125,8 @@ public class HospitalizationService : IHospitalizationService
 
         await _context.SaveChangesAsync();
 
+        await NotifyAssistantsAboutHospitalizationAsync("Госпитализация обновлена", $"Обновлена госпитализация #{hospitalization.Id}.");
+
         return await GetByIdAsync(hospitalization.Id);
     }
 
@@ -134,6 +143,8 @@ public class HospitalizationService : IHospitalizationService
         hospitalization.UpdatedAt = DateTime.UtcNow;
 
         await _context.SaveChangesAsync();
+
+        await NotifyAssistantsAboutHospitalizationAsync("Госпитализация закрыта", $"Закрыта госпитализация #{hospitalization.Id}.");
 
         return await GetByIdAsync(hospitalization.Id);
     }
@@ -177,6 +188,8 @@ public class HospitalizationService : IHospitalizationService
 
         log.Staff = await _userManager.FindByIdAsync(userId);
 
+        await NotifyAssistantsAboutHospitalizationAsync("Запись ухода", $"Добавлена запись ухода по госпитализации #{log.HospitalizationId}.");
+
         return MapCareLog(log);
     }
 
@@ -206,6 +219,20 @@ public class HospitalizationService : IHospitalizationService
             h.PetId == petId &&
             h.Status == HospitalizationStatus.Active &&
             (!currentHospitalizationId.HasValue || h.Id != currentHospitalizationId.Value));
+    }
+
+    private async Task NotifyAssistantsAboutHospitalizationAsync(string title, string message)
+    {
+        var assistants = await _userManager.GetUsersInRoleAsync(nameof(UserRole.Assistant));
+        foreach (var assistant in assistants)
+        {
+            await _notificationService.CreateAsync(
+                assistant.Id,
+                title,
+                message,
+                NotificationType.Hospitalization,
+                "HospitalizationUpdated");
+        }
     }
 
     private static DateTime ToUtc(DateTime value)

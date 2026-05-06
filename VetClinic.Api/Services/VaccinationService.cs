@@ -161,7 +161,8 @@ public class VaccinationService : IVaccinationService
                 pet.OwnerId,
                 "Напоминание о вакцинации",
                 $"Питомцу {pet.Name} запланирована вакцинация {vaccination.Name} на {vaccination.NextDueAt.Value:dd.MM.yyyy}.",
-                NotificationType.Vaccination);
+                NotificationType.Vaccination,
+                "VaccinationReminder");
         }
 
         vaccination.Pet = pet;

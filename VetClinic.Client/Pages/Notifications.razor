@@ -1,5 +1,7 @@
 @page "/notifications"
+@implements IDisposable
 @inject VetClinic.Client.Services.NotificationApiService NotificationApiService
+@inject VetClinic.Client.Services.SignalRNotificationService SignalRNotificationService
 
 <PageTitle>Уведомления</PageTitle>
 
@@ -59,6 +61,8 @@ else
 
     protected override async Task OnInitializedAsync()
     {
+        SignalRNotificationService.NotificationReceived += OnNotificationReceived;
+        await SignalRNotificationService.StartAsync();
         await LoadNotificationsAsync();
     }
 
@@ -81,5 +85,19 @@ else
         message = result ? "Все уведомления прочитаны." : "Не удалось прочитать уведомления.";
 
         await LoadNotificationsAsync();
+    }
+
+    private void OnNotificationReceived(VetClinic.Shared.Responses.NotificationResponse notification)
+    {
+        if (!notifications.Any(n => n.Id == notification.Id))
+        {
+            notifications.Insert(0, notification);
+            _ = InvokeAsync(StateHasChanged);
+        }
+    }
+
+    public void Dispose()
+    {
+        SignalRNotificationService.NotificationReceived -= OnNotificationReceived;
     }
 }

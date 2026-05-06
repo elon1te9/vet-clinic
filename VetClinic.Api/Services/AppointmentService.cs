@@ -14,11 +14,16 @@ public class AppointmentService : IAppointmentService
 {
     private readonly AppDbContext _context;
     private readonly UserManager<ApplicationUser> _userManager;
+    private readonly INotificationService _notificationService;
 
-    public AppointmentService(AppDbContext context, UserManager<ApplicationUser> userManager)
+    public AppointmentService(
+        AppDbContext context,
+        UserManager<ApplicationUser> userManager,
+        INotificationService notificationService)
     {
         _context = context;
         _userManager = userManager;
+        _notificationService = notificationService;
     }
 
     public async Task<List<AppointmentResponse>> GetAllAsync()
@@ -168,6 +173,13 @@ public class AppointmentService : IAppointmentService
         appointment.Veterinarian = doctor;
         appointment.Service = service;
 
+        await _notificationService.CreateAsync(
+            appointment.VeterinarianId,
+            "Новая запись на приём",
+            $"Питомец {pet.Name} записан на {appointment.StartAt:dd.MM.yyyy HH:mm}.",
+            NotificationType.Appointment,
+            "AppointmentCreated");
+
         return MapAppointment(appointment);
     }
 
@@ -192,6 +204,13 @@ public class AppointmentService : IAppointmentService
         appointment.UpdatedAt = DateTime.UtcNow;
 
         await _context.SaveChangesAsync();
+
+        await _notificationService.CreateAsync(
+            appointment.OwnerId,
+            "Статус приёма изменён",
+            $"Статус приёма для питомца {appointment.Pet?.Name ?? string.Empty}: {appointment.Status}.",
+            NotificationType.Appointment,
+            "AppointmentStatusChanged");
 
         return MapAppointment(appointment);
     }

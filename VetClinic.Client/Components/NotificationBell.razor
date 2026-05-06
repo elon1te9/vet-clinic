@@ -1,0 +1,33 @@
+@implements IDisposable
+@inject VetClinic.Client.Services.NotificationApiService NotificationApiService
+@inject VetClinic.Client.Services.SignalRNotificationService SignalRNotificationService
+
+<a href="notifications">Уведомления (@unreadCount)</a>
+
+@code {
+    private int unreadCount;
+
+    protected override async Task OnInitializedAsync()
+    {
+        SignalRNotificationService.NotificationReceived += OnNotificationReceived;
+
+        var notifications = await NotificationApiService.GetMyAsync();
+        unreadCount = notifications.Count(n => !n.IsRead);
+
+        await SignalRNotificationService.StartAsync();
+    }
+
+    private void OnNotificationReceived(VetClinic.Shared.Responses.NotificationResponse notification)
+    {
+        if (!notification.IsRead)
+        {
+            unreadCount++;
+            _ = InvokeAsync(StateHasChanged);
+        }
+    }
+
+    public void Dispose()
+    {
+        SignalRNotificationService.NotificationReceived -= OnNotificationReceived;
+    }
+}
