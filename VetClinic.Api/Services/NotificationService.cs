@@ -121,6 +121,20 @@ public class NotificationService : INotificationService
         }
     }
 
+    public async Task CreateForRoleAsync(string role, string title, string message, NotificationType type, string? eventName = null)
+    {
+        if (string.IsNullOrWhiteSpace(role))
+        {
+            return;
+        }
+
+        var users = await _userManager.GetUsersInRoleAsync(role);
+        foreach (var user in users)
+        {
+            await CreateAsync(user.Id, title, message, type, eventName);
+        }
+    }
+
     private static NotificationResponse MapNotification(Notification notification)
     {
         return new NotificationResponse

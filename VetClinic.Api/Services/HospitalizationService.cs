@@ -91,6 +91,7 @@ public class HospitalizationService : IHospitalizationService
         await _context.SaveChangesAsync();
 
         await NotifyAssistantsAboutHospitalizationAsync("Новая госпитализация", $"Создана госпитализация питомца #{hospitalization.PetId}.");
+        await NotifyAdminsAboutDashboardAsync("Новая госпитализация", $"Создана госпитализация питомца #{hospitalization.PetId}.");
 
         return await GetByIdAsync(hospitalization.Id);
     }
@@ -126,6 +127,7 @@ public class HospitalizationService : IHospitalizationService
         await _context.SaveChangesAsync();
 
         await NotifyAssistantsAboutHospitalizationAsync("Госпитализация обновлена", $"Обновлена госпитализация #{hospitalization.Id}.");
+        await NotifyAdminsAboutDashboardAsync("Госпитализация обновлена", $"Обновлена госпитализация #{hospitalization.Id}.");
 
         return await GetByIdAsync(hospitalization.Id);
     }
@@ -145,6 +147,7 @@ public class HospitalizationService : IHospitalizationService
         await _context.SaveChangesAsync();
 
         await NotifyAssistantsAboutHospitalizationAsync("Госпитализация закрыта", $"Закрыта госпитализация #{hospitalization.Id}.");
+        await NotifyAdminsAboutDashboardAsync("Госпитализация закрыта", $"Закрыта госпитализация #{hospitalization.Id}.");
 
         return await GetByIdAsync(hospitalization.Id);
     }
@@ -233,6 +236,16 @@ public class HospitalizationService : IHospitalizationService
                 NotificationType.Hospitalization,
                 "HospitalizationUpdated");
         }
+    }
+
+    private async Task NotifyAdminsAboutDashboardAsync(string title, string message)
+    {
+        await _notificationService.CreateForRoleAsync(
+            nameof(UserRole.Admin),
+            title,
+            message,
+            NotificationType.Hospitalization,
+            "DashboardUpdated");
     }
 
     private static DateTime ToUtc(DateTime value)

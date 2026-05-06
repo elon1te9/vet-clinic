@@ -180,6 +180,13 @@ public class AppointmentService : IAppointmentService
             NotificationType.Appointment,
             "AppointmentCreated");
 
+        await _notificationService.CreateForRoleAsync(
+            nameof(UserRole.Admin),
+            "Новая запись на приём",
+            $"Создана запись на приём для питомца {pet.Name}.",
+            NotificationType.Appointment,
+            "DashboardUpdated");
+
         return MapAppointment(appointment);
     }
 
@@ -211,6 +218,13 @@ public class AppointmentService : IAppointmentService
             $"Статус приёма для питомца {appointment.Pet?.Name ?? string.Empty}: {appointment.Status}.",
             NotificationType.Appointment,
             "AppointmentStatusChanged");
+
+        await _notificationService.CreateForRoleAsync(
+            nameof(UserRole.Admin),
+            "Статус приёма изменён",
+            $"Статус приёма #{appointment.Id}: {appointment.Status}.",
+            NotificationType.Appointment,
+            "DashboardUpdated");
 
         return MapAppointment(appointment);
     }

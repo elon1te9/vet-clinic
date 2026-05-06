@@ -10,4 +10,5 @@ public interface INotificationService
     Task<bool> MarkAsReadAsync(int id, ClaimsPrincipal user);
     Task<bool> MarkAllAsReadAsync(ClaimsPrincipal user);
     Task CreateAsync(string userId, string title, string message, NotificationType type, string? eventName = null);
+    Task CreateForRoleAsync(string role, string title, string message, NotificationType type, string? eventName = null);
 }

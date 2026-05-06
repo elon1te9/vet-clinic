@@ -55,16 +55,20 @@ public class AdminDashboardService : IAdminDashboardService
             .OrderBy(i => i.Quantity)
             .ToListAsync();
 
-        var upcomingVaccinations = await _context.Vaccinations
+        var upcomingVaccinationsQuery = _context.Vaccinations
             .AsNoTracking()
+            .Where(v => v.NextDueAt != null &&
+                        v.NextDueAt >= today &&
+                        v.NextDueAt <= nextMonth &&
+                        v.Status != VaccinationStatus.Cancelled);
+
+        var upcomingVaccinationsCount = await upcomingVaccinationsQuery.CountAsync();
+
+        var upcomingVaccinations = await upcomingVaccinationsQuery
             .Include(v => v.Pet)
             .ThenInclude(p => p!.Owner)
             .Include(v => v.Veterinarian)
             .Include(v => v.VaccineInventoryItem)
-            .Where(v => v.NextDueAt != null &&
-                        v.NextDueAt >= today &&
-                        v.NextDueAt <= nextMonth &&
-                        v.Status != VaccinationStatus.Cancelled)
             .OrderBy(v => v.NextDueAt)
             .Take(5)
             .ToListAsync();
@@ -91,7 +95,7 @@ public class AdminDashboardService : IAdminDashboardService
             RevenueToday = paidInvoicesToday.Sum(i => i.Amount),
             ActiveHospitalizationsCount = activeHospitalizationsCount,
             LowStockItemsCount = lowStockItems.Count,
-            UpcomingVaccinationsCount = upcomingVaccinations.Count,
+            UpcomingVaccinationsCount = upcomingVaccinationsCount,
             DoctorsLoad = doctorsLoad
                 .GroupBy(a => new
                 {
