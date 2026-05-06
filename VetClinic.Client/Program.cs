@@ -18,6 +18,8 @@ builder.Services.AddScoped<ClinicServiceApiService>();
 builder.Services.AddScoped<MedicalRecordApiService>();
 builder.Services.AddScoped<VaccinationApiService>();
 builder.Services.AddScoped<InventoryApiService>();
+builder.Services.AddScoped<SurgeryApiService>();
+builder.Services.AddScoped<HospitalizationApiService>();
 builder.Services.AddScoped<NotificationApiService>();
 
 var host = builder.Build();

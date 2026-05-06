@@ -1,0 +1,75 @@
+@page "/surgeries"
+@inject VetClinic.Client.Services.SurgeryApiService SurgeryApiService
+
+<PageTitle>Операции</PageTitle>
+
+<h1>Операции</h1>
+
+<p><a href="surgeries/create">Создать операцию</a></p>
+
+@if (!string.IsNullOrWhiteSpace(message))
+{
+    <p>@message</p>
+}
+
+@if (surgeries.Count == 0)
+{
+    <p>Операций нет.</p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Дата</th>
+                <th>Питомец</th>
+                <th>Название</th>
+                <th>Статус</th>
+                <th>Врач</th>
+                <th>Ассистент</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var surgery in surgeries)
+            {
+                <tr>
+                    <td>@surgery.ScheduledAt.ToLocalTime().ToString("dd.MM.yyyy HH:mm")</td>
+                    <td>@surgery.PetName</td>
+                    <td>@surgery.Title</td>
+                    <td>@surgery.Status</td>
+                    <td>@surgery.VeterinarianFullName</td>
+                    <td>@surgery.AssistantFullName</td>
+                    <td>
+                        <button @onclick="() => SetStatus(surgery.Id, VetClinic.Shared.Enums.SurgeryStatus.InProgress)" type="button">InProgress</button>
+                        <button @onclick="() => SetStatus(surgery.Id, VetClinic.Shared.Enums.SurgeryStatus.Completed)" type="button">Completed</button>
+                        <button @onclick="() => SetStatus(surgery.Id, VetClinic.Shared.Enums.SurgeryStatus.Cancelled)" type="button">Cancelled</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private List<VetClinic.Shared.Responses.SurgeryResponse> surgeries = [];
+    private string message = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadAsync();
+    }
+
+    private async Task LoadAsync()
+    {
+        surgeries = await SurgeryApiService.GetAllAsync();
+    }
+
+    private async Task SetStatus(int id, VetClinic.Shared.Enums.SurgeryStatus status)
+    {
+        var result = await SurgeryApiService.UpdateStatusAsync(id, status);
+        message = result is null ? "Не удалось изменить статус." : "Статус изменён.";
+
+        await LoadAsync();
+    }
+}

@@ -18,6 +18,9 @@ public class AppDbContext : IdentityDbContext<ApplicationUser>
     public DbSet<Vaccination> Vaccinations => Set<Vaccination>();
     public DbSet<InventoryItem> InventoryItems => Set<InventoryItem>();
     public DbSet<InventoryTransaction> InventoryTransactions => Set<InventoryTransaction>();
+    public DbSet<Surgery> Surgeries => Set<Surgery>();
+    public DbSet<Hospitalization> Hospitalizations => Set<Hospitalization>();
+    public DbSet<CareLog> CareLogs => Set<CareLog>();
     public DbSet<Notification> Notifications => Set<Notification>();
 
     protected override void OnModelCreating(ModelBuilder builder)
@@ -114,6 +117,42 @@ public class AppDbContext : IdentityDbContext<ApplicationUser>
             .HasForeignKey(t => t.CreatedByUserId)
             .OnDelete(DeleteBehavior.Restrict);
 
+        builder.Entity<Surgery>()
+            .HasOne(s => s.Pet)
+            .WithMany(p => p.Surgeries)
+            .HasForeignKey(s => s.PetId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        builder.Entity<Surgery>()
+            .HasOne(s => s.Veterinarian)
+            .WithMany(u => u.VeterinarianSurgeries)
+            .HasForeignKey(s => s.VeterinarianId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        builder.Entity<Surgery>()
+            .HasOne(s => s.Assistant)
+            .WithMany(u => u.AssistantSurgeries)
+            .HasForeignKey(s => s.AssistantId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        builder.Entity<Hospitalization>()
+            .HasOne(h => h.Pet)
+            .WithMany(p => p.Hospitalizations)
+            .HasForeignKey(h => h.PetId)
+            .OnDelete(DeleteBehavior.Restrict);
+
+        builder.Entity<CareLog>()
+            .HasOne(c => c.Hospitalization)
+            .WithMany(h => h.CareLogs)
+            .HasForeignKey(c => c.HospitalizationId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        builder.Entity<CareLog>()
+            .HasOne(c => c.Staff)
+            .WithMany(u => u.CareLogs)
+            .HasForeignKey(c => c.StaffId)
+            .OnDelete(DeleteBehavior.Restrict);
+
         builder.Entity<Pet>()
             .Property(p => p.Gender)
             .HasConversion<string>();
@@ -138,6 +177,14 @@ public class AppDbContext : IdentityDbContext<ApplicationUser>
             .Property(t => t.Type)
             .HasConversion<string>();
 
+        builder.Entity<Surgery>()
+            .Property(s => s.Status)
+            .HasConversion<string>();
+
+        builder.Entity<Hospitalization>()
+            .Property(h => h.Status)
+            .HasConversion<string>();
+
         builder.Entity<Pet>().Property(p => p.Weight).HasPrecision(10, 2);
         builder.Entity<ClinicService>().Property(s => s.Price).HasPrecision(10, 2);
         builder.Entity<MedicalRecord>().Property(m => m.Temperature).HasPrecision(5, 2);
@@ -146,5 +193,6 @@ public class AppDbContext : IdentityDbContext<ApplicationUser>
         builder.Entity<InventoryItem>().Property(i => i.MinQuantity).HasPrecision(10, 2);
         builder.Entity<InventoryItem>().Property(i => i.Price).HasPrecision(10, 2);
         builder.Entity<InventoryTransaction>().Property(t => t.Quantity).HasPrecision(10, 2);
+        builder.Entity<CareLog>().Property(c => c.Temperature).HasPrecision(5, 2);
     }
 }

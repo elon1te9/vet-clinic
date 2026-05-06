@@ -1,0 +1,139 @@
+@page "/hospitalizations"
+@inject VetClinic.Client.Services.HospitalizationApiService HospitalizationApiService
+@inject VetClinic.Client.Services.PetApiService PetApiService
+
+<PageTitle>Стационар</PageTitle>
+
+<h1>Стационар</h1>
+
+@if (!string.IsNullOrWhiteSpace(message))
+{
+    <p>@message</p>
+}
+
+<h2>Новая госпитализация</h2>
+
+<div>
+    <label>Питомец</label>
+    <select @bind="petId">
+        @foreach (var pet in pets)
+        {
+            <option value="@pet.Id">@pet.Name</option>
+        }
+    </select>
+</div>
+
+<div>
+    <label>Палата</label>
+    <input @bind="wardNumber" />
+</div>
+
+<div>
+    <label>Режим кормления</label>
+    <input @bind="feedingSchedule" />
+</div>
+
+<div>
+    <label>Состояние</label>
+    <input @bind="conditionNotes" />
+</div>
+
+<button @onclick="CreateHospitalization" type="button">Поместить в стационар</button>
+
+<h2>Госпитализации</h2>
+@if (hospitalizations.Count == 0)
+{
+    <p>Госпитализаций нет.</p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Питомец</th>
+                <th>Начало</th>
+                <th>Окончание</th>
+                <th>Палата</th>
+                <th>Статус</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in hospitalizations)
+            {
+                <tr>
+                    <td>@item.PetName</td>
+                    <td>@item.StartAt.ToLocalTime().ToString("dd.MM.yyyy")</td>
+                    <td>@item.EndAt?.ToLocalTime().ToString("dd.MM.yyyy")</td>
+                    <td>@item.WardNumber</td>
+                    <td>@item.Status</td>
+                    <td>
+                        <a href="@($"hospitalizations/{item.Id}")">Открыть</a>
+                        @if (item.Status == VetClinic.Shared.Enums.HospitalizationStatus.Active)
+                        {
+                            <button @onclick="() => CloseHospitalization(item.Id)" type="button">Закрыть</button>
+                        }
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private List<VetClinic.Shared.Responses.PetResponse> pets = [];
+    private List<VetClinic.Shared.Responses.HospitalizationResponse> hospitalizations = [];
+    private int petId;
+    private string wardNumber = string.Empty;
+    private string feedingSchedule = string.Empty;
+    private string conditionNotes = string.Empty;
+    private string message = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        pets = await PetApiService.GetAllAsync();
+        petId = pets.FirstOrDefault()?.Id ?? 0;
+        await LoadAsync();
+    }
+
+    private async Task LoadAsync()
+    {
+        hospitalizations = await HospitalizationApiService.GetAllAsync();
+    }
+
+    private async Task CreateHospitalization()
+    {
+        if (petId <= 0 || string.IsNullOrWhiteSpace(wardNumber))
+        {
+            message = "Выберите питомца и укажите палату.";
+            return;
+        }
+
+        var result = await HospitalizationApiService.CreateAsync(new VetClinic.Shared.Requests.CreateHospitalizationRequest
+        {
+            PetId = petId,
+            WardNumber = wardNumber,
+            FeedingSchedule = string.IsNullOrWhiteSpace(feedingSchedule) ? null : feedingSchedule,
+            ConditionNotes = string.IsNullOrWhiteSpace(conditionNotes) ? null : conditionNotes
+        });
+
+        message = result is null ? "Не удалось создать госпитализацию." : "Госпитализация создана.";
+
+        if (result is not null)
+        {
+            wardNumber = string.Empty;
+            feedingSchedule = string.Empty;
+            conditionNotes = string.Empty;
+        }
+
+        await LoadAsync();
+    }
+
+    private async Task CloseHospitalization(int id)
+    {
+        var result = await HospitalizationApiService.CloseAsync(id);
+        message = result is null ? "Не удалось закрыть госпитализацию." : "Госпитализация закрыта.";
+
+        await LoadAsync();
+    }
+}

@@ -1,0 +1,147 @@
+@page "/hospitalizations/{Id:int}"
+@inject VetClinic.Client.Services.HospitalizationApiService HospitalizationApiService
+@inject VetClinic.Client.Services.LocalStorageService LocalStorageService
+
+<PageTitle>Госпитализация</PageTitle>
+
+<h1>Госпитализация</h1>
+
+@if (!string.IsNullOrWhiteSpace(message))
+{
+    <p>@message</p>
+}
+
+@if (hospitalization is null)
+{
+    <p>Госпитализация не найдена.</p>
+}
+else
+{
+    <p>Питомец: @hospitalization.PetName</p>
+    <p>Палата: @hospitalization.WardNumber</p>
+    <p>Статус: @hospitalization.Status</p>
+    <p>Режим кормления: @hospitalization.FeedingSchedule</p>
+    <p>Состояние: @hospitalization.ConditionNotes</p>
+
+    @if (role == "Assistant" && hospitalization.Status == VetClinic.Shared.Enums.HospitalizationStatus.Active)
+    {
+        <h2>Новая запись ухода</h2>
+
+        <div>
+            <label>Температура</label>
+            <input type="number" step="0.1" @bind="temperature" />
+        </div>
+
+        <div>
+            <label>Кормление</label>
+            <input @bind="feeding" />
+        </div>
+
+        <div>
+            <label>Лекарства</label>
+            <input @bind="medication" />
+        </div>
+
+        <div>
+            <label>Состояние</label>
+            <input @bind="condition" />
+        </div>
+
+        <div>
+            <label>Заметки</label>
+            <input @bind="notes" />
+        </div>
+
+        <button @onclick="CreateCareLog" type="button">Добавить запись</button>
+    }
+
+    <h2>Записи ухода</h2>
+    @if (careLogs.Count == 0)
+    {
+        <p>Записей ухода нет.</p>
+    }
+    else
+    {
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Дата</th>
+                    <th>Сотрудник</th>
+                    <th>Температура</th>
+                    <th>Кормление</th>
+                    <th>Лекарства</th>
+                    <th>Состояние</th>
+                    <th>Заметки</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var log in careLogs)
+                {
+                    <tr>
+                        <td>@log.CreatedAt.ToLocalTime().ToString("dd.MM.yyyy HH:mm")</td>
+                        <td>@log.StaffFullName</td>
+                        <td>@log.Temperature</td>
+                        <td>@log.Feeding</td>
+                        <td>@log.Medication</td>
+                        <td>@log.Condition</td>
+                        <td>@log.Notes</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+}
+
+@code {
+    [Parameter] public int Id { get; set; }
+
+    private VetClinic.Shared.Responses.HospitalizationResponse? hospitalization;
+    private List<VetClinic.Shared.Responses.CareLogResponse> careLogs = [];
+    private string role = string.Empty;
+    private decimal? temperature;
+    private string feeding = string.Empty;
+    private string medication = string.Empty;
+    private string condition = string.Empty;
+    private string notes = string.Empty;
+    private string message = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        role = await LocalStorageService.GetItemAsync("role") ?? string.Empty;
+        await LoadAsync();
+    }
+
+    private async Task LoadAsync()
+    {
+        hospitalization = await HospitalizationApiService.GetByIdAsync(Id);
+        careLogs = await HospitalizationApiService.GetCareLogsAsync(Id);
+    }
+
+    private async Task CreateCareLog()
+    {
+        var result = await HospitalizationApiService.CreateCareLogAsync(new VetClinic.Shared.Requests.CreateCareLogRequest
+        {
+            HospitalizationId = Id,
+            Temperature = temperature,
+            Feeding = string.IsNullOrWhiteSpace(feeding) ? null : feeding,
+            Medication = string.IsNullOrWhiteSpace(medication) ? null : medication,
+            Condition = string.IsNullOrWhiteSpace(condition) ? null : condition,
+            Notes = string.IsNullOrWhiteSpace(notes) ? null : notes
+        });
+
+        if (result is null)
+        {
+            message = "Не удалось добавить запись ухода.";
+            return;
+        }
+
+        temperature = null;
+        feeding = string.Empty;
+        medication = string.Empty;
+        condition = string.Empty;
+        notes = string.Empty;
+        message = "Запись ухода добавлена.";
+
+        await LoadAsync();
+    }
+}

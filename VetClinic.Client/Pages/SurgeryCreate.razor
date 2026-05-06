@@ -1,0 +1,94 @@
+@page "/surgeries/create"
+@inject VetClinic.Client.Services.SurgeryApiService SurgeryApiService
+@inject VetClinic.Client.Services.PetApiService PetApiService
+@inject NavigationManager NavigationManager
+
+<PageTitle>Новая операция</PageTitle>
+
+<h1>Новая операция</h1>
+
+@if (!string.IsNullOrWhiteSpace(message))
+{
+    <p>@message</p>
+}
+
+<div>
+    <label>Питомец</label>
+    <select @bind="petId">
+        @foreach (var pet in pets)
+        {
+            <option value="@pet.Id">@pet.Name</option>
+        }
+    </select>
+</div>
+
+<div>
+    <label>AssistantId</label>
+    <input @bind="assistantId" />
+</div>
+
+<div>
+    <label>Дата операции</label>
+    <InputDate @bind-Value="scheduledDate" />
+</div>
+
+<div>
+    <label>Название</label>
+    <input @bind="title" />
+</div>
+
+<div>
+    <label>Описание</label>
+    <input @bind="description" />
+</div>
+
+<div>
+    <label>Наркоз</label>
+    <input @bind="anesthesia" />
+</div>
+
+<button @onclick="CreateSurgery" type="button">Сохранить</button>
+
+@code {
+    private List<VetClinic.Shared.Responses.PetResponse> pets = [];
+    private int petId;
+    private string assistantId = string.Empty;
+    private DateTime? scheduledDate = DateTime.Today;
+    private string title = string.Empty;
+    private string description = string.Empty;
+    private string anesthesia = string.Empty;
+    private string message = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        pets = await PetApiService.GetAllAsync();
+        petId = pets.FirstOrDefault()?.Id ?? 0;
+    }
+
+    private async Task CreateSurgery()
+    {
+        if (petId <= 0 || string.IsNullOrWhiteSpace(assistantId) || string.IsNullOrWhiteSpace(title) || scheduledDate is null)
+        {
+            message = "Выберите питомца, укажите AssistantId, дату и название.";
+            return;
+        }
+
+        var result = await SurgeryApiService.CreateAsync(new VetClinic.Shared.Requests.CreateSurgeryRequest
+        {
+            PetId = petId,
+            AssistantId = assistantId,
+            ScheduledAt = scheduledDate.Value,
+            Title = title,
+            Description = string.IsNullOrWhiteSpace(description) ? null : description,
+            Anesthesia = string.IsNullOrWhiteSpace(anesthesia) ? null : anesthesia
+        });
+
+        if (result is null)
+        {
+            message = "Не удалось создать операцию.";
+            return;
+        }
+
+        NavigationManager.NavigateTo("surgeries");
+    }
+}
