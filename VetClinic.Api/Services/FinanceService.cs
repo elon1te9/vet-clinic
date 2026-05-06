@@ -75,7 +75,7 @@ public class FinanceService : IFinanceService
             .Include(a => a.Service)
             .FirstOrDefaultAsync(a => a.Id == request.AppointmentId);
 
-        if (appointment?.Service is null)
+        if (appointment?.Service is null || appointment.Status == AppointmentStatus.Cancelled)
         {
             return null;
         }
@@ -99,7 +99,7 @@ public class FinanceService : IFinanceService
     public async Task<InvoiceResponse?> PayAsync(int id)
     {
         var invoice = await InvoicesWithDetails().FirstOrDefaultAsync(i => i.Id == id);
-        if (invoice is null || invoice.Status == InvoiceStatus.Cancelled)
+        if (invoice is null || invoice.Status != InvoiceStatus.Unpaid)
         {
             return null;
         }
