@@ -24,7 +24,7 @@ public class CareLogsController : ControllerBase
     }
 
     [HttpPost]
-    [Authorize(Roles = "Assistant")]
+    [Authorize(Roles = "Assistant,Veterinarian")]
     public async Task<IActionResult> Create(CreateCareLogRequest request)
     {
         var result = await _hospitalizationService.CreateCareLogAsync(request, User);

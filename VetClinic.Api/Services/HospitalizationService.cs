@@ -65,6 +65,12 @@ public class HospitalizationService : IHospitalizationService
             return null;
         }
 
+        if (request.Status == HospitalizationStatus.Active &&
+            await HasAnotherActiveHospitalizationAsync(request.PetId, null))
+        {
+            return null;
+        }
+
         var hospitalization = new Hospitalization
         {
             PetId = request.PetId,
@@ -91,6 +97,12 @@ public class HospitalizationService : IHospitalizationService
 
         var hospitalization = await _context.Hospitalizations.FirstOrDefaultAsync(h => h.Id == id);
         if (hospitalization is null)
+        {
+            return null;
+        }
+
+        if (request.Status == HospitalizationStatus.Active &&
+            await HasAnotherActiveHospitalizationAsync(request.PetId, id))
         {
             return null;
         }
@@ -142,6 +154,7 @@ public class HospitalizationService : IHospitalizationService
     {
         var userId = _userManager.GetUserId(user);
         if (string.IsNullOrWhiteSpace(userId) ||
+            (!user.IsInRole(nameof(UserRole.Assistant)) && !user.IsInRole(nameof(UserRole.Veterinarian))) ||
             request.HospitalizationId <= 0 ||
             !await _context.Hospitalizations.AnyAsync(h => h.Id == request.HospitalizationId && h.Status == HospitalizationStatus.Active))
         {
@@ -175,9 +188,24 @@ public class HospitalizationService : IHospitalizationService
 
     private async Task<bool> IsValidRequestAsync(CreateHospitalizationRequest request)
     {
+        var startAt = ToUtc(request.StartAt);
+        var endAt = request.EndAt.HasValue ? ToUtc(request.EndAt.Value) : (DateTime?)null;
+        if (endAt.HasValue && endAt.Value < startAt)
+        {
+            return false;
+        }
+
         return request.PetId > 0 &&
                !string.IsNullOrWhiteSpace(request.WardNumber) &&
                await _context.Pets.AnyAsync(p => p.Id == request.PetId);
+    }
+
+    private async Task<bool> HasAnotherActiveHospitalizationAsync(int petId, int? currentHospitalizationId)
+    {
+        return await _context.Hospitalizations.AnyAsync(h =>
+            h.PetId == petId &&
+            h.Status == HospitalizationStatus.Active &&
+            (!currentHospitalizationId.HasValue || h.Id != currentHospitalizationId.Value));
     }
 
     private static DateTime ToUtc(DateTime value)
