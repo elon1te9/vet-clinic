@@ -92,6 +92,10 @@ public class AppDbContext : IdentityDbContext<ApplicationUser>
             .Property(p => p.Gender)
             .HasConversion<string>();
 
+        builder.Entity<Appointment>()
+            .Property(a => a.Status)
+            .HasConversion<string>();
+
         builder.Entity<Pet>().Property(p => p.Weight).HasPrecision(10, 2);
         builder.Entity<ClinicService>().Property(s => s.Price).HasPrecision(10, 2);
         builder.Entity<MedicalRecord>().Property(m => m.Temperature).HasPrecision(5, 2);

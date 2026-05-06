@@ -157,7 +157,7 @@ public class AppointmentService : IAppointmentService
             StartAt = startAt,
             EndAt = endAt,
             Reason = request.Reason,
-            Status = nameof(AppointmentStatus.Planned)
+            Status = AppointmentStatus.Planned
         };
 
         _context.Appointments.Add(appointment);
@@ -188,7 +188,7 @@ public class AppointmentService : IAppointmentService
             }
         }
 
-        appointment.Status = request.Status.ToString();
+        appointment.Status = request.Status;
         appointment.UpdatedAt = DateTime.UtcNow;
 
         await _context.SaveChangesAsync();
@@ -238,7 +238,7 @@ public class AppointmentService : IAppointmentService
         return await _context.Appointments.AnyAsync(a =>
             a.VeterinarianId == doctorId &&
             a.Id != ignoredId &&
-            a.Status != nameof(AppointmentStatus.Cancelled) &&
+            a.Status != AppointmentStatus.Cancelled &&
             a.StartAt < endAt &&
             a.EndAt > startAt);
     }
@@ -263,18 +263,11 @@ public class AppointmentService : IAppointmentService
             return value;
         }
 
-        if (value.Kind == DateTimeKind.Local)
-        {
-            return value.ToUniversalTime();
-        }
-
-        return DateTime.SpecifyKind(value, DateTimeKind.Local).ToUniversalTime();
+        return DateTime.SpecifyKind(value, DateTimeKind.Utc);
     }
 
     private static AppointmentResponse MapAppointment(Appointment appointment)
     {
-        Enum.TryParse<AppointmentStatus>(appointment.Status, out var status);
-
         return new AppointmentResponse
         {
             Id = appointment.Id,
@@ -290,7 +283,7 @@ public class AppointmentService : IAppointmentService
             StartAt = appointment.StartAt,
             EndAt = appointment.EndAt,
             Reason = appointment.Reason,
-            Status = status,
+            Status = appointment.Status,
             CreatedAt = appointment.CreatedAt,
             UpdatedAt = appointment.UpdatedAt
         };

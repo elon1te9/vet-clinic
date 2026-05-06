@@ -1,0 +1,122 @@
+@page "/services"
+@inject VetClinic.Client.Services.ClinicServiceApiService ClinicServiceApiService
+@inject VetClinic.Client.Services.LocalStorageService LocalStorageService
+
+<PageTitle>Услуги</PageTitle>
+
+<h1>Услуги</h1>
+
+@if (isAdmin)
+{
+    <h2>Новая услуга</h2>
+
+    <div>
+        <label>Название</label>
+        <input @bind="name" />
+    </div>
+
+    <div>
+        <label>Описание</label>
+        <input @bind="description" />
+    </div>
+
+    <div>
+        <label>Цена</label>
+        <input type="number" step="0.01" @bind="price" />
+    </div>
+
+    <div>
+        <label>Длительность, минут</label>
+        <input type="number" @bind="durationMinutes" />
+    </div>
+
+    <button @onclick="CreateService" type="button">Создать</button>
+}
+
+@if (!string.IsNullOrWhiteSpace(message))
+{
+    <p>@message</p>
+}
+
+@if (services.Count == 0)
+{
+    <p>Услуги не найдены.</p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Название</th>
+                <th>Цена</th>
+                <th>Длительность</th>
+                <th>Активна</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var service in services)
+            {
+                <tr>
+                    <td>@service.Name</td>
+                    <td>@service.Price</td>
+                    <td>@service.DurationMinutes мин.</td>
+                    <td>@(service.IsActive ? "Да" : "Нет")</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private List<VetClinic.Shared.Responses.ClinicServiceResponse> services = [];
+    private bool isAdmin;
+    private string name = string.Empty;
+    private string description = string.Empty;
+    private decimal price;
+    private int durationMinutes = 30;
+    private string message = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var role = await LocalStorageService.GetItemAsync("role") ?? string.Empty;
+        isAdmin = role == "Admin";
+        await LoadServicesAsync();
+    }
+
+    private async Task LoadServicesAsync()
+    {
+        services = await ClinicServiceApiService.GetAllAsync();
+    }
+
+    private async Task CreateService()
+    {
+        if (string.IsNullOrWhiteSpace(name) || price < 0 || durationMinutes <= 0)
+        {
+            message = "Заполните название, цену и длительность услуги.";
+            return;
+        }
+
+        var result = await ClinicServiceApiService.CreateAsync(new VetClinic.Shared.Requests.CreateClinicServiceRequest
+        {
+            Name = name,
+            Description = string.IsNullOrWhiteSpace(description) ? null : description,
+            Price = price,
+            DurationMinutes = durationMinutes,
+            IsActive = true
+        });
+
+        if (result is null)
+        {
+            message = "Не удалось создать услугу.";
+            return;
+        }
+
+        name = string.Empty;
+        description = string.Empty;
+        price = 0;
+        durationMinutes = 30;
+        message = "Услуга создана.";
+
+        await LoadServicesAsync();
+    }
+}

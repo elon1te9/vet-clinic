@@ -1,3 +1,5 @@
+using VetClinic.Shared.Enums;
+
 namespace VetClinic.Api.Models;
 
 public class Appointment
@@ -10,7 +12,7 @@ public class Appointment
     public DateTime StartAt { get; set; }
     public DateTime EndAt { get; set; }
     public string? Reason { get; set; }
-    public string Status { get; set; } = "Planned";
+    public AppointmentStatus Status { get; set; } = AppointmentStatus.Planned;
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public DateTime? UpdatedAt { get; set; }
 
