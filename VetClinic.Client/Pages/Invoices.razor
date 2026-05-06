@@ -62,14 +62,14 @@ else
                     <td>@invoice.OwnerFullName</td>
                     <td>@invoice.ServiceName</td>
                     <td>@invoice.Amount</td>
-                    <td>@invoice.Status</td>
+                    <td><StatusBadge Status="@invoice.Status" /></td>
                     <td>@invoice.CreatedAt.ToLocalTime().ToString("dd.MM.yyyy HH:mm")</td>
                     <td>@invoice.PaidAt?.ToLocalTime().ToString("dd.MM.yyyy HH:mm")</td>
                     <td>
                         <a href="@($"invoices/{invoice.Id}")">Открыть</a>
                         @if (role == "Admin" && invoice.Status == InvoiceStatus.Unpaid)
                         {
-                            <button type="button" @onclick="() => PayInvoice(invoice.Id)">Оплатить</button>
+                            <button class="btn-sm" type="button" @onclick="() => PayInvoice(invoice.Id)">Оплатить</button>
                         }
                     </td>
                 </tr>

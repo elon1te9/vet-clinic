@@ -15,7 +15,7 @@
 {
     <div>
         <label>Название</label>
-        <input @bind="name" />
+        <input @bind="name" placeholder="Название позиции" />
     </div>
 
     <div>
@@ -30,17 +30,17 @@
 
     <div>
         <label>Единица</label>
-        <input @bind="unit" />
+        <input @bind="unit" placeholder="шт., уп., мл." />
     </div>
 
     <div>
         <label>Количество</label>
-        <input type="number" step="0.01" @bind="quantity" />
+        <input type="number" step="0.01" @bind="quantity" placeholder="0" />
     </div>
 
     <div>
         <label>Минимум</label>
-        <input type="number" step="0.01" @bind="minQuantity" />
+        <input type="number" step="0.01" @bind="minQuantity" placeholder="0" />
     </div>
 
     <div>
@@ -50,12 +50,12 @@
 
     <div>
         <label>Цена</label>
-        <input type="number" step="0.01" @bind="price" />
+        <input type="number" step="0.01" @bind="price" placeholder="0" />
     </div>
 
     <div>
         <label>Поставщик</label>
-        <input @bind="supplier" />
+        <input @bind="supplier" placeholder="Поставщик" />
     </div>
 
     <div>

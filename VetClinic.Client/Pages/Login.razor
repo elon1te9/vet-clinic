@@ -4,24 +4,29 @@
 
 <PageTitle>Вход</PageTitle>
 
-<h1>Вход</h1>
+<div class="auth-page">
+    <div class="auth-card">
+        <h1>Вход</h1>
+        <p class="muted">Введите email и пароль, чтобы открыть рабочий кабинет.</p>
 
-<div>
-    <label>Email</label>
-    <input @bind="email" placeholder="Введите email" />
+        <div>
+            <label>Email</label>
+            <input @bind="email" placeholder="Введите email" autocomplete="username" />
+        </div>
+
+        <div>
+            <label>Пароль</label>
+            <input type="password" @bind="password" placeholder="Введите пароль" autocomplete="current-password" />
+        </div>
+
+        <ErrorMessage Text="@errorMessage" />
+
+        <div class="actions-row">
+            <button class="btn btn-primary" @onclick="LoginUser" type="button">Войти</button>
+            <a class="btn btn-secondary" href="register">Регистрация</a>
+        </div>
+    </div>
 </div>
-
-<div>
-    <label>Пароль</label>
-    <input type="password" @bind="password" placeholder="Введите пароль" />
-</div>
-
-@if (!string.IsNullOrWhiteSpace(errorMessage))
-{
-    <p>@errorMessage</p>
-}
-
-<button @onclick="LoginUser" type="button">Войти</button>
 
 @code {
     private string email = string.Empty;
@@ -50,6 +55,6 @@
             return;
         }
 
-        Navigation.NavigateTo("/");
+        Navigation.NavigateTo("/", true);
     }
 }

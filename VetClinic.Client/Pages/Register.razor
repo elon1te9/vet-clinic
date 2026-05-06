@@ -4,39 +4,44 @@
 
 <PageTitle>Регистрация</PageTitle>
 
-<h1>Регистрация</h1>
+<div class="auth-page">
+    <div class="auth-card">
+        <h1>Регистрация</h1>
+        <p class="muted">Создайте кабинет владельца питомца.</p>
 
-<div>
-    <label>ФИО</label>
-    <input @bind="fullName" placeholder="Введите ФИО" />
+        <div>
+            <label>ФИО</label>
+            <input @bind="fullName" placeholder="Введите ФИО" autocomplete="name" />
+        </div>
+
+        <div>
+            <label>Email</label>
+            <input @bind="email" placeholder="Введите email" autocomplete="email" />
+        </div>
+
+        <div>
+            <label>Пароль</label>
+            <input type="password" @bind="password" placeholder="Введите пароль" autocomplete="new-password" />
+        </div>
+
+        <div>
+            <label>Телефон</label>
+            <input @bind="phoneNumber" placeholder="Введите телефон" autocomplete="tel" />
+        </div>
+
+        <div>
+            <label>Адрес</label>
+            <input @bind="address" placeholder="Введите адрес" />
+        </div>
+
+        <ErrorMessage Text="@errorMessage" />
+
+        <div class="actions-row">
+            <button class="btn btn-primary" @onclick="RegisterUser" type="button">Зарегистрироваться</button>
+            <a class="btn btn-secondary" href="login">Уже есть аккаунт</a>
+        </div>
+    </div>
 </div>
-
-<div>
-    <label>Email</label>
-    <input @bind="email" placeholder="Введите email" />
-</div>
-
-<div>
-    <label>Пароль</label>
-    <input type="password" @bind="password" placeholder="Введите пароль" />
-</div>
-
-<div>
-    <label>Телефон</label>
-    <input @bind="phoneNumber" placeholder="Введите телефон" />
-</div>
-
-<div>
-    <label>Адрес</label>
-    <input @bind="address" placeholder="Введите адрес" />
-</div>
-
-@if (!string.IsNullOrWhiteSpace(errorMessage))
-{
-    <p>@errorMessage</p>
-}
-
-<button @onclick="RegisterUser" type="button">Зарегистрироваться</button>
 
 @code {
     private string fullName = string.Empty;
@@ -52,7 +57,7 @@
             string.IsNullOrWhiteSpace(email) ||
             string.IsNullOrWhiteSpace(password))
         {
-            errorMessage = "Заполните все поля.";
+            errorMessage = "Заполните ФИО, email и пароль.";
             return;
         }
 
@@ -73,6 +78,6 @@
             return;
         }
 
-        Navigation.NavigateTo("/");
+        Navigation.NavigateTo("/", true);
     }
 }

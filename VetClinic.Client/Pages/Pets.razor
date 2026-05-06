@@ -46,7 +46,7 @@ else
                         @if (canEdit)
                         {
                             <button @onclick="() => OpenEdit(pet.Id)" type="button">Изменить</button>
-                            <button @onclick="() => DeletePet(pet.Id)" type="button">Удалить</button>
+                            <button class="btn-danger btn-sm" @onclick="() => DeletePet(pet.Id)" type="button">Удалить</button>
                         }
                     </td>
                 </tr>

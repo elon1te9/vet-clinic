@@ -6,142 +6,152 @@
 
 <PageTitle>Админ-панель</PageTitle>
 
-<h1>Админ-панель</h1>
+<PageHeader Title="Админ-панель"
+            Description="Краткая сводка по приёмам, выручке, стационару, складу и ближайшим вакцинациям." />
 
-@if (!string.IsNullOrWhiteSpace(message))
+<ErrorMessage Text="@message" />
+
+@if (dashboard is null && string.IsNullOrWhiteSpace(message))
 {
-    <p>@message</p>
+    <Loading Text="Загрузка админ-панели..." />
 }
-
-@if (dashboard is null)
+else if (dashboard is null)
 {
-    <p>Данные не загружены.</p>
+    <EmptyState Title="Данные не загружены" Message="Попробуйте обновить страницу или войти под администратором." />
 }
 else
 {
     <div class="dashboard-cards">
-        <VetClinic.Client.Components.DashboardCard Title="Приёмов сегодня" Value="@dashboard.AppointmentsTodayCount.ToString()" />
-        <VetClinic.Client.Components.DashboardCard Title="Выручка сегодня" Value="@dashboard.RevenueToday.ToString()" />
-        <VetClinic.Client.Components.DashboardCard Title="Активных госпитализаций" Value="@dashboard.ActiveHospitalizationsCount.ToString()" />
-        <VetClinic.Client.Components.DashboardCard Title="Критических остатков" Value="@dashboard.LowStockItemsCount.ToString()" />
-        <VetClinic.Client.Components.DashboardCard Title="Ближайших вакцинаций" Value="@dashboard.UpcomingVaccinationsCount.ToString()" />
+        <DashboardCard Title="Приёмов сегодня" Value="@dashboard.AppointmentsTodayCount.ToString()" Description="Записи на текущий день" Icon="A" />
+        <DashboardCard Title="Выручка сегодня" Value="@dashboard.RevenueToday.ToString("0.00")" Description="Оплаченные счета" Icon="F" />
+        <DashboardCard Title="Стационар" Value="@dashboard.ActiveHospitalizationsCount.ToString()" Description="Активные госпитализации" Icon="H" />
+        <DashboardCard Title="Критические остатки" Value="@dashboard.LowStockItemsCount.ToString()" Description="Нужно проверить склад" Icon="S" />
+        <DashboardCard Title="Вакцинации" Value="@dashboard.UpcomingVaccinationsCount.ToString()" Description="Ближайшие 30 дней" Icon="V" />
     </div>
 
-    <h2>Последние записи на приём</h2>
-    @if (dashboard.RecentAppointments.Count == 0)
-    {
-        <p>Записей нет.</p>
-    }
-    else
-    {
-        <table class="table">
-            <thead>
-                <tr>
-                    <th>Дата</th>
-                    <th>Питомец</th>
-                    <th>Врач</th>
-                    <th>Услуга</th>
-                    <th>Статус</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var appointment in dashboard.RecentAppointments)
-                {
+    <section class="section-card">
+        <h2>Последние записи на приём</h2>
+        @if (dashboard.RecentAppointments.Count == 0)
+        {
+            <EmptyState Title="Записей нет" Message="Последние записи появятся здесь после создания приёмов." />
+        }
+        else
+        {
+            <table class="table">
+                <thead>
                     <tr>
-                        <td>@appointment.StartAt.ToLocalTime().ToString("dd.MM.yyyy HH:mm")</td>
-                        <td>@appointment.PetName</td>
-                        <td>@appointment.VeterinarianFullName</td>
-                        <td>@appointment.ServiceName</td>
-                        <td>@appointment.Status</td>
+                        <th>Дата</th>
+                        <th>Питомец</th>
+                        <th>Врач</th>
+                        <th>Услуга</th>
+                        <th>Статус</th>
                     </tr>
-                }
-            </tbody>
-        </table>
-    }
+                </thead>
+                <tbody>
+                    @foreach (var appointment in dashboard.RecentAppointments)
+                    {
+                        <tr>
+                            <td>@appointment.StartAt.ToLocalTime().ToString("dd.MM.yyyy HH:mm")</td>
+                            <td>@appointment.PetName</td>
+                            <td>@appointment.VeterinarianFullName</td>
+                            <td>@appointment.ServiceName</td>
+                            <td><StatusBadge Status="@appointment.Status" /></td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+    </section>
 
-    <h2>Загрузка врачей сегодня</h2>
-    @if (dashboard.DoctorsLoad.Count == 0)
-    {
-        <p>Данных нет.</p>
-    }
-    else
-    {
-        <table class="table">
-            <thead>
-                <tr>
-                    <th>Врач</th>
-                    <th>Приёмов</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var item in dashboard.DoctorsLoad)
-                {
+    <section class="section-card">
+        <h2>Загрузка врачей сегодня</h2>
+        @if (dashboard.DoctorsLoad.Count == 0)
+        {
+            <EmptyState Title="Данных нет" Message="На сегодня нет записей по врачам." />
+        }
+        else
+        {
+            <table class="table">
+                <thead>
                     <tr>
-                        <td>@item.VeterinarianFullName</td>
-                        <td>@item.AppointmentsCount</td>
+                        <th>Врач</th>
+                        <th>Приёмов</th>
                     </tr>
-                }
-            </tbody>
-        </table>
-    }
+                </thead>
+                <tbody>
+                    @foreach (var item in dashboard.DoctorsLoad)
+                    {
+                        <tr>
+                            <td>@item.VeterinarianFullName</td>
+                            <td>@item.AppointmentsCount</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+    </section>
 
-    <h2>Складские предупреждения</h2>
-    @if (dashboard.LowStockItems.Count == 0)
-    {
-        <p>Критических остатков нет.</p>
-    }
-    else
-    {
-        <table class="table">
-            <thead>
-                <tr>
-                    <th>Позиция</th>
-                    <th>Остаток</th>
-                    <th>Минимум</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var item in dashboard.LowStockItems)
-                {
+    <section class="section-card">
+        <h2>Складские предупреждения</h2>
+        @if (dashboard.LowStockItems.Count == 0)
+        {
+            <EmptyState Title="Критических остатков нет" Message="Все складские позиции выше минимального остатка." />
+        }
+        else
+        {
+            <table class="table">
+                <thead>
                     <tr>
-                        <td>@item.Name</td>
-                        <td>@item.Quantity @item.Unit</td>
-                        <td>@item.MinQuantity @item.Unit</td>
+                        <th>Позиция</th>
+                        <th>Остаток</th>
+                        <th>Минимум</th>
                     </tr>
-                }
-            </tbody>
-        </table>
-    }
+                </thead>
+                <tbody>
+                    @foreach (var item in dashboard.LowStockItems)
+                    {
+                        <tr>
+                            <td>@item.Name</td>
+                            <td><StatusBadge Text="@($"{item.Quantity} {item.Unit}")" /></td>
+                            <td>@item.MinQuantity @item.Unit</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+    </section>
 
-    <h2>Ближайшие вакцинации</h2>
-    @if (dashboard.UpcomingVaccinations.Count == 0)
-    {
-        <p>Ближайших вакцинаций нет.</p>
-    }
-    else
-    {
-        <table class="table">
-            <thead>
-                <tr>
-                    <th>Дата</th>
-                    <th>Питомец</th>
-                    <th>Вакцинация</th>
-                    <th>Владелец</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var vaccination in dashboard.UpcomingVaccinations)
-                {
+    <section class="section-card">
+        <h2>Ближайшие вакцинации</h2>
+        @if (dashboard.UpcomingVaccinations.Count == 0)
+        {
+            <EmptyState Title="Ближайших вакцинаций нет" Message="На ближайшие 30 дней вакцинации не запланированы." />
+        }
+        else
+        {
+            <table class="table">
+                <thead>
                     <tr>
-                        <td>@vaccination.NextDueAt?.ToLocalTime().ToString("dd.MM.yyyy")</td>
-                        <td>@vaccination.PetName</td>
-                        <td>@vaccination.Name</td>
-                        <td>@vaccination.OwnerFullName</td>
+                        <th>Дата</th>
+                        <th>Питомец</th>
+                        <th>Вакцинация</th>
+                        <th>Владелец</th>
                     </tr>
-                }
-            </tbody>
-        </table>
-    }
+                </thead>
+                <tbody>
+                    @foreach (var vaccination in dashboard.UpcomingVaccinations)
+                    {
+                        <tr>
+                            <td>@vaccination.NextDueAt?.ToLocalTime().ToString("dd.MM.yyyy")</td>
+                            <td>@vaccination.PetName</td>
+                            <td>@vaccination.Name</td>
+                            <td>@vaccination.OwnerFullName</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+    </section>
 }
 
 @code {

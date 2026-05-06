@@ -25,17 +25,17 @@
 
 <div>
     <label>Палата</label>
-    <input @bind="wardNumber" />
+    <input @bind="wardNumber" placeholder="Номер палаты" />
 </div>
 
 <div>
     <label>Режим кормления</label>
-    <input @bind="feedingSchedule" />
+    <input @bind="feedingSchedule" placeholder="Например: 2 раза в день" />
 </div>
 
 <div>
     <label>Состояние</label>
-    <input @bind="conditionNotes" />
+    <input @bind="conditionNotes" placeholder="Краткое состояние питомца" />
 </div>
 
 <button @onclick="CreateHospitalization" type="button">Поместить в стационар</button>
@@ -66,12 +66,12 @@ else
                     <td>@item.StartAt.ToLocalTime().ToString("dd.MM.yyyy")</td>
                     <td>@item.EndAt?.ToLocalTime().ToString("dd.MM.yyyy")</td>
                     <td>@item.WardNumber</td>
-                    <td>@item.Status</td>
+                    <td><StatusBadge Status="@item.Status" /></td>
                     <td>
                         <a href="@($"hospitalizations/{item.Id}")">Открыть</a>
                         @if (item.Status == VetClinic.Shared.Enums.HospitalizationStatus.Active)
                         {
-                            <button @onclick="() => CloseHospitalization(item.Id)" type="button">Закрыть</button>
+                            <button class="btn-danger btn-sm" @onclick="() => CloseHospitalization(item.Id)" type="button">Закрыть</button>
                         }
                     </td>
                 </tr>

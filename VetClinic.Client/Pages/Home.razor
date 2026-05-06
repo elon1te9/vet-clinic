@@ -1,7 +1,132 @@
-﻿@page "/"
+@page "/"
+@inject VetClinic.Client.Services.LocalStorageService LocalStorageService
 
 <PageTitle>Главная</PageTitle>
 
-<h1>VetClinic</h1>
+<div class="home-hero">
+    <section class="home-panel">
+        <h1>VetClinic</h1>
+        <p>
+            Учебная система управления ветеринарной клиникой: записи на приём,
+            питомцы, медицинские карты, вакцинации, склад, стационар и финансы в одном интерфейсе.
+        </p>
 
-Добро пожаловать в систему управления ветеринарной клиникой.
+        @if (!isAuthorized)
+        {
+            <div class="actions-row">
+                <a class="btn btn-primary" href="login">Войти</a>
+                <a class="btn btn-secondary" href="register">Зарегистрироваться</a>
+            </div>
+        }
+        else
+        {
+            <p class="muted">Вы вошли как @role. Выберите быстрый раздел или пункт в левом меню.</p>
+        }
+    </section>
+
+    <section class="home-panel">
+        <h2>Для клиники</h2>
+        <p>
+            Интерфейс сделан для ежедневной работы администратора, врача,
+            владельца питомца и ассистента.
+        </p>
+    </section>
+</div>
+
+<div class="feature-grid">
+    <div class="feature-card">
+        <h3>Расписание</h3>
+        <p>Создание и контроль записей на приём с понятными статусами.</p>
+    </div>
+    <div class="feature-card">
+        <h3>Медицинские карты</h3>
+        <p>История приёмов, диагнозы, лечение и рекомендации по питомцам.</p>
+    </div>
+    <div class="feature-card">
+        <h3>Склад</h3>
+        <p>Учёт остатков, операций склада и критических позиций.</p>
+    </div>
+    <div class="feature-card">
+        <h3>Уведомления</h3>
+        <p>Real-time события через SignalR для важных изменений.</p>
+    </div>
+</div>
+
+@if (isAuthorized)
+{
+    <h2>Быстрые ссылки</h2>
+    <div class="quick-grid">
+        @foreach (var link in quickLinks)
+        {
+            <a class="quick-card" href="@link.Href">
+                <h3>@link.Title</h3>
+                <p>@link.Description</p>
+            </a>
+        }
+    </div>
+}
+
+@code {
+    private bool isAuthorized;
+    private string role = string.Empty;
+    private List<QuickLink> quickLinks = [];
+
+    protected override async Task OnInitializedAsync()
+    {
+        var token = await LocalStorageService.GetItemAsync("token");
+        isAuthorized = !string.IsNullOrWhiteSpace(token);
+        role = await LocalStorageService.GetItemAsync("role") ?? string.Empty;
+        quickLinks = GetLinksForRole(role);
+    }
+
+    private static List<QuickLink> GetLinksForRole(string currentRole)
+    {
+        if (currentRole == "Admin")
+        {
+            return
+            [
+                new("Админ-панель", "Главные показатели клиники.", "admin/dashboard"),
+                new("Пользователи", "Роли и сотрудники.", "users"),
+                new("Склад", "Остатки и позиции.", "inventory"),
+                new("Отчёты", "Финансовая аналитика.", "reports")
+            ];
+        }
+
+        if (currentRole == "Veterinarian")
+        {
+            return
+            [
+                new("Мои записи", "Приёмы врача.", "appointments/my"),
+                new("Медкарты", "История лечения.", "medical-records"),
+                new("Вакцинации", "План и факты вакцинаций.", "vaccinations"),
+                new("Стационар", "Госпитализации питомцев.", "hospitalizations")
+            ];
+        }
+
+        if (currentRole == "Owner")
+        {
+            return
+            [
+                new("Мои питомцы", "Карточки питомцев.", "pets"),
+                new("Записаться", "Новый приём.", "appointments/create"),
+                new("Мои записи", "История приёмов.", "appointments/my"),
+                new("Счета", "Оплата услуг.", "invoices")
+            ];
+        }
+
+        if (currentRole == "Assistant")
+        {
+            return
+            [
+                new("Расписание", "Приёмы клиники.", "appointments"),
+                new("Склад", "Материалы и препараты.", "inventory"),
+                new("Операции склада", "Журнал движений.", "inventory/transactions"),
+                new("Стационар", "Уход за питомцами.", "hospitalizations")
+            ];
+        }
+
+        return [];
+    }
+
+    private record QuickLink(string Title, string Description, string Href);
+}

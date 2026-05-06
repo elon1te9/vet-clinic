@@ -81,7 +81,7 @@ else
                         @if (role == "Admin")
                         {
                             <a href="@($"inventory/edit/{item.Id}")">Редактировать</a>
-                            <button @onclick="() => DeleteItem(item.Id)" type="button">Удалить</button>
+                            <button class="btn-danger btn-sm" @onclick="() => DeleteItem(item.Id)" type="button">Удалить</button>
                         }
                     </td>
                 </tr>

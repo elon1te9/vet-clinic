@@ -37,17 +37,17 @@
 
     <div>
         <label>Количество</label>
-        <input type="number" step="0.01" @bind="quantity" />
+        <input type="number" step="0.01" @bind="quantity" placeholder="Количество" />
     </div>
 
     <div>
         <label>Причина</label>
-        <input @bind="reason" />
+        <input @bind="reason" placeholder="Причина операции" />
     </div>
 
     <div>
         <label>MedicalRecordId</label>
-        <input type="number" @bind="relatedMedicalRecordId" />
+        <input type="number" @bind="relatedMedicalRecordId" placeholder="Необязательно" />
     </div>
 
     <button @onclick="CreateTransaction" type="button">Сохранить</button>

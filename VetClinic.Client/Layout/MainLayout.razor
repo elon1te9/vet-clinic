@@ -1,17 +1,73 @@
 @inherits LayoutComponentBase
+@inject VetClinic.Client.Services.LocalStorageService LocalStorageService
+@inject NavigationManager Navigation
+@inject HttpClient HttpClient
+
 <div class="page">
     <div class="sidebar">
         <NavMenu />
     </div>
 
     <main>
-        <div class="top-row px-4">
-            <VetClinic.Client.Components.NotificationBell />
-            <span>Учебный проект VetClinic</span>
+        <div class="top-row app-topbar">
+            <div>
+                <div class="topbar-title">VetClinic</div>
+                <div class="topbar-subtitle">Система управления ветеринарной клиникой</div>
+            </div>
+
+            <div class="topbar-actions">
+                @if (isAuthorized)
+                {
+                    <div class="user-chip">
+                        <span>@fullName</span>
+                        <small>@role</small>
+                    </div>
+                    <VetClinic.Client.Components.NotificationBell />
+                    <button class="btn btn-secondary btn-sm" type="button" @onclick="Logout">Выйти</button>
+                }
+                else
+                {
+                    <a class="btn btn-secondary btn-sm" href="login">Войти</a>
+                }
+            </div>
         </div>
 
-        <article class="content px-4">
+        <article class="content">
             @Body
         </article>
     </main>
 </div>
+
+@code {
+    private bool isAuthorized;
+    private string fullName = "Пользователь";
+    private string role = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadUserAsync();
+    }
+
+    private async Task LoadUserAsync()
+    {
+        var token = await LocalStorageService.GetItemAsync("token");
+        isAuthorized = !string.IsNullOrWhiteSpace(token);
+
+        if (isAuthorized)
+        {
+            fullName = await LocalStorageService.GetItemAsync("fullName") ?? "Пользователь";
+            role = await LocalStorageService.GetItemAsync("role") ?? string.Empty;
+        }
+    }
+
+    private async Task Logout()
+    {
+        await LocalStorageService.RemoveItemAsync("token");
+        await LocalStorageService.RemoveItemAsync("userId");
+        await LocalStorageService.RemoveItemAsync("email");
+        await LocalStorageService.RemoveItemAsync("fullName");
+        await LocalStorageService.RemoveItemAsync("role");
+        HttpClient.DefaultRequestHeaders.Authorization = null;
+        Navigation.NavigateTo("/login", true);
+    }
+}

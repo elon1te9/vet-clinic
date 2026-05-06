@@ -12,22 +12,22 @@
 
     <div>
         <label>Название</label>
-        <input @bind="name" />
+        <input @bind="name" placeholder="Название услуги" />
     </div>
 
     <div>
         <label>Описание</label>
-        <input @bind="description" />
+        <input @bind="description" placeholder="Краткое описание" />
     </div>
 
     <div>
         <label>Цена</label>
-        <input type="number" step="0.01" @bind="price" />
+        <input type="number" step="0.01" @bind="price" placeholder="0" />
     </div>
 
     <div>
         <label>Длительность, минут</label>
-        <input type="number" @bind="durationMinutes" />
+        <input type="number" @bind="durationMinutes" placeholder="30" />
     </div>
 
     <button @onclick="CreateService" type="button">Создать</button>

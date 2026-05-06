@@ -1,126 +1,97 @@
-<div class="top-row ps-3 navbar navbar-dark">
-    <div class="container-fluid">
-        <a class="navbar-brand" href="">VetClinic</a>
-        <button title="Меню навигации" class="navbar-toggler" @onclick="ToggleNavMenu">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-    </div>
+@inject VetClinic.Client.Services.LocalStorageService LocalStorageService
+
+<div class="nav-header">
+    <a class="brand" href="">
+        <span class="brand-mark">VC</span>
+        <span>
+            <strong>VetClinic</strong>
+            <small>Клиника</small>
+        </span>
+    </a>
+    <button title="Меню навигации" class="nav-toggle" @onclick="ToggleNavMenu">
+        ☰
+    </button>
 </div>
 
-<div class="@NavMenuCssClass nav-scrollable" @onclick="ToggleNavMenu">
-    <nav class="flex-column">
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="admin/dashboard">
-                <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Админ-панель
-            </NavLink>
-        </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="" Match="NavLinkMatch.All">
-                <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Главная
-            </NavLink>
-        </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="pets">
-                <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> Питомцы
-            </NavLink>
-        </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="appointments/create">
-                <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> Записаться на приём
-            </NavLink>
-        </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="appointments/my">
-                <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Мои записи
-            </NavLink>
-        </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="appointments">
-                <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Расписание
-            </NavLink>
-        </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="services">
-                <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Услуги
-            </NavLink>
-        </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="medical-records">
-                <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Медицинские карты
-            </NavLink>
-        </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="vaccinations">
-                <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Вакцинации
-            </NavLink>
-        </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="vaccinations/calendar">
-                <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Календарь вакцинаций
-            </NavLink>
-        </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="notifications">
-                <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Уведомления
-            </NavLink>
-        </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="inventory">
-                <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Склад
-            </NavLink>
-        </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="inventory/transactions">
-                <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Операции склада
-            </NavLink>
-        </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="surgeries">
-                <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Операции
-            </NavLink>
-        </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="hospitalizations">
-                <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Стационар
-            </NavLink>
-        </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="invoices">
-                <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Счета
-            </NavLink>
-        </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="reports">
-                <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Отчёты
-            </NavLink>
-        </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="owners">
-                <span class="bi bi-people-fill-nav-menu" aria-hidden="true"></span> Владельцы
-            </NavLink>
-        </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="users">
-                <span class="bi bi-list-nested-nav-menu" aria-hidden="true"></span> Пользователи
-            </NavLink>
-        </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="login">
-                <span class="bi bi-person-fill-nav-menu" aria-hidden="true"></span> Вход
-            </NavLink>
-        </div>
-        <div class="nav-item px-3">
-            <NavLink class="nav-link" href="register">
-                <span class="bi bi-person-plus-fill-nav-menu" aria-hidden="true"></span> Регистрация
-            </NavLink>
-        </div>
+<div class="@NavMenuCssClass nav-scrollable">
+    <nav>
+        @if (!isAuthorized)
+        {
+            <div class="nav-section">Старт</div>
+            <NavItem Href="" Text="Главная" Match="NavLinkMatch.All" />
+            <NavItem Href="login" Text="Вход" />
+            <NavItem Href="register" Text="Регистрация" />
+        }
+        else if (role == "Admin")
+        {
+            <div class="nav-section">Управление</div>
+            <NavItem Href="admin/dashboard" Text="Админ-панель" />
+            <NavItem Href="users" Text="Пользователи" />
+            <NavItem Href="owners" Text="Владельцы" />
+            <NavItem Href="pets" Text="Питомцы" />
+            <NavItem Href="appointments" Text="Расписание" />
+            <NavItem Href="services" Text="Услуги" />
+
+            <div class="nav-section">Клиника</div>
+            <NavItem Href="inventory" Text="Склад" />
+            <NavItem Href="inventory/transactions" Text="Операции склада" />
+            <NavItem Href="surgeries" Text="Операции" />
+            <NavItem Href="hospitalizations" Text="Стационар" />
+            <NavItem Href="invoices" Text="Счета" />
+            <NavItem Href="reports" Text="Отчёты" />
+            <NavItem Href="notifications" Text="Уведомления" />
+        }
+        else if (role == "Veterinarian")
+        {
+            <div class="nav-section">Работа врача</div>
+            <NavItem Href="appointments/my" Text="Мои записи" />
+            <NavItem Href="pets" Text="Питомцы" />
+            <NavItem Href="medical-records" Text="Медицинские карты" />
+            <NavItem Href="vaccinations" Text="Вакцинации" />
+            <NavItem Href="vaccinations/calendar" Text="Календарь вакцинаций" />
+            <NavItem Href="surgeries" Text="Операции" />
+            <NavItem Href="hospitalizations" Text="Стационар" />
+            <NavItem Href="inventory" Text="Склад" />
+            <NavItem Href="notifications" Text="Уведомления" />
+        }
+        else if (role == "Owner")
+        {
+            <div class="nav-section">Мой кабинет</div>
+            <NavItem Href="pets" Text="Мои питомцы" />
+            <NavItem Href="appointments/create" Text="Записаться на приём" />
+            <NavItem Href="appointments/my" Text="Мои записи" />
+            <NavItem Href="medical-records" Text="Медицинские карты" />
+            <NavItem Href="vaccinations" Text="Вакцинации" />
+            <NavItem Href="vaccinations/calendar" Text="Календарь вакцинаций" />
+            <NavItem Href="invoices" Text="Счета" />
+            <NavItem Href="notifications" Text="Уведомления" />
+        }
+        else if (role == "Assistant")
+        {
+            <div class="nav-section">Работа ассистента</div>
+            <NavItem Href="appointments" Text="Расписание" />
+            <NavItem Href="inventory" Text="Склад" />
+            <NavItem Href="inventory/transactions" Text="Операции склада" />
+            <NavItem Href="hospitalizations" Text="Стационар" />
+            <NavItem Href="hospitalizations" Text="Уход" />
+            <NavItem Href="notifications" Text="Уведомления" />
+        }
     </nav>
 </div>
 
 @code {
     private bool collapseNavMenu = true;
+    private bool isAuthorized;
+    private string role = string.Empty;
 
     private string? NavMenuCssClass => collapseNavMenu ? "collapse" : null;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var token = await LocalStorageService.GetItemAsync("token");
+        isAuthorized = !string.IsNullOrWhiteSpace(token);
+        role = await LocalStorageService.GetItemAsync("role") ?? string.Empty;
+    }
 
     private void ToggleNavMenu()
     {

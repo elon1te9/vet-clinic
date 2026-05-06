@@ -37,13 +37,13 @@ else
                     <td>@surgery.ScheduledAt.ToLocalTime().ToString("dd.MM.yyyy HH:mm")</td>
                     <td>@surgery.PetName</td>
                     <td>@surgery.Title</td>
-                    <td>@surgery.Status</td>
+                    <td><StatusBadge Status="@surgery.Status" /></td>
                     <td>@surgery.VeterinarianFullName</td>
                     <td>@surgery.AssistantFullName</td>
                     <td>
-                        <button @onclick="() => SetStatus(surgery.Id, VetClinic.Shared.Enums.SurgeryStatus.InProgress)" type="button">InProgress</button>
-                        <button @onclick="() => SetStatus(surgery.Id, VetClinic.Shared.Enums.SurgeryStatus.Completed)" type="button">Completed</button>
-                        <button @onclick="() => SetStatus(surgery.Id, VetClinic.Shared.Enums.SurgeryStatus.Cancelled)" type="button">Cancelled</button>
+                        <button class="btn-sm" @onclick="() => SetStatus(surgery.Id, VetClinic.Shared.Enums.SurgeryStatus.InProgress)" type="button">InProgress</button>
+                        <button class="btn-secondary btn-sm" @onclick="() => SetStatus(surgery.Id, VetClinic.Shared.Enums.SurgeryStatus.Completed)" type="button">Completed</button>
+                        <button class="btn-danger btn-sm" @onclick="() => SetStatus(surgery.Id, VetClinic.Shared.Enums.SurgeryStatus.Cancelled)" type="button">Cancelled</button>
                     </td>
                 </tr>
             }

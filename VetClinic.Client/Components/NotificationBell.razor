@@ -3,7 +3,10 @@
 @inject VetClinic.Client.Services.SignalRNotificationService SignalRNotificationService
 @inject VetClinic.Client.Services.LocalStorageService LocalStorageService
 
-<a href="notifications">Уведомления (@unreadCount)</a>
+<a class="notification-bell" href="notifications" title="Уведомления">
+    <span>Уведомления</span>
+    <strong>@unreadCount</strong>
+</a>
 
 @code {
     private int unreadCount;

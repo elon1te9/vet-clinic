@@ -23,7 +23,7 @@
 
     <div>
         <label>Название вакцины</label>
-        <input @bind="name" />
+        <input @bind="name" placeholder="Название вакцины" />
     </div>
 
     <div>
@@ -48,7 +48,7 @@
 
     <div>
         <label>Заметки</label>
-        <input @bind="notes" />
+        <input @bind="notes" placeholder="Заметки по вакцинации" />
     </div>
 
     <button @onclick="CreateVaccination" type="button">Сохранить</button>
@@ -84,7 +84,7 @@ else
                     <td>@vaccination.Name</td>
                     <td>@vaccination.DoneAt.ToLocalTime().ToString("dd.MM.yyyy")</td>
                     <td>@vaccination.NextDueAt?.ToLocalTime().ToString("dd.MM.yyyy")</td>
-                    <td>@vaccination.Status</td>
+                    <td><StatusBadge Status="@vaccination.Status" /></td>
                     <td>@vaccination.VeterinarianFullName</td>
                 </tr>
             }

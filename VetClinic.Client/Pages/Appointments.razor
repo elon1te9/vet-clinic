@@ -38,13 +38,13 @@ else
                     <td>@appointment.OwnerFullName</td>
                     <td>@appointment.VeterinarianFullName</td>
                     <td>@appointment.ServiceName</td>
-                    <td>@appointment.Status</td>
+                    <td><StatusBadge Status="@appointment.Status" /></td>
                     <td>
                         @if (canChangeStatus)
                         {
-                            <button @onclick="() => ChangeStatus(appointment.Id, VetClinic.Shared.Enums.AppointmentStatus.Confirmed)" type="button">Подтвердить</button>
-                            <button @onclick="() => ChangeStatus(appointment.Id, VetClinic.Shared.Enums.AppointmentStatus.Completed)" type="button">Завершить</button>
-                            <button @onclick="() => ChangeStatus(appointment.Id, VetClinic.Shared.Enums.AppointmentStatus.Cancelled)" type="button">Отменить</button>
+                            <button class="btn-sm" @onclick="() => ChangeStatus(appointment.Id, VetClinic.Shared.Enums.AppointmentStatus.Confirmed)" type="button">Подтвердить</button>
+                            <button class="btn-secondary btn-sm" @onclick="() => ChangeStatus(appointment.Id, VetClinic.Shared.Enums.AppointmentStatus.Completed)" type="button">Завершить</button>
+                            <button class="btn-danger btn-sm" @onclick="() => ChangeStatus(appointment.Id, VetClinic.Shared.Enums.AppointmentStatus.Cancelled)" type="button">Отменить</button>
                         }
                     </td>
                 </tr>

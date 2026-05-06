@@ -1,6 +1,16 @@
 <div class="dashboard-card">
-    <h3>@Title</h3>
-    <p>@Value</p>
+    @if (!string.IsNullOrWhiteSpace(Icon))
+    {
+        <div class="dashboard-card-icon">@Icon</div>
+    }
+    <div>
+        <h3>@Title</h3>
+        <p>@Value</p>
+        @if (!string.IsNullOrWhiteSpace(Description))
+        {
+            <span>@Description</span>
+        }
+    </div>
 </div>
 
 @code {
@@ -9,4 +19,10 @@
 
     [Parameter]
     public string Value { get; set; } = string.Empty;
+
+    [Parameter]
+    public string Description { get; set; } = string.Empty;
+
+    [Parameter]
+    public string Icon { get; set; } = string.Empty;
 }

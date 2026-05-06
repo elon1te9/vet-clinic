@@ -10,17 +10,17 @@
 {
     <div>
         <label>Имя</label>
-        <input @bind="name" />
+        <input @bind="name" placeholder="Например: Барсик" />
     </div>
 
     <div>
         <label>Вид</label>
-        <input @bind="species" />
+        <input @bind="species" placeholder="Кошка, собака, попугай" />
     </div>
 
     <div>
         <label>Порода</label>
-        <input @bind="breed" />
+        <input @bind="breed" placeholder="Порода" />
     </div>
 
     <div>
@@ -39,17 +39,17 @@
 
     <div>
         <label>Вес</label>
-        <input @bind="weightText" />
+        <input @bind="weightText" placeholder="Например: 4,5" />
     </div>
 
     <div>
         <label>Окрас</label>
-        <input @bind="color" />
+        <input @bind="color" placeholder="Окрас" />
 </div>
 
     <div>
         <label>Особенности здоровья</label>
-        <input @bind="healthNotes" />
+        <input @bind="healthNotes" placeholder="Краткие особенности здоровья" />
     </div>
 
     <button @onclick="SavePet" type="button">Сохранить</button>

@@ -24,7 +24,7 @@
 
 <div>
     <label>AssistantId</label>
-    <input @bind="assistantId" />
+    <input @bind="assistantId" placeholder="Id ассистента" />
 </div>
 
 <div>
@@ -34,17 +34,17 @@
 
 <div>
     <label>Название</label>
-    <input @bind="title" />
+    <input @bind="title" placeholder="Название операции" />
 </div>
 
 <div>
     <label>Описание</label>
-    <input @bind="description" />
+    <input @bind="description" placeholder="Описание операции" />
 </div>
 
 <div>
     <label>Наркоз</label>
-    <input @bind="anesthesia" />
+    <input @bind="anesthesia" placeholder="Тип наркоза" />
 </div>
 
 <button @onclick="CreateSurgery" type="button">Сохранить</button>

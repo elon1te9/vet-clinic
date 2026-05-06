@@ -42,11 +42,11 @@ else
                     <td>@notification.Type</td>
                     <td>@notification.Title</td>
                     <td>@notification.Message</td>
-                    <td>@(notification.IsRead ? "Да" : "Нет")</td>
+                    <td><StatusBadge Text="@(notification.IsRead ? "Прочитано" : "Новое")" /></td>
                     <td>
                         @if (!notification.IsRead)
                         {
-                            <button @onclick="() => MarkAsRead(notification.Id)" type="button">Прочитать</button>
+                            <button class="btn-sm" @onclick="() => MarkAsRead(notification.Id)" type="button">Прочитать</button>
                         }
                     </td>
                 </tr>

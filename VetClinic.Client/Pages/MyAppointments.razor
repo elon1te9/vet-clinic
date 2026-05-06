@@ -44,16 +44,16 @@ else
                     <td>@appointment.VeterinarianFullName</td>
                     <td>@appointment.ServiceName</td>
                     <td>@appointment.Reason</td>
-                    <td>@appointment.Status</td>
+                    <td><StatusBadge Status="@appointment.Status" /></td>
                     <td>
                         @if (role == "Owner")
                         {
-                            <button @onclick="() => CancelAppointment(appointment.Id)" type="button">Отменить</button>
+                            <button class="btn-danger btn-sm" @onclick="() => CancelAppointment(appointment.Id)" type="button">Отменить</button>
                         }
                         @if (role == "Veterinarian")
                         {
-                            <button @onclick="() => ChangeStatus(appointment.Id, VetClinic.Shared.Enums.AppointmentStatus.Confirmed)" type="button">Подтвердить</button>
-                            <button @onclick="() => ChangeStatus(appointment.Id, VetClinic.Shared.Enums.AppointmentStatus.Completed)" type="button">Завершить</button>
+                            <button class="btn-sm" @onclick="() => ChangeStatus(appointment.Id, VetClinic.Shared.Enums.AppointmentStatus.Confirmed)" type="button">Подтвердить</button>
+                            <button class="btn-secondary btn-sm" @onclick="() => ChangeStatus(appointment.Id, VetClinic.Shared.Enums.AppointmentStatus.Completed)" type="button">Завершить</button>
                         }
                     </td>
                 </tr>

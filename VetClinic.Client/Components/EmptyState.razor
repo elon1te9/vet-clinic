@@ -1,0 +1,15 @@
+<div class="empty-state">
+    <strong>@Title</strong>
+    @if (!string.IsNullOrWhiteSpace(Message))
+    {
+        <p>@Message</p>
+    }
+</div>
+
+@code {
+    [Parameter]
+    public string Title { get; set; } = "Данных нет";
+
+    [Parameter]
+    public string Message { get; set; } = "Пока здесь ничего не отображается.";
+}
