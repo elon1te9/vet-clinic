@@ -15,5 +15,6 @@ public interface IUserService
     Task<UserResponse?> GetOwnerByIdAsync(string id);
     Task<List<UserResponse>> GetStaffAsync();
     Task<List<UserResponse>> GetDoctorsAsync();
+    Task<List<UserResponse>> GetAssistantsAsync();
     Task<UserResponse?> GetStaffByIdAsync(string id);
 }

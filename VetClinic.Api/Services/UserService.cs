@@ -129,6 +129,12 @@ public class UserService : IUserService
         return await MapUsersAsync(doctors.OrderBy(d => d.FullName).ToList());
     }
 
+    public async Task<List<UserResponse>> GetAssistantsAsync()
+    {
+        var assistants = await _userManager.GetUsersInRoleAsync(nameof(UserRole.Assistant));
+        return await MapUsersAsync(assistants.OrderBy(a => a.FullName).ToList());
+    }
+
     public async Task<UserResponse?> GetStaffByIdAsync(string id)
     {
         var user = await _userManager.FindByIdAsync(id);

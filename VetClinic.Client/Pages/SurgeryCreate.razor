@@ -78,10 +78,7 @@
     protected override async Task OnInitializedAsync()
     {
         pets = await PetApiService.GetAllAsync();
-        var staff = await UserApiService.GetStaffAsync();
-        assistants = staff
-            .Where(u => u.Role == "Assistant")
-            .ToList();
+        assistants = await UserApiService.GetAssistantsAsync();
 
         petId = pets.FirstOrDefault()?.Id ?? 0;
         assistantId = assistants.FirstOrDefault()?.Id ?? string.Empty;

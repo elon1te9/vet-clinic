@@ -84,6 +84,13 @@ public class UsersController : ControllerBase
         return Ok(await _userService.GetDoctorsAsync());
     }
 
+    [HttpGet("staff/assistants")]
+    [Authorize(Roles = "Admin,Veterinarian")]
+    public async Task<IActionResult> GetAssistants()
+    {
+        return Ok(await _userService.GetAssistantsAsync());
+    }
+
     [HttpGet("staff/{id}")]
     [Authorize(Roles = "Admin,Veterinarian,Assistant")]
     public async Task<IActionResult> GetStaffById(string id)

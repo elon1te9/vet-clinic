@@ -47,6 +47,11 @@ public class UserApiService
         return await _apiRequestService.GetAsync<List<UserResponse>>("api/staff/doctors") ?? [];
     }
 
+    public async Task<List<UserResponse>> GetAssistantsAsync()
+    {
+        return await _apiRequestService.GetAsync<List<UserResponse>>("api/staff/assistants") ?? [];
+    }
+
     public async Task<List<UserResponse>> GetStaffAsync()
     {
         return await _apiRequestService.GetAsync<List<UserResponse>>("api/staff") ?? [];
