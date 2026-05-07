@@ -1,5 +1,6 @@
 @page "/inventory/transactions"
 @inject VetClinic.Client.Services.InventoryApiService InventoryApiService
+@inject VetClinic.Client.Services.MedicalRecordApiService MedicalRecordApiService
 @inject VetClinic.Client.Services.LocalStorageService LocalStorageService
 
 <PageTitle>Операции склада</PageTitle>
@@ -11,57 +12,77 @@
 <section class="section-card">
 @if (role == "Admin" || role == "Assistant")
 {
-    <h2>Новая операция</h2>
-
-    @if (items.Count == 0)
-    {
-        <EmptyState Title="Сначала создайте складскую позицию" Message="После создания позиции можно будет добавить операцию склада." />
-    }
-    else
-    {
-        <div>
-            <label>Позиция</label>
-            <select @bind="inventoryItemId">
-                @foreach (var item in items)
-                {
-                    <option value="@item.Id">@item.Name (@item.Quantity @item.Unit)</option>
-                }
-            </select>
+    <div class="inline-create-panel inventory-operation-panel">
+        <div class="section-title-row">
+            <h2>Новая операция</h2>
         </div>
 
-        <div>
-            <label>Тип</label>
-            <select @bind="typeText">
-                @foreach (var type in Enum.GetValues<VetClinic.Shared.Enums.InventoryTransactionType>())
-                {
-                    <option value="@type">@type</option>
-                }
-            </select>
-        </div>
+        @if (items.Count == 0)
+        {
+            <EmptyState Title="Сначала создайте складскую позицию" Message="После создания позиции можно будет добавить операцию склада." />
+        }
+        else
+        {
+            <div class="inventory-operation-layout">
+                <div class="inventory-operation-main">
+                    <div>
+                        <label>Складская позиция</label>
+                        <select @bind="inventoryItemId">
+                            @foreach (var item in items)
+                            {
+                                <option value="@item.Id">@item.Name (@UiText.Quantity(item.Quantity, item.Unit))</option>
+                            }
+                        </select>
+                    </div>
 
-        <div>
-            <label>Количество</label>
-            <input type="number" step="0.01" @bind="quantity" placeholder="Количество" />
-        </div>
+                    <div>
+                        <label>Медицинская запись</label>
+                        <select @bind="relatedMedicalRecordId">
+                            <option value="">Не связывать с медицинской записью</option>
+                            @foreach (var record in medicalRecords)
+                            {
+                                <option value="@record.Id">@UiText.Date(record.VisitDate, withTime: false) — @record.PetName</option>
+                            }
+                        </select>
+                    </div>
+                </div>
 
-        <div>
-            <label>Причина</label>
-            <input @bind="reason" placeholder="Причина операции" />
-        </div>
+                <div class="inventory-operation-side">
+                    <div class="inventory-operation-params">
+                        <div>
+                            <label>Тип операции</label>
+                            <select @bind="typeText">
+                                @foreach (var type in Enum.GetValues<VetClinic.Shared.Enums.InventoryTransactionType>())
+                                {
+                                    <option value="@type">@UiText.Status(type)</option>
+                                }
+                            </select>
+                        </div>
 
-        <div>
-            <label>MedicalRecordId</label>
-            <input type="number" @bind="relatedMedicalRecordId" placeholder="Необязательно" />
-        </div>
+                        <div>
+                            <label>Количество</label>
+                            <input type="number" step="0.01" @bind="quantity" placeholder="Количество" />
+                        </div>
+                    </div>
 
-        <button class="btn btn-primary" @onclick="CreateTransaction" type="button">Сохранить</button>
-    }
+                    <div>
+                        <label>Причина</label>
+                        <textarea @bind="reason" placeholder="Кратко укажите причину операции"></textarea>
+                    </div>
+
+                    <div class="actions-row">
+                        <button class="btn btn-primary" @onclick="CreateTransaction" type="button">Создать</button>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
 }
 
 <h2>Журнал операций</h2>
 @if (transactions.Count == 0)
 {
-    <EmptyState Title="Операций нет" Message="Журнал операций склада пока пуст." />
+    <EmptyState Title="Операций склада пока нет" Message="После поступлений, расходов, списаний или корректировок записи появятся в журнале." />
 }
 else
 {
@@ -80,12 +101,12 @@ else
             @foreach (var transaction in transactions)
             {
                 <tr>
-                    <td>@transaction.CreatedAt.ToLocalTime().ToString("dd.MM.yyyy HH:mm")</td>
-                    <td>@transaction.InventoryItemName</td>
-                    <td>@transaction.Type</td>
+                    <td>@UiText.Date(transaction.CreatedAt)</td>
+                    <td>@UiText.Value(transaction.InventoryItemName)</td>
+                    <td><StatusBadge Status="@transaction.Type" /></td>
                     <td>@transaction.Quantity</td>
-                    <td>@transaction.Reason</td>
-                    <td>@transaction.CreatedByUserFullName</td>
+                    <td>@UiText.Value(transaction.Reason)</td>
+                    <td>@UiText.Value(transaction.CreatedByUserFullName)</td>
                 </tr>
             }
         </tbody>
@@ -96,6 +117,7 @@ else
 @code {
     private List<VetClinic.Shared.Responses.InventoryItemResponse> items = [];
     private List<VetClinic.Shared.Responses.InventoryTransactionResponse> transactions = [];
+    private List<VetClinic.Shared.Responses.MedicalRecordResponse> medicalRecords = [];
     private string role = string.Empty;
     private int inventoryItemId;
     private string typeText = VetClinic.Shared.Enums.InventoryTransactionType.Outgoing.ToString();
@@ -114,6 +136,7 @@ else
     {
         items = await InventoryApiService.GetAllAsync();
         transactions = await InventoryApiService.GetTransactionsAsync();
+        medicalRecords = await MedicalRecordApiService.GetAllAsync();
         inventoryItemId = items.FirstOrDefault()?.Id ?? 0;
     }
 
@@ -138,7 +161,7 @@ else
 
         if (result is null)
         {
-            message = "Не удалось создать операцию.";
+            message = "Не удалось сохранить данные. Проверьте заполнение формы.";
             return;
         }
 

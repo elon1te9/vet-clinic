@@ -14,19 +14,19 @@
         <div class="form-grid">
             <div>
                 <label>Имя</label>
-                <input @bind="name" placeholder="Например: Барсик" />
+                <input @bind="name" placeholder="Кличка питомца, например Барсик" />
             </div>
 
             <div>
                 <label>Вид</label>
-                <input @bind="species" placeholder="Кошка, собака, попугай" />
+                <input @bind="species" placeholder="Например: кошка, собака, попугай" />
             </div>
         </div>
 
         <div class="form-grid">
             <div>
                 <label>Порода</label>
-                <input @bind="breed" placeholder="Порода" />
+                <input @bind="breed" placeholder="Например: британская короткошёрстная" />
             </div>
 
             <div>
@@ -47,18 +47,18 @@
 
             <div>
                 <label>Вес</label>
-                <input @bind="weightText" placeholder="Например: 4,5" />
+                <input @bind="weightText" placeholder="Вес в кг, например 4,5" />
             </div>
         </div>
 
         <div>
             <label>Окрас</label>
-            <input @bind="color" placeholder="Окрас" />
+            <input @bind="color" placeholder="Например: рыжий, серый, трёхцветный" />
         </div>
 
         <div>
             <label>Особенности здоровья</label>
-            <input @bind="healthNotes" placeholder="Краткие особенности здоровья" />
+            <input @bind="healthNotes" placeholder="Аллергии, хронические болезни или важные заметки" />
         </div>
 
         <div class="actions-row">
@@ -87,7 +87,7 @@
         var pet = await PetApiService.GetByIdAsync(Id);
         if (pet is null)
         {
-            message = "Питомец не найден.";
+            message = "Запись не найдена.";
             return;
         }
 
@@ -110,8 +110,18 @@
             return;
         }
 
+        if (birthDate.HasValue && birthDate.Value.Date > DateTime.Today)
+        {
+            message = "Введите корректную дату.";
+            return;
+        }
+
         Enum.TryParse<VetClinic.Shared.Enums.PetGender>(gender, out var petGender);
-        decimal.TryParse(weightText, out var weight);
+        if (!TryReadWeight(out var weight))
+        {
+            message = "Введите корректный вес животного";
+            return;
+        }
 
         var result = await PetApiService.UpdateAsync(Id, new VetClinic.Shared.Requests.UpdatePetRequest
         {
@@ -120,17 +130,45 @@
             Breed = string.IsNullOrWhiteSpace(breed) ? null : breed,
             Gender = petGender,
             BirthDate = birthDate,
-            Weight = string.IsNullOrWhiteSpace(weightText) ? null : weight,
+            Weight = weight,
             Color = string.IsNullOrWhiteSpace(color) ? null : color,
             HealthNotes = string.IsNullOrWhiteSpace(healthNotes) ? null : healthNotes
         });
 
         if (result is null)
         {
-            message = "Не удалось обновить питомца.";
+            message = "Не удалось сохранить данные. Проверьте заполнение формы.";
             return;
         }
 
         Navigation.NavigateTo("/pets");
+    }
+
+    private bool TryReadWeight(out decimal? weight)
+    {
+        weight = null;
+
+        if (string.IsNullOrWhiteSpace(weightText))
+        {
+            return true;
+        }
+
+        weightText = weightText.Trim().Replace('.', ',');
+        if (decimal.TryParse(
+            weightText,
+            System.Globalization.NumberStyles.Number,
+            System.Globalization.CultureInfo.GetCultureInfo("ru-RU"),
+            out var parsedWeight))
+        {
+            if (parsedWeight < 0)
+            {
+                return false;
+            }
+
+            weight = parsedWeight;
+            return true;
+        }
+
+        return false;
     }
 }

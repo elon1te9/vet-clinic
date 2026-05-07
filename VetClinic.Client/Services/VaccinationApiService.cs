@@ -22,6 +22,11 @@ public class VaccinationApiService
         return await _apiRequestService.GetAsync<List<VaccinationResponse>>("api/vaccinations/my") ?? [];
     }
 
+    public async Task<VaccinationResponse?> GetByIdAsync(int id)
+    {
+        return await _apiRequestService.GetAsync<VaccinationResponse>($"api/vaccinations/{id}");
+    }
+
     public async Task<List<VaccinationResponse>> GetByPetAsync(int petId)
     {
         return await _apiRequestService.GetAsync<List<VaccinationResponse>>($"api/vaccinations/pet/{petId}") ?? [];

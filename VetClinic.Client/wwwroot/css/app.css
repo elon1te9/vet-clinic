@@ -1,10 +1,10 @@
 :root {
-    --app-bg: #f4f7fb;
+    --app-bg: #f3f6f8;
     --surface: #ffffff;
     --soft-bg: #f8fafc;
-    --primary: #2563eb;
-    --primary-dark: #1d4ed8;
-    --primary-soft: #eaf2ff;
+    --primary: #256f74;
+    --primary-dark: #1f5d61;
+    --primary-soft: #e6f4f3;
     --text-color: #172033;
     --muted-color: #65748b;
     --border-color: #dfe7f1;
@@ -15,7 +15,7 @@
     --danger: #b91c1c;
     --danger-soft: #fee2e2;
     --sidebar-bg: #ffffff;
-    --shadow-sm: 0 8px 22px rgba(15, 23, 42, 0.06);
+    --shadow-sm: 0 8px 22px rgba(15, 23, 42, 0.05);
 }
 
 * {
@@ -161,12 +161,669 @@ textarea:focus,
 .form-control:focus {
     outline: none;
     border-color: var(--primary);
-    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.14);
+    box-shadow: 0 0 0 3px rgba(37, 111, 116, 0.14);
 }
 
 .content > div:not(.page-header):has(> label) {
     max-width: 760px;
     margin-bottom: 14px;
+}
+
+.section-card > div:not(.actions-row):not(.form-grid):not(.empty-state):not(.appointment-form-layout):not(.pet-form-layout):not(.medical-record-form-layout):not(.vaccination-form-layout):not(.entity-form-grid):not(.inline-create-panel):not(.details-grid):not(.appointment-list):not(.medical-records-toolbar):not(.medical-record-list):not(.vaccinations-toolbar):not(.vaccination-calendar-list):not(.calendar-section-header),
+.section-card > h2 + div:not(.actions-row):not(.form-grid):not(.empty-state):not(.appointment-form-layout):not(.pet-form-layout):not(.medical-record-form-layout):not(.vaccination-form-layout):not(.entity-form-grid):not(.inline-create-panel):not(.details-grid):not(.appointment-list):not(.medical-records-toolbar):not(.medical-record-list):not(.vaccinations-toolbar):not(.vaccination-calendar-list):not(.calendar-section-header) {
+    max-width: 760px;
+    margin-bottom: 14px;
+}
+
+.section-card > .empty-state {
+    max-width: none;
+    width: 100%;
+}
+
+.section-card > h2:first-child {
+    margin-top: 0;
+}
+
+.appointment-form-card {
+    padding: 26px;
+    display: flex;
+    flex-direction: column;
+}
+
+.appointment-form-card > .appointment-form-layout {
+    width: 100%;
+    max-width: none;
+    margin-bottom: 18px;
+}
+
+.appointment-form-layout {
+    display: grid;
+    grid-template-columns: minmax(320px, 0.95fr) minmax(360px, 1.05fr);
+    gap: 24px;
+    align-items: stretch;
+}
+
+.appointment-fields {
+    display: grid;
+    gap: 16px;
+}
+
+.appointment-time-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(150px, 1fr));
+    gap: 14px;
+}
+
+.appointment-reason {
+    display: flex;
+    flex-direction: column;
+}
+
+.appointment-reason textarea {
+    flex: 1;
+    min-height: 0;
+    resize: vertical;
+}
+
+.appointment-form-card > .actions-row {
+    margin-top: 18px;
+    margin-bottom: 0;
+}
+
+.appointment-list {
+    display: grid;
+    gap: 14px;
+    width: 100%;
+    max-width: none;
+}
+
+.appointment-card {
+    display: grid;
+    grid-template-columns: 116px minmax(0, 1fr) minmax(260px, auto);
+    gap: 18px;
+    align-items: stretch;
+    padding: 16px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    background: #ffffff;
+    box-shadow: var(--shadow-sm);
+}
+
+.appointment-date-tile {
+    display: grid;
+    align-content: center;
+    gap: 4px;
+    min-height: 82px;
+    padding: 12px;
+    border-radius: 8px;
+    background: var(--primary-soft);
+    color: var(--primary-dark);
+}
+
+.appointment-date-tile span {
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.appointment-date-tile strong {
+    font-size: 24px;
+    line-height: 1;
+}
+
+.appointment-card-body {
+    min-width: 0;
+}
+
+.appointment-card-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(150px, 1fr));
+    gap: 12px 18px;
+}
+
+.appointment-card-grid span {
+    display: block;
+    margin-bottom: 4px;
+    color: var(--muted-color);
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.appointment-card-grid strong {
+    display: block;
+    overflow-wrap: anywhere;
+    color: var(--text-color);
+    font-size: 16px;
+    line-height: 1.35;
+}
+
+.appointment-card-reason {
+    grid-column: 1 / -1;
+    min-width: 0;
+}
+
+.appointment-card-reason p {
+    margin: 0;
+    color: var(--text-color);
+    overflow-wrap: anywhere;
+}
+
+.appointment-card-side {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 12px;
+    min-width: 260px;
+}
+
+.appointment-card-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 8px;
+    flex-wrap: wrap;
+    width: 100%;
+}
+
+.appointment-card-actions .btn,
+.appointment-card-actions button {
+    margin: 0;
+    white-space: nowrap;
+}
+
+.pet-form-card {
+    padding: 26px;
+}
+
+.pet-form-card > .pet-form-layout {
+    width: 100%;
+    max-width: none;
+    margin-bottom: 18px;
+}
+
+.pet-form-layout {
+    display: grid;
+    grid-template-columns: minmax(420px, 1.05fr) minmax(340px, 0.95fr);
+    gap: 24px;
+    align-items: stretch;
+}
+
+.pet-main-fields {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(180px, 1fr));
+    gap: 16px 18px;
+    align-content: start;
+}
+
+.pet-notes-fields {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.pet-health-field {
+    display: flex;
+    min-height: 0;
+    flex-direction: column;
+}
+
+.pet-health-field textarea {
+    height: 124px;
+    flex: none;
+    min-height: 124px;
+}
+
+.pet-form-card > .actions-row {
+    margin-top: 18px;
+    margin-bottom: 0;
+}
+
+.medical-record-form-card {
+    padding: 26px;
+}
+
+.medical-record-form-card > .medical-record-form-layout {
+    width: 100%;
+    max-width: none;
+    margin-bottom: 18px;
+}
+
+.medical-record-form-layout {
+    display: grid;
+    grid-template-columns: minmax(320px, 0.78fr) minmax(520px, 1.22fr);
+    gap: 24px;
+    align-items: stretch;
+}
+
+.medical-record-basic-fields {
+    display: grid;
+    gap: 16px;
+    align-content: start;
+}
+
+.medical-record-vitals-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(140px, 1fr));
+    gap: 14px;
+}
+
+.medical-record-notes-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(220px, 1fr));
+    gap: 16px;
+}
+
+.medical-record-notes-grid > div {
+    display: flex;
+    min-height: 0;
+    flex-direction: column;
+}
+
+.medical-record-notes-grid textarea {
+    min-height: 128px;
+    flex: 1;
+}
+
+.medical-record-form-card > .actions-row {
+    margin-top: 18px;
+    margin-bottom: 0;
+}
+
+.vaccination-form-card {
+    padding: 26px;
+}
+
+.vaccination-form-card > .vaccination-form-layout {
+    width: 100%;
+    max-width: none;
+    margin-bottom: 18px;
+}
+
+.vaccination-form-layout {
+    display: grid;
+    grid-template-columns: minmax(320px, 0.9fr) minmax(360px, 1.1fr);
+    gap: 24px;
+    align-items: stretch;
+}
+
+.vaccination-fields {
+    display: grid;
+    gap: 16px;
+    align-content: start;
+}
+
+.vaccination-date-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(150px, 1fr));
+    gap: 14px;
+}
+
+.vaccination-notes {
+    display: flex;
+    min-height: 0;
+    flex-direction: column;
+}
+
+.vaccination-notes textarea {
+    flex: 1;
+    min-height: 0;
+    resize: vertical;
+}
+
+.vaccination-form-card > .actions-row {
+    margin-top: 18px;
+    margin-bottom: 0;
+}
+
+.entity-form-card {
+    padding: 26px;
+}
+
+.entity-form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(220px, 1fr));
+    gap: 16px 18px;
+    width: 100%;
+    max-width: none;
+    margin-bottom: 18px;
+}
+
+.entity-form-grid .field-wide {
+    grid-column: 1 / -1;
+}
+
+.inline-create-panel {
+    width: 100%;
+    max-width: none;
+    padding: 18px;
+    margin-bottom: 22px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    background: var(--soft-bg);
+}
+
+.inline-create-panel h2 {
+    margin: 0 0 14px;
+}
+
+.inline-create-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(170px, 1fr));
+    gap: 14px;
+    align-items: end;
+}
+
+.inline-create-grid .field-wide {
+    grid-column: span 2;
+}
+
+.section-card .section-title-row {
+    width: 100%;
+    max-width: none;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 14px;
+}
+
+.section-title-row h2 {
+    margin: 0;
+}
+
+.details-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(220px, 1fr));
+    gap: 12px;
+    width: 100%;
+    max-width: none;
+}
+
+.details-item {
+    min-width: 0;
+    padding: 14px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    background: var(--soft-bg);
+}
+
+.details-item span {
+    display: block;
+    margin-bottom: 5px;
+    color: var(--muted-color);
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.details-item strong,
+.details-item p {
+    margin: 0;
+    color: var(--text-color);
+    overflow-wrap: anywhere;
+}
+
+.details-item-full {
+    grid-column: 1 / -1;
+}
+
+.service-create-panel {
+    background: #ffffff;
+}
+
+.service-create-layout {
+    display: grid;
+    grid-template-columns: minmax(420px, 1fr) minmax(240px, 320px);
+    gap: 18px;
+    width: 100%;
+    max-width: none;
+}
+
+.service-create-main,
+.service-create-side {
+    display: grid;
+    gap: 14px;
+    align-content: start;
+}
+
+.service-create-main textarea {
+    min-height: 104px;
+}
+
+.service-create-side {
+    padding: 16px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    background: var(--soft-bg);
+}
+
+.service-create-side .actions-row {
+    margin: 4px 0 0;
+}
+
+.invoice-create-panel {
+    background: #ffffff;
+}
+
+.invoice-create-layout {
+    display: grid;
+    grid-template-columns: minmax(360px, 1fr) auto;
+    gap: 14px;
+    align-items: end;
+    width: min(100%, 980px);
+    max-width: none;
+}
+
+.invoice-create-layout .actions-row {
+    margin: 0;
+}
+
+.invoice-create-layout .btn {
+    min-width: 120px;
+}
+
+.inventory-operation-panel {
+    background: #ffffff;
+}
+
+.inventory-operation-layout {
+    display: grid;
+    grid-template-columns: minmax(360px, 0.9fr) minmax(420px, 1.1fr);
+    gap: 18px;
+    width: 100%;
+    max-width: none;
+}
+
+.inventory-operation-main,
+.inventory-operation-side {
+    display: grid;
+    gap: 14px;
+    align-content: start;
+}
+
+.inventory-operation-main {
+    padding: 16px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    background: var(--soft-bg);
+}
+
+.inventory-operation-side {
+    padding: 16px;
+    border: 1px solid rgba(37, 111, 116, 0.18);
+    border-radius: 8px;
+    background: linear-gradient(180deg, #ffffff 0%, #f7fbfb 100%);
+}
+
+.inventory-operation-params {
+    display: grid;
+    grid-template-columns: minmax(180px, 1fr) minmax(140px, 0.7fr);
+    gap: 14px;
+}
+
+.inventory-operation-side textarea {
+    min-height: 96px;
+}
+
+.inventory-operation-side .actions-row {
+    margin: 0;
+    align-self: end;
+}
+
+.hospitalization-create-panel,
+.care-log-panel {
+    background: #ffffff;
+}
+
+.hospitalization-create-layout,
+.care-log-layout {
+    display: grid;
+    grid-template-columns: minmax(320px, 0.8fr) minmax(460px, 1.2fr);
+    gap: 18px;
+    width: 100%;
+    max-width: none;
+}
+
+.hospitalization-create-main,
+.hospitalization-create-notes,
+.care-log-main,
+.care-log-notes {
+    display: grid;
+    gap: 14px;
+    align-content: start;
+}
+
+.hospitalization-create-main,
+.care-log-main {
+    padding: 16px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    background: var(--soft-bg);
+}
+
+.hospitalization-create-notes,
+.care-log-notes {
+    padding: 16px;
+    border: 1px solid rgba(37, 111, 116, 0.18);
+    border-radius: 8px;
+    background: linear-gradient(180deg, #ffffff 0%, #f7fbfb 100%);
+}
+
+.hospitalization-create-notes textarea,
+.care-log-notes textarea {
+    min-height: 104px;
+}
+
+.hospitalization-create-notes .actions-row,
+.care-log-notes .actions-row {
+    margin: 0;
+    align-self: end;
+}
+
+.hospitalization-summary {
+    margin-bottom: 20px;
+}
+
+.hospitalization-summary .details-item {
+    background: #ffffff;
+}
+
+.hospitalization-summary .details-item-full {
+    background: var(--soft-bg);
+}
+
+.hospitalization-summary .status-badge {
+    width: auto;
+}
+
+.reports-filter-card {
+    padding: 18px;
+}
+
+.reports-filter-grid {
+    display: grid;
+    grid-template-columns: minmax(180px, 240px) minmax(180px, 240px) auto;
+    gap: 14px;
+    align-items: end;
+    width: 100%;
+    max-width: none;
+}
+
+.reports-filter-grid .actions-row {
+    margin: 0;
+}
+
+.reports-kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(240px, 1fr));
+    gap: 14px;
+    margin-bottom: 18px;
+}
+
+.reports-kpi-card {
+    min-height: 112px;
+    padding: 20px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    background: #ffffff;
+    box-shadow: var(--shadow-sm);
+}
+
+.reports-kpi-card span {
+    display: block;
+    margin-bottom: 10px;
+    color: var(--muted-color);
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.reports-kpi-card strong {
+    display: block;
+    color: var(--text-color);
+    font-size: 32px;
+    line-height: 1;
+}
+
+.reports-kpi-card p {
+    margin: 8px 0 0;
+    color: var(--muted-color);
+    font-size: 13px;
+}
+
+.reports-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(320px, 1fr));
+    gap: 18px;
+}
+
+.reports-section {
+    min-width: 0;
+    margin-bottom: 0;
+}
+
+.reports-section .empty-state {
+    margin-bottom: 0;
+}
+
+.reports-table {
+    table-layout: fixed;
+    margin-bottom: 0;
+}
+
+.reports-table-main-column {
+    width: 68%;
+}
+
+.reports-table-value-column {
+    width: 32%;
+}
+
+.reports-table th:last-child,
+.reports-table td:last-child {
+    text-align: right;
+}
+
+.reports-table td:first-child {
+    overflow-wrap: anywhere;
 }
 
 .auth-card > div:has(> label),
@@ -199,9 +856,43 @@ button:hover,
     text-decoration: none;
 }
 
+button:focus,
+button:active,
+.btn:focus,
+.btn:active,
+.btn.active,
+.btn-check:focus + .btn {
+    outline: none;
+    box-shadow: none;
+}
+
+button:focus:not(:focus-visible),
+.btn:focus:not(:focus-visible),
+a.btn:focus:not(:focus-visible) {
+    box-shadow: none;
+}
+
+button:focus-visible,
+.btn:focus-visible,
+a.btn:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(37, 111, 116, 0.18);
+}
+
 .btn-primary {
     background: var(--primary);
     color: white;
+}
+
+button:focus,
+button:active,
+button:active:focus,
+.btn-primary:focus,
+.btn-primary:active,
+.btn-primary:active:focus {
+    background: var(--primary);
+    color: white;
+    border-color: transparent;
 }
 
 .btn-secondary,
@@ -217,6 +908,17 @@ a.btn-secondary:hover {
     color: var(--text-color);
 }
 
+.btn-secondary:focus,
+.btn-secondary:active,
+.btn-secondary:active:focus,
+a.btn-secondary:focus,
+a.btn-secondary:active,
+a.btn-secondary:active:focus {
+    background: #eef2f7;
+    color: var(--text-color);
+    border-color: var(--border-color);
+}
+
 .btn-danger,
 button.danger {
     background: var(--danger);
@@ -226,6 +928,17 @@ button.danger {
 .btn-danger:hover,
 button.danger:hover {
     background: #991b1b;
+}
+
+.btn-danger:focus,
+.btn-danger:active,
+.btn-danger:active:focus,
+button.danger:focus,
+button.danger:active,
+button.danger:active:focus {
+    background: var(--danger);
+    color: white;
+    border-color: transparent;
 }
 
 .btn-sm {
@@ -265,6 +978,389 @@ td a {
     color: var(--muted-color);
     font-size: 13px;
     font-weight: 700;
+}
+
+td:last-child {
+    white-space: nowrap;
+}
+
+.table th.table-actions-cell,
+.table td.table-actions-cell {
+    width: 1%;
+    text-align: right;
+    white-space: nowrap;
+}
+
+.table-actions-cell .btn,
+.table-actions-cell button {
+    margin-right: 0;
+    margin-left: 6px;
+}
+
+.notifications-table th:nth-child(1),
+.notifications-table td:nth-child(1) {
+    width: 170px;
+    white-space: nowrap;
+}
+
+.notifications-table th:nth-child(2),
+.notifications-table td:nth-child(2) {
+    width: 260px;
+}
+
+.notifications-table th:nth-child(4),
+.notifications-table td:nth-child(4) {
+    width: 130px;
+}
+
+.notification-status {
+    display: inline-flex;
+    align-items: center;
+    min-height: 30px;
+    padding: 5px 11px;
+    border-radius: 999px;
+    font-weight: 700;
+    font-size: 13px;
+    white-space: nowrap;
+}
+
+.notification-status-new {
+    background: var(--warning-soft);
+    color: var(--warning);
+}
+
+.notification-status-read {
+    background: #eef2f7;
+    color: var(--muted-color);
+}
+
+.vaccinations-page > .vaccinations-toolbar {
+    width: 100%;
+    max-width: none;
+}
+
+.vaccinations-toolbar {
+    display: flex;
+    align-items: end;
+    justify-content: space-between;
+    gap: 18px;
+    margin-bottom: 18px;
+}
+
+.vaccinations-filter {
+    width: min(100%, 520px);
+}
+
+.vaccinations-table th:nth-child(3),
+.vaccinations-table td:nth-child(3),
+.vaccinations-table th:nth-child(4),
+.vaccinations-table td:nth-child(4) {
+    white-space: nowrap;
+}
+
+.vaccination-calendar-summary {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(180px, 1fr));
+    gap: 14px;
+    margin-bottom: 18px;
+}
+
+.calendar-summary-card {
+    display: flex;
+    min-height: 86px;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    padding: 18px 20px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    background: #ffffff;
+    box-shadow: var(--shadow-sm);
+}
+
+.calendar-summary-card span {
+    color: var(--muted-color);
+    font-weight: 700;
+}
+
+.calendar-summary-card strong {
+    color: var(--primary-dark);
+    font-size: 34px;
+    line-height: 1;
+}
+
+.calendar-summary-card-danger strong {
+    color: var(--danger);
+}
+
+.vaccination-calendar-section {
+    padding: 20px;
+}
+
+.calendar-section-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 18px;
+    margin-bottom: 16px;
+}
+
+.calendar-section-header h2 {
+    margin: 0 0 4px;
+}
+
+.calendar-section-header p {
+    margin: 0;
+}
+
+.vaccination-calendar-list {
+    display: grid;
+    gap: 12px;
+    width: 100%;
+    max-width: none;
+}
+
+.vaccination-calendar-card {
+    display: grid;
+    grid-template-columns: 112px minmax(0, 1fr) auto;
+    gap: 18px;
+    align-items: center;
+    padding: 14px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    background: #ffffff;
+    box-shadow: var(--shadow-sm);
+}
+
+.vaccination-calendar-date {
+    display: flex;
+    min-height: 96px;
+    padding: 12px;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    border-radius: 8px;
+    border: 1px solid rgba(37, 111, 116, 0.18);
+    border-left: 4px solid var(--primary);
+    background: linear-gradient(180deg, #ffffff 0%, #f2faf9 100%);
+    color: var(--primary-dark);
+}
+
+.vaccination-calendar-card-overdue .vaccination-calendar-date {
+    border-color: rgba(185, 28, 28, 0.2);
+    border-left-color: var(--danger);
+    background: linear-gradient(180deg, #ffffff 0%, #fff5f5 100%);
+}
+
+.vaccination-calendar-date small {
+    display: inline-flex;
+    min-height: 23px;
+    align-items: center;
+    padding: 3px 8px;
+    border-radius: 999px;
+    background: var(--primary-soft);
+    color: var(--primary-dark);
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.vaccination-calendar-card-overdue .vaccination-calendar-date small {
+    background: var(--danger-soft);
+    color: var(--danger);
+}
+
+.vaccination-calendar-date strong {
+    color: var(--primary-dark);
+    font-size: 32px;
+    font-weight: 800;
+    line-height: 0.95;
+}
+
+.vaccination-calendar-card-overdue .vaccination-calendar-date strong {
+    color: var(--danger);
+}
+
+.vaccination-calendar-date span {
+    color: var(--muted-color);
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: lowercase;
+}
+
+.vaccination-calendar-body {
+    min-width: 0;
+}
+
+.vaccination-calendar-body span {
+    display: block;
+    margin-bottom: 4px;
+    color: var(--muted-color);
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.vaccination-calendar-body strong {
+    display: block;
+    margin-bottom: 6px;
+    color: var(--text-color);
+    font-size: 17px;
+}
+
+.vaccination-calendar-body p {
+    margin: 0;
+    color: var(--text-color);
+    overflow-wrap: anywhere;
+}
+
+.medical-records-page > .medical-records-toolbar,
+.medical-records-page > .medical-record-list {
+    width: 100%;
+    max-width: none;
+}
+
+.medical-records-toolbar {
+    display: flex;
+    align-items: end;
+    justify-content: space-between;
+    gap: 18px;
+    margin-bottom: 18px;
+}
+
+.medical-records-filter {
+    flex: 1;
+    max-width: none;
+}
+
+.medical-records-filter > div {
+    display: grid;
+    grid-template-columns: minmax(320px, 1fr) auto;
+    align-items: stretch;
+    gap: 10px;
+}
+
+.medical-records-filter .btn {
+    min-width: 180px;
+}
+
+.medical-record-list {
+    display: grid;
+    gap: 14px;
+}
+
+.medical-record-card {
+    display: grid;
+    grid-template-columns: 112px minmax(0, 1fr) auto;
+    gap: 18px;
+    align-items: stretch;
+    padding: 16px;
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    background: #ffffff;
+    box-shadow: var(--shadow-sm);
+}
+
+.medical-record-date {
+    display: flex;
+    min-height: 106px;
+    padding: 12px;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    border-radius: 8px;
+    border: 1px solid rgba(37, 111, 116, 0.18);
+    border-left: 4px solid var(--primary);
+    background: linear-gradient(180deg, #ffffff 0%, #f2faf9 100%);
+    color: var(--primary-dark);
+}
+
+.medical-record-date strong {
+    color: var(--primary-dark);
+    font-size: 34px;
+    font-weight: 800;
+    line-height: 0.95;
+}
+
+.medical-record-date span {
+    color: var(--muted-color);
+    font-size: 13px;
+    font-weight: 700;
+    text-transform: lowercase;
+}
+
+.medical-record-date small {
+    display: inline-flex;
+    min-height: 24px;
+    align-items: center;
+    padding: 3px 9px;
+    border-radius: 999px;
+    background: var(--primary-soft);
+    color: var(--primary-dark);
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.medical-record-content {
+    min-width: 0;
+}
+
+.medical-record-heading,
+.medical-record-summary {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(180px, 1fr));
+    gap: 12px 18px;
+}
+
+.medical-record-summary {
+    margin-top: 14px;
+}
+
+.medical-record-heading span,
+.medical-record-summary span {
+    display: block;
+    margin-bottom: 4px;
+    color: var(--muted-color);
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.medical-record-heading strong {
+    display: block;
+    color: var(--text-color);
+    font-size: 16px;
+    overflow-wrap: anywhere;
+}
+
+.medical-record-summary p {
+    margin: 0;
+    color: var(--text-color);
+    overflow-wrap: anywhere;
+}
+
+.medical-record-meta {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-top: 14px;
+}
+
+.medical-record-meta span {
+    display: inline-flex;
+    min-height: 28px;
+    align-items: center;
+    padding: 4px 10px;
+    border-radius: 999px;
+    background: #eef2f7;
+    color: var(--muted-color);
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.medical-record-actions {
+    display: flex;
+    align-items: flex-end;
+    justify-content: flex-end;
 }
 
 .table tr:last-child td {
@@ -393,6 +1489,16 @@ td a {
     font-weight: 700;
 }
 
+.dashboard-card-plain {
+    display: block;
+    min-height: 112px;
+    padding: 20px;
+}
+
+.dashboard-card-plain p {
+    font-size: 32px;
+}
+
 .dashboard-card h3 {
     margin: 0 0 8px;
     color: var(--muted-color);
@@ -411,6 +1517,10 @@ td a {
     margin-top: 6px;
     color: var(--muted-color);
     font-size: 13px;
+}
+
+.dashboard-card-plain h3 {
+    margin-bottom: 12px;
 }
 
 .notification-bell {
@@ -471,6 +1581,12 @@ td a {
     border: 1px solid var(--border-color);
     border-radius: 8px;
     box-shadow: var(--shadow-sm);
+}
+
+.home-main-panel {
+    background:
+        linear-gradient(135deg, rgba(37, 111, 116, 0.08), rgba(255, 255, 255, 0) 62%),
+        var(--surface);
 }
 
 .home-panel h1 {
@@ -601,7 +1717,9 @@ td a {
 @media (max-width: 1100px) {
     .dashboard-cards,
     .feature-grid,
-    .quick-grid {
+    .quick-grid,
+    .inline-create-grid,
+    .reports-grid {
         grid-template-columns: repeat(2, minmax(180px, 1fr));
     }
 }
@@ -616,14 +1734,20 @@ td a {
         display: block;
     }
 
+    .home-panel + .home-panel {
+        margin-top: 14px;
+    }
+
     .page-header-actions {
         margin-top: 14px;
     }
 
     .dashboard-cards,
+    .reports-kpi-grid,
     .feature-grid,
     .quick-grid,
-    .dashboard-grid {
+    .dashboard-grid,
+    .reports-grid {
         grid-template-columns: 1fr;
     }
 
@@ -636,5 +1760,104 @@ td a {
     .auth-card,
     .home-panel {
         padding: 20px;
+    }
+
+    .form-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .appointment-form-layout,
+    .pet-form-layout,
+    .medical-record-form-layout,
+    .vaccination-form-layout,
+    .service-create-layout,
+    .invoice-create-layout,
+    .inventory-operation-layout,
+    .inventory-operation-params,
+    .hospitalization-create-layout,
+    .care-log-layout,
+    .reports-filter-grid,
+    .entity-form-grid,
+    .inline-create-grid,
+    .details-grid,
+    .medical-record-notes-grid,
+    .vaccination-date-grid,
+    .appointment-time-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .inline-create-grid .field-wide,
+    .details-item-full {
+        grid-column: auto;
+    }
+
+    .medical-record-vitals-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .pet-main-fields {
+        grid-template-columns: 1fr;
+    }
+
+    .appointment-reason textarea {
+        min-height: 180px;
+    }
+
+    .appointment-card {
+        grid-template-columns: 1fr;
+    }
+
+    .appointment-date-tile {
+        min-height: 0;
+    }
+
+    .appointment-card-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .appointment-card-side {
+        align-items: flex-start;
+    }
+
+    .appointment-card-actions {
+        justify-content: flex-start;
+    }
+
+    .medical-records-toolbar,
+    .medical-records-filter > div,
+    .medical-record-card,
+    .vaccination-calendar-summary,
+    .vaccination-calendar-card {
+        display: grid;
+        grid-template-columns: 1fr;
+    }
+
+    .medical-record-heading,
+    .medical-record-summary {
+        grid-template-columns: 1fr;
+    }
+
+    .medical-record-actions {
+        justify-content: flex-start;
+    }
+
+}
+
+@media (max-width: 430px) {
+    .actions-row,
+    .page-header-actions {
+        width: 100%;
+    }
+
+    .actions-row .btn,
+    .actions-row button,
+    .page-header-actions .btn,
+    .page-header-actions button {
+        width: 100%;
+    }
+
+    .table th,
+    .table td {
+        padding: 10px 12px;
     }
 }

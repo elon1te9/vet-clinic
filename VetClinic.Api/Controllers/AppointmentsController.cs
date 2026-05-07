@@ -53,7 +53,7 @@ public class AppointmentsController : ControllerBase
     }
 
     [HttpPost]
-    [Authorize(Roles = "Admin,Owner")]
+    [Authorize(Roles = "Admin,Owner,Veterinarian")]
     public async Task<IActionResult> Create(CreateAppointmentRequest request)
     {
         var result = await _appointmentService.CreateAsync(request, User);

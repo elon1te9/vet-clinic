@@ -8,61 +8,85 @@
 
 <PageHeader Title="Медицинские карты" Description="История медицинских записей питомцев." />
 
-<section class="section-card">
-@if (role == "Veterinarian" || role == "Admin")
-{
-    <button class="btn btn-primary" @onclick="OpenCreatePage" type="button">Создать запись</button>
-}
+<section class="section-card medical-records-page">
+    <div class="medical-records-toolbar">
+        @if (role != "Admin")
+        {
+            <div class="medical-records-filter">
+                <label>Питомец</label>
+                <div>
+                    <select @bind="selectedPetId">
+                        @foreach (var pet in pets)
+                        {
+                            <option value="@pet.Id">@pet.Name</option>
+                        }
+                    </select>
+                    <button class="btn btn-secondary" @onclick="LoadByPet" type="button">Показать историю</button>
+                </div>
+            </div>
+        }
 
-@if (role != "Admin")
-{
-    <div>
-        <label>Питомец</label>
-        <select @bind="selectedPetId">
-            @foreach (var pet in pets)
-            {
-                <option value="@pet.Id">@pet.Name</option>
-            }
-        </select>
-        <button class="btn btn-secondary" @onclick="LoadByPet" type="button">Показать историю</button>
+        @if (role == "Veterinarian" || role == "Admin")
+        {
+            <button class="btn btn-primary" @onclick="OpenCreatePage" type="button">Создать запись</button>
+        }
     </div>
-}
 
 <ErrorMessage Text="@message" />
 
 @if (records.Count == 0)
 {
-    <EmptyState Title="Медицинские записи не найдены" Message="Записи появятся после создания врачом или администратором." />
+    <EmptyState Title="Медицинские записи пока не добавлены" Message="После осмотра врач сможет создать запись с жалобами, диагнозом и назначениями." />
 }
 else
 {
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Дата</th>
-                <th>Питомец</th>
-                <th>Врач</th>
-                <th>Диагноз</th>
-                <th>Лечение</th>
-                <th></th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var record in records)
-            {
-                <tr>
-                    <td>@record.VisitDate.ToLocalTime().ToString("dd.MM.yyyy")</td>
-                    <td>@record.PetName</td>
-                    <td>@record.VeterinarianFullName</td>
-                    <td>@record.Diagnosis</td>
-                    <td>@record.Treatment</td>
-                    <td>
-                        <button class="btn btn-secondary btn-sm" @onclick="() => OpenDetails(record.Id)" type="button">Открыть</button>
-                    </td>
-                </tr>
-            }
-        </tbody>
-    </table>
+    <div class="medical-record-list">
+        @foreach (var record in records)
+        {
+            <article class="medical-record-card">
+                <div class="medical-record-date">
+                    <small>осмотр</small>
+                    <strong>@record.VisitDate.ToString("dd")</strong>
+                    <span>@record.VisitDate.ToString("MMM yyyy")</span>
+                </div>
+
+                <div class="medical-record-content">
+                    <div class="medical-record-heading">
+                        <div>
+                            <span>Питомец</span>
+                            <strong>@UiText.Value(record.PetName)</strong>
+                        </div>
+
+                        <div>
+                            <span>Врач</span>
+                            <strong>@UiText.Value(record.VeterinarianFullName)</strong>
+                        </div>
+                    </div>
+
+                    <div class="medical-record-summary">
+                        <div>
+                            <span>Диагноз</span>
+                            <p>@UiText.Value(record.Diagnosis)</p>
+                        </div>
+
+                        <div>
+                            <span>Лечение</span>
+                            <p>@UiText.Value(record.Treatment)</p>
+                        </div>
+                    </div>
+
+                    <div class="medical-record-meta">
+                        <span>Температура: @(record.Temperature.HasValue ? $"{record.Temperature:0.#} °C" : UiText.Empty)</span>
+                        <span>Вес: @(record.Weight.HasValue ? $"{record.Weight:0.##} кг" : UiText.Empty)</span>
+                    </div>
+                </div>
+
+                <div class="medical-record-actions">
+                    <button class="btn btn-secondary btn-sm" @onclick="() => OpenDetails(record.Id)" type="button">Открыть</button>
+                </div>
+            </article>
+        }
+    </div>
 }
 </section>
 
@@ -91,10 +115,7 @@ else
             await LoadByPet();
         }
 
-        if (records.Count == 0)
-        {
-            message = "Список медицинских записей пока пуст.";
-        }
+        message = string.Empty;
     }
 
     private async Task LoadByPet()
@@ -112,7 +133,7 @@ else
 
         if (records.Count == 0)
         {
-            message = "Для выбранного питомца записей пока нет.";
+            message = string.Empty;
         }
     }
 

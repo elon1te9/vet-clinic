@@ -1,4 +1,4 @@
-<div class="dashboard-card">
+<div class="dashboard-card @(string.IsNullOrWhiteSpace(Icon) ? "dashboard-card-plain" : string.Empty)">
     @if (!string.IsNullOrWhiteSpace(Icon))
     {
         <div class="dashboard-card-icon">@Icon</div>

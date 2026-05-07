@@ -19,7 +19,7 @@
 <section class="section-card">
     @if (pets.Count == 0)
     {
-        <EmptyState Title="Питомцев нет" Message="Список питомцев пока пуст." />
+        <EmptyState Title="Питомцы пока не добавлены" Message="Создайте карточку питомца, чтобы записывать его на приёмы и вести медицинскую историю." />
     }
     else
     {
@@ -29,19 +29,25 @@
                     <th>Имя</th>
                     <th>Вид</th>
                     <th>Порода</th>
-                    <th>Владелец</th>
-                    <th></th>
+                    @if (role != "Owner")
+                    {
+                        <th>Владелец</th>
+                    }
+                    <th class="table-actions-cell"></th>
                 </tr>
             </thead>
             <tbody>
                 @foreach (var pet in pets)
                 {
                     <tr>
-                        <td>@pet.Name</td>
-                        <td>@pet.Species</td>
-                        <td>@pet.Breed</td>
-                        <td>@pet.OwnerFullName</td>
-                        <td>
+                        <td>@UiText.Value(pet.Name)</td>
+                        <td>@UiText.Value(pet.Species)</td>
+                        <td>@UiText.Value(pet.Breed)</td>
+                        @if (role != "Owner")
+                        {
+                            <td>@UiText.Value(pet.OwnerFullName)</td>
+                        }
+                        <td class="table-actions-cell">
                             <button class="btn btn-secondary btn-sm" @onclick="() => OpenDetails(pet.Id)" type="button">Открыть</button>
                             @if (canEdit)
                             {
@@ -96,7 +102,7 @@
     private async Task DeletePet(int id)
     {
         var result = await PetApiService.DeleteAsync(id);
-        message = result ? string.Empty : "Не удалось удалить питомца.";
+        message = result ? string.Empty : "Не удалось удалить питомца. Попробуйте обновить страницу.";
         await LoadPetsAsync();
     }
 }

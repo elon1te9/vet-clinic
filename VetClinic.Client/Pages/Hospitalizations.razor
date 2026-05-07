@@ -12,40 +12,52 @@
 <section class="section-card">
 @if (CanManageHospitalizations)
 {
-    <h2>Новая госпитализация</h2>
+    <div class="inline-create-panel hospitalization-create-panel">
+        <div class="section-title-row">
+            <h2>Новая госпитализация</h2>
+        </div>
 
-    <div>
-        <label>Питомец</label>
-        <select @bind="petId">
-            @foreach (var pet in pets)
-            {
-                <option value="@pet.Id">@pet.Name</option>
-            }
-        </select>
+        <div class="hospitalization-create-layout">
+            <div class="hospitalization-create-main">
+                <div>
+                    <label>Питомец</label>
+                    <select @bind="petId">
+                        @foreach (var pet in pets)
+                        {
+                            <option value="@pet.Id">@pet.Name</option>
+                        }
+                    </select>
+                </div>
+
+                <div>
+                    <label>Палата</label>
+                    <input @bind="wardNumber" placeholder="Например: А-101" />
+                </div>
+            </div>
+
+            <div class="hospitalization-create-notes">
+                <div>
+                    <label>Режим кормления</label>
+                    <input @bind="feedingSchedule" placeholder="Например: 2 раза в день" />
+                </div>
+
+                <div>
+                    <label>Состояние</label>
+                    <textarea @bind="conditionNotes" placeholder="Кратко опишите состояние питомца"></textarea>
+                </div>
+
+                <div class="actions-row">
+                    <button class="btn btn-primary" @onclick="CreateHospitalization" type="button">Создать</button>
+                </div>
+            </div>
+        </div>
     </div>
-
-    <div>
-        <label>Палата</label>
-        <input @bind="wardNumber" placeholder="Номер палаты" />
-    </div>
-
-    <div>
-        <label>Режим кормления</label>
-        <input @bind="feedingSchedule" placeholder="Например: 2 раза в день" />
-    </div>
-
-    <div>
-        <label>Состояние</label>
-        <input @bind="conditionNotes" placeholder="Краткое состояние питомца" />
-    </div>
-
-    <button class="btn btn-primary" @onclick="CreateHospitalization" type="button">Поместить в стационар</button>
 }
 
 <h2>Госпитализации</h2>
 @if (hospitalizations.Count == 0)
 {
-    <EmptyState Title="Госпитализаций нет" Message="Активные и завершённые госпитализации появятся здесь." />
+    <EmptyState Title="Госпитализаций пока нет" Message="Создайте госпитализацию, чтобы отслеживать палату, состояние и записи ухода." />
 }
 else
 {
@@ -57,19 +69,19 @@ else
                 <th>Окончание</th>
                 <th>Палата</th>
                 <th>Статус</th>
-                <th></th>
+                <th class="table-actions-cell"></th>
             </tr>
         </thead>
         <tbody>
             @foreach (var item in hospitalizations)
             {
                 <tr>
-                    <td>@item.PetName</td>
-                    <td>@item.StartAt.ToLocalTime().ToString("dd.MM.yyyy")</td>
-                    <td>@item.EndAt?.ToLocalTime().ToString("dd.MM.yyyy")</td>
-                    <td>@item.WardNumber</td>
+                    <td>@UiText.Value(item.PetName)</td>
+                    <td>@UiText.Date(item.StartAt)</td>
+                    <td>@UiText.Date(item.EndAt)</td>
+                    <td>@UiText.Value(item.WardNumber)</td>
                     <td><StatusBadge Status="@item.Status" /></td>
-                    <td>
+                    <td class="table-actions-cell">
                         <a class="btn btn-secondary btn-sm" href="@($"hospitalizations/{item.Id}")">Открыть</a>
                         @if (CanManageHospitalizations && item.Status == VetClinic.Shared.Enums.HospitalizationStatus.Active)
                         {
@@ -123,7 +135,7 @@ else
             ConditionNotes = string.IsNullOrWhiteSpace(conditionNotes) ? null : conditionNotes
         });
 
-        message = result is null ? "Не удалось создать госпитализацию." : "Госпитализация создана.";
+        message = result is null ? "Не удалось сохранить данные. Проверьте заполнение формы." : "Госпитализация создана.";
 
         if (result is not null)
         {

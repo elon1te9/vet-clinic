@@ -12,19 +12,58 @@
 }
 else
 {
-    <p><strong>Дата визита:</strong> @record.VisitDate.ToLocalTime().ToString("dd.MM.yyyy")</p>
-    <p><strong>Питомец:</strong> @record.PetName</p>
-    <p><strong>Владелец:</strong> @record.OwnerFullName</p>
-    <p><strong>Врач:</strong> @record.VeterinarianFullName</p>
-    <p><strong>Приём:</strong> @(record.AppointmentId?.ToString() ?? "Не указан")</p>
-    <p><strong>Жалобы:</strong> @record.Complaints</p>
-    <p><strong>Диагноз:</strong> @record.Diagnosis</p>
-    <p><strong>Лечение и назначения:</strong> @record.Treatment</p>
-    <p><strong>Рекомендации:</strong> @record.Recommendations</p>
-    <p><strong>Температура:</strong> @record.Temperature</p>
-    <p><strong>Вес:</strong> @record.Weight</p>
+    <div class="details-grid">
+        <div class="details-item">
+            <span>Дата визита</span>
+            <strong>@UiText.Date(record.VisitDate, withTime: false)</strong>
+        </div>
+        <div class="details-item">
+            <span>Питомец</span>
+            <strong>@UiText.Value(record.PetName)</strong>
+        </div>
+        <div class="details-item">
+            <span>Владелец</span>
+            <strong>@UiText.Value(record.OwnerFullName)</strong>
+        </div>
+        <div class="details-item">
+            <span>Врач</span>
+            <strong>@UiText.Value(record.VeterinarianFullName)</strong>
+        </div>
+        <div class="details-item">
+            <span>Приём</span>
+            <strong>@(record.AppointmentId?.ToString() ?? UiText.Empty)</strong>
+        </div>
+        <div class="details-item">
+            <span>Температура</span>
+            <strong>@(record.Temperature.HasValue ? $"{record.Temperature:0.0} °C" : UiText.Empty)</strong>
+        </div>
+        <div class="details-item">
+            <span>Вес</span>
+            <strong>@(record.Weight.HasValue ? $"{record.Weight:0.##} кг" : UiText.Empty)</strong>
+        </div>
+        <div class="details-item details-item-full">
+            <span>Жалобы</span>
+            <p>@UiText.Value(record.Complaints)</p>
+        </div>
+        <div class="details-item details-item-full">
+            <span>Диагноз</span>
+            <p>@UiText.Value(record.Diagnosis)</p>
+        </div>
+        <div class="details-item details-item-full">
+            <span>Лечение и назначения</span>
+            <p>@UiText.Value(record.Treatment)</p>
+        </div>
+        <div class="details-item details-item-full">
+            <span>Рекомендации</span>
+            <p>@UiText.Value(record.Recommendations)</p>
+        </div>
+    </div>
 }
 </section>
+
+<div class="actions-row">
+    <a class="btn btn-secondary" href="/medical-records">Назад</a>
+</div>
 
 @code {
     [Parameter] public int Id { get; set; }

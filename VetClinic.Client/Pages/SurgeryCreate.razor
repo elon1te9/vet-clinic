@@ -10,58 +10,60 @@
 
 <ErrorMessage Text="@message" />
 
-<section class="section-card">
-<div>
-    <label>Питомец</label>
-    <select @bind="petId">
-        @foreach (var pet in pets)
-        {
-            <option value="@pet.Id">@pet.Name</option>
-        }
-    </select>
-</div>
+<section class="section-card entity-form-card">
+    <div class="entity-form-grid">
+        <div>
+            <label>Питомец</label>
+            <select @bind="petId">
+                @foreach (var pet in pets)
+                {
+                    <option value="@pet.Id">@pet.Name</option>
+                }
+            </select>
+        </div>
 
-<div>
-    <label>Ассистент</label>
-    @if (assistants.Count == 0)
-    {
-        <EmptyState Title="Ассистенты не найдены" Message="Добавьте сотрудника с ролью Assistant, чтобы выбрать его для операции." />
-    }
-    else
-    {
-        <select @bind="assistantId">
-            @foreach (var assistant in assistants)
+        <div>
+            <label>Ассистент</label>
+            @if (assistants.Count == 0)
             {
-                <option value="@assistant.Id">@assistant.FullName</option>
+                <EmptyState Title="Ассистенты не найдены" Message="Добавьте сотрудника с ролью «Ассистент», чтобы выбрать его для операции." />
             }
-        </select>
-    }
-</div>
+            else
+            {
+                <select @bind="assistantId">
+                    @foreach (var assistant in assistants)
+                    {
+                        <option value="@assistant.Id">@assistant.FullName</option>
+                    }
+                </select>
+            }
+        </div>
 
-<div>
-    <label>Дата операции</label>
-    <InputDate @bind-Value="scheduledDate" />
-</div>
+        <div>
+            <label>Дата операции</label>
+            <InputDate @bind-Value="scheduledDate" />
+        </div>
 
-<div>
-    <label>Название</label>
-    <input @bind="title" placeholder="Название операции" />
-</div>
+        <div>
+            <label>Название</label>
+            <input @bind="title" placeholder="Название операции" />
+        </div>
 
-<div>
-    <label>Описание</label>
-    <input @bind="description" placeholder="Описание операции" />
-</div>
+        <div>
+            <label>Описание</label>
+            <input @bind="description" placeholder="Описание операции" />
+        </div>
 
-<div>
-    <label>Наркоз</label>
-    <input @bind="anesthesia" placeholder="Тип наркоза" />
-</div>
+        <div>
+            <label>Наркоз</label>
+            <input @bind="anesthesia" placeholder="Тип наркоза" />
+        </div>
+    </div>
 
-<div class="form-actions">
-    <button class="btn btn-primary" @onclick="CreateSurgery" type="button">Сохранить</button>
-    <a class="btn btn-secondary" href="/surgeries">Назад</a>
-</div>
+    <div class="actions-row">
+        <button class="btn btn-primary" @onclick="CreateSurgery" type="button">Создать</button>
+        <a class="btn btn-secondary" href="/surgeries">Назад</a>
+    </div>
 </section>
 
 @code {
@@ -104,7 +106,7 @@
 
         if (result is null)
         {
-            message = "Не удалось создать операцию.";
+            message = "Не удалось сохранить данные. Проверьте заполнение формы.";
             return;
         }
 

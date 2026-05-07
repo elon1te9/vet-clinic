@@ -7,32 +7,19 @@
     [Parameter]
     public string Text { get; set; } = string.Empty;
 
-    private string TextValue => string.IsNullOrWhiteSpace(Text)
-        ? Status?.ToString() ?? string.Empty
-        : Text;
+    private string TextValue => string.IsNullOrWhiteSpace(Text) ? UiText.Status(Status) : Text;
 
     private string CssClass
     {
         get
         {
-            var lower = TextValue.ToLowerInvariant();
-
-            if (lower.Contains("paid") || lower.Contains("completed") || lower.Contains("active") || lower.Contains("confirmed"))
+            return UiText.StatusTone(Status, Text) switch
             {
-                return "status-badge status-success";
-            }
-
-            if (lower.Contains("cancelled") || lower.Contains("overdue") || lower.Contains("critical"))
-            {
-                return "status-badge status-danger";
-            }
-
-            if (lower.Contains("planned") || lower.Contains("scheduled") || lower.Contains("unpaid") || lower.Contains("pending"))
-            {
-                return "status-badge status-warning";
-            }
-
-            return "status-badge";
+                "success" => "status-badge status-success",
+                "danger" => "status-badge status-danger",
+                "warning" => "status-badge status-warning",
+                _ => "status-badge"
+            };
         }
     }
 }

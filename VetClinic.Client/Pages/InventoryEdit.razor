@@ -8,62 +8,67 @@
 
 <ErrorMessage Text="@message" />
 
-<section class="section-card">
+<section class="section-card entity-form-card">
 @if (loaded)
 {
-    <div>
-        <label>Название</label>
-        <input @bind="name" placeholder="Название позиции" />
+    <div class="entity-form-grid">
+        <div>
+            <label>Название</label>
+            <input @bind="name" placeholder="Название позиции" />
+        </div>
+
+        <div>
+            <label>Категория</label>
+            <select @bind="categoryText">
+                @foreach (var category in Enum.GetValues<VetClinic.Shared.Enums.InventoryCategory>())
+                {
+                    <option value="@category">@UiText.Category(category)</option>
+                }
+            </select>
+        </div>
+
+        <div>
+            <label>Единица</label>
+            <input @bind="unit" placeholder="шт., уп., мл." />
+        </div>
+
+        <div>
+            <label>Количество</label>
+            <input type="number" step="0.01" @bind="quantity" placeholder="0" />
+        </div>
+
+        <div>
+            <label>Минимальный остаток</label>
+            <input type="number" step="0.01" @bind="minQuantity" placeholder="0" />
+        </div>
+
+        <div>
+            <label>Срок годности</label>
+            <InputDate @bind-Value="expirationDate" />
+        </div>
+
+        <div>
+            <label>Цена, ₽</label>
+            <input type="number" step="0.01" @bind="price" placeholder="0" />
+        </div>
+
+        <div>
+            <label>Поставщик</label>
+            <input @bind="supplier" placeholder="Поставщик" />
+        </div>
+
+        <div>
+            <label>
+                <input type="checkbox" @bind="isActive" />
+                Активна
+            </label>
+        </div>
     </div>
 
-    <div>
-        <label>Категория</label>
-        <select @bind="categoryText">
-            @foreach (var category in Enum.GetValues<VetClinic.Shared.Enums.InventoryCategory>())
-            {
-                <option value="@category">@category</option>
-            }
-        </select>
+    <div class="actions-row">
+        <button class="btn btn-primary" @onclick="UpdateItem" type="button">Сохранить</button>
+        <a class="btn btn-secondary" href="inventory">Назад</a>
     </div>
-
-    <div>
-        <label>Единица</label>
-        <input @bind="unit" placeholder="шт., уп., мл." />
-    </div>
-
-    <div>
-        <label>Количество</label>
-        <input type="number" step="0.01" @bind="quantity" placeholder="0" />
-    </div>
-
-    <div>
-        <label>Минимум</label>
-        <input type="number" step="0.01" @bind="minQuantity" placeholder="0" />
-    </div>
-
-    <div>
-        <label>Срок годности</label>
-        <InputDate @bind-Value="expirationDate" />
-    </div>
-
-    <div>
-        <label>Цена</label>
-        <input type="number" step="0.01" @bind="price" placeholder="0" />
-    </div>
-
-    <div>
-        <label>Поставщик</label>
-        <input @bind="supplier" placeholder="Поставщик" />
-    </div>
-
-    <div>
-        <label>
-            <input type="checkbox" @bind="isActive" />
-            Активна
-        </label>
-    </div>
-
-    <button class="btn btn-primary" @onclick="UpdateItem" type="button">Сохранить</button>
 }
 </section>
 
@@ -87,7 +92,7 @@
         var item = await InventoryApiService.GetByIdAsync(Id);
         if (item is null)
         {
-            message = "Позиция не найдена.";
+            message = "Запись не найдена.";
             return;
         }
 
@@ -122,7 +127,7 @@
 
         if (result is null)
         {
-            message = "Не удалось сохранить позицию.";
+            message = "Не удалось сохранить данные. Проверьте заполнение формы.";
             return;
         }
 

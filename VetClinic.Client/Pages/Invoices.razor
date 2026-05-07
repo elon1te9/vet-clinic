@@ -15,25 +15,35 @@
 <section class="section-card">
 @if (role == "Admin")
 {
-    <h2>Создать счёт</h2>
-    <div>
-        <label>Приём</label>
-        <select @bind="createRequest.AppointmentId">
-            <option value="0">Выберите приём</option>
-            @foreach (var appointment in appointments)
-            {
-                <option value="@appointment.Id">
-                    #@appointment.Id - @appointment.PetName - @appointment.ServiceName - @appointment.StartAt.ToLocalTime().ToString("dd.MM.yyyy HH:mm")
-                </option>
-            }
-        </select>
+    <div class="inline-create-panel invoice-create-panel">
+        <div class="section-title-row">
+            <h2>Создать счёт</h2>
+        </div>
+
+        <div class="invoice-create-layout">
+            <div>
+                <label>Приём</label>
+                <select @bind="createRequest.AppointmentId">
+                    <option value="0">Выберите приём</option>
+                    @foreach (var appointment in AvailableAppointments)
+                    {
+                        <option value="@appointment.Id">
+                            #@appointment.Id - @appointment.PetName - @appointment.ServiceName - @appointment.StartAt.ToString("dd.MM.yyyy HH:mm")
+                        </option>
+                    }
+                </select>
+            </div>
+
+            <div class="actions-row">
+                <button class="btn btn-primary" type="button" @onclick="CreateInvoice">Создать</button>
+            </div>
+        </div>
     </div>
-    <button class="btn btn-primary" type="button" @onclick="CreateInvoice">Создать</button>
 }
 
 @if (invoices.Count == 0)
 {
-    <EmptyState Title="Счетов нет" Message="Счета появятся здесь после создания." />
+    <EmptyState Title="Счета пока не созданы" Message="Создайте счёт по завершённому приёму, чтобы зафиксировать оплату услуги." />
 }
 else
 {
@@ -48,7 +58,7 @@ else
                 <th>Статус</th>
                 <th>Создан</th>
                 <th>Оплачен</th>
-                <th></th>
+                <th class="table-actions-cell"></th>
             </tr>
         </thead>
         <tbody>
@@ -57,13 +67,13 @@ else
                 <tr>
                     <td>@invoice.Id</td>
                     <td>@invoice.AppointmentId</td>
-                    <td>@invoice.OwnerFullName</td>
-                    <td>@invoice.ServiceName</td>
-                    <td>@invoice.Amount</td>
+                    <td>@UiText.Value(invoice.OwnerFullName)</td>
+                    <td>@UiText.Value(invoice.ServiceName)</td>
+                    <td>@UiText.Money(invoice.Amount)</td>
                     <td><StatusBadge Status="@invoice.Status" /></td>
-                    <td>@invoice.CreatedAt.ToLocalTime().ToString("dd.MM.yyyy HH:mm")</td>
-                    <td>@invoice.PaidAt?.ToLocalTime().ToString("dd.MM.yyyy HH:mm")</td>
-                    <td>
+                    <td>@UiText.Date(invoice.CreatedAt)</td>
+                    <td>@UiText.Date(invoice.PaidAt)</td>
+                    <td class="table-actions-cell">
                         <a class="btn btn-secondary btn-sm" href="@($"invoices/{invoice.Id}")">Открыть</a>
                         @if (role == "Admin" && invoice.Status == InvoiceStatus.Unpaid)
                         {
@@ -83,6 +93,14 @@ else
     private CreateInvoiceRequest createRequest = new();
     private string role = string.Empty;
     private string message = string.Empty;
+    private IEnumerable<AppointmentResponse> AvailableAppointments
+    {
+        get
+        {
+            var invoiceAppointmentIds = invoices.Select(i => i.AppointmentId).ToHashSet();
+            return appointments.Where(a => !invoiceAppointmentIds.Contains(a.Id));
+        }
+    }
 
     protected override async Task OnInitializedAsync()
     {
@@ -112,7 +130,7 @@ else
         }
 
         var result = await FinanceApiService.CreateAsync(createRequest);
-        message = result is null ? "Не удалось создать счёт." : "Счёт создан.";
+        message = result is null ? "Не удалось сохранить данные. Проверьте заполнение формы." : "Счёт создан.";
 
         createRequest = new CreateInvoiceRequest();
         await LoadInvoicesAsync();
@@ -121,7 +139,7 @@ else
     private async Task PayInvoice(int id)
     {
         var result = await FinanceApiService.PayAsync(id);
-        message = result is null ? "Не удалось оплатить счёт." : "Счёт оплачен.";
+        message = result is null ? "Не удалось оплатить счёт. Попробуйте обновить страницу." : "Счёт оплачен.";
 
         await LoadInvoicesAsync();
     }

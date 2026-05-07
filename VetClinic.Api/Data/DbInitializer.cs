@@ -7,7 +7,15 @@ namespace VetClinic.Api.Data;
 
 public static class DbInitializer
 {
-    private static readonly string[] Roles = ["Admin", "Veterinarian", "Owner", "Assistant"];
+    private static readonly string[] Roles =
+    [
+        nameof(UserRole.Admin),
+        nameof(UserRole.Veterinarian),
+        nameof(UserRole.Owner),
+        nameof(UserRole.Assistant)
+    ];
+
+    private const string TestPassword = "Password123!";
 
     public static async Task InitializeAsync(IServiceProvider services)
     {
@@ -15,7 +23,6 @@ public static class DbInitializer
 
         var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
         var userManager = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
-        var configuration = scope.ServiceProvider.GetRequiredService<IConfiguration>();
         var context = scope.ServiceProvider.GetRequiredService<AppDbContext>();
 
         foreach (var role in Roles)
@@ -26,32 +33,36 @@ public static class DbInitializer
             }
         }
 
-        var adminEmail = configuration["SeedAdmin:Email"] ?? "admin@vetclinic.local";
-        var adminPassword = configuration["SeedAdmin:Password"] ?? "Password123!";
-        var adminFullName = configuration["SeedAdmin:FullName"] ?? "Системный администратор";
+        await EnsureTestUserAsync(
+            userManager,
+            "admin@vetclinic.local",
+            "Администратор клиники",
+            nameof(UserRole.Admin),
+            phoneNumber: "+7 900 000-00-01");
 
-        var admin = await userManager.FindByEmailAsync(adminEmail);
-        if (admin is null)
-        {
-            admin = new ApplicationUser
-            {
-                UserName = adminEmail,
-                Email = adminEmail,
-                FullName = adminFullName,
-                IsActive = true
-            };
+        await EnsureTestUserAsync(
+            userManager,
+            "doctor@vetclinic.local",
+            "Петров Пётр Сергеевич",
+            nameof(UserRole.Veterinarian),
+            phoneNumber: "+7 900 000-00-02",
+            specialization: "Терапевт");
 
-            var result = await userManager.CreateAsync(admin, adminPassword);
-            if (!result.Succeeded)
-            {
-                throw new InvalidOperationException(string.Join(" ", result.Errors.Select(e => e.Description)));
-            }
-        }
+        await EnsureTestUserAsync(
+            userManager,
+            "owner@vetclinic.local",
+            "Иванов Иван Иванович",
+            nameof(UserRole.Owner),
+            phoneNumber: "+7 900 000-00-03",
+            address: "Москва, ул. Лесная, 10");
 
-        if (!await userManager.IsInRoleAsync(admin, "Admin"))
-        {
-            await userManager.AddToRoleAsync(admin, "Admin");
-        }
+        await EnsureTestUserAsync(
+            userManager,
+            "assistant@vetclinic.local",
+            "Смирнова Анна Викторовна",
+            nameof(UserRole.Assistant),
+            phoneNumber: "+7 900 000-00-04",
+            specialization: "Ассистент");
 
         if (!await context.ClinicServices.AnyAsync())
         {
@@ -89,29 +100,95 @@ public static class DbInitializer
             context.InventoryItems.AddRange(
                 new InventoryItem
                 {
-                    Name = "Vaccine Nobivac",
+                    Name = "Вакцина Нобивак",
                     Category = InventoryCategory.Vaccine,
-                    Unit = "pcs",
+                    Unit = "шт.",
                     Quantity = 10,
                     MinQuantity = 3,
                     ExpirationDate = DateTime.SpecifyKind(DateTime.UtcNow.Date.AddMonths(6), DateTimeKind.Utc),
                     Price = 700,
-                    Supplier = "VetSupplier",
+                    Supplier = "ВетСнаб",
                     IsActive = true
                 },
                 new InventoryItem
                 {
-                    Name = "Bandage",
+                    Name = "Бинт стерильный",
                     Category = InventoryCategory.Material,
-                    Unit = "pcs",
+                    Unit = "шт.",
                     Quantity = 25,
                     MinQuantity = 5,
                     Price = 80,
-                    Supplier = "MedStore",
+                    Supplier = "МедСклад",
                     IsActive = true
                 });
 
             await context.SaveChangesAsync();
+        }
+    }
+
+    private static async Task EnsureTestUserAsync(
+        UserManager<ApplicationUser> userManager,
+        string email,
+        string fullName,
+        string role,
+        string? phoneNumber = null,
+        string? specialization = null,
+        string? address = null)
+    {
+        var user = await userManager.FindByEmailAsync(email);
+        if (user is null)
+        {
+            user = new ApplicationUser
+            {
+                UserName = email,
+                Email = email,
+                EmailConfirmed = true,
+                FullName = fullName,
+                PhoneNumber = phoneNumber,
+                Specialization = specialization,
+                Address = address,
+                IsActive = true
+            };
+
+            var createResult = await userManager.CreateAsync(user, TestPassword);
+            ThrowIfFailed(createResult);
+        }
+
+        user.UserName = email;
+        user.Email = email;
+        user.EmailConfirmed = true;
+        user.FullName = fullName;
+        user.PhoneNumber = phoneNumber;
+        user.Specialization = specialization;
+        user.Address = address;
+        user.IsActive = true;
+
+        ThrowIfFailed(await userManager.UpdateAsync(user));
+
+        var currentRoles = await userManager.GetRolesAsync(user);
+        var rolesToRemove = currentRoles.Where(currentRole => currentRole != role).ToArray();
+        if (rolesToRemove.Length > 0)
+        {
+            ThrowIfFailed(await userManager.RemoveFromRolesAsync(user, rolesToRemove));
+        }
+
+        if (!await userManager.IsInRoleAsync(user, role))
+        {
+            ThrowIfFailed(await userManager.AddToRoleAsync(user, role));
+        }
+
+        if (!await userManager.CheckPasswordAsync(user, TestPassword))
+        {
+            var resetToken = await userManager.GeneratePasswordResetTokenAsync(user);
+            ThrowIfFailed(await userManager.ResetPasswordAsync(user, resetToken, TestPassword));
+        }
+    }
+
+    private static void ThrowIfFailed(IdentityResult result)
+    {
+        if (!result.Succeeded)
+        {
+            throw new InvalidOperationException(string.Join(" ", result.Errors.Select(e => e.Description)));
         }
     }
 }

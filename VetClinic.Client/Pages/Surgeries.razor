@@ -4,19 +4,21 @@
 
 <PageTitle>Операции</PageTitle>
 
-<PageHeader Title="Операции" Description="Планирование и статусы хирургических операций." />
+<PageHeader Title="Операции" Description="Планирование и статусы хирургических операций.">
+    <Actions>
+        @if (role == "Veterinarian")
+        {
+            <a class="btn btn-primary" href="surgeries/create">Создать операцию</a>
+        }
+    </Actions>
+</PageHeader>
 
 <ErrorMessage Text="@message" />
 
 <section class="section-card">
-@if (role == "Veterinarian")
-{
-    <p><a class="btn btn-primary" href="surgeries/create">Создать операцию</a></p>
-}
-
 @if (surgeries.Count == 0)
 {
-    <EmptyState Title="Операций нет" Message="Операции появятся после создания." />
+    <EmptyState Title="Операции пока не запланированы" Message="Создайте операцию, чтобы контролировать подготовку, ассистента и статус выполнения." />
 }
 else
 {
@@ -29,25 +31,31 @@ else
                 <th>Статус</th>
                 <th>Врач</th>
                 <th>Ассистент</th>
-                <th></th>
+                <th class="table-actions-cell"></th>
             </tr>
         </thead>
         <tbody>
             @foreach (var surgery in surgeries)
             {
                 <tr>
-                    <td>@surgery.ScheduledAt.ToLocalTime().ToString("dd.MM.yyyy HH:mm")</td>
-                    <td>@surgery.PetName</td>
-                    <td>@surgery.Title</td>
+                    <td>@FormatSurgeryDate(surgery.ScheduledAt)</td>
+                    <td>@UiText.Value(surgery.PetName)</td>
+                    <td>@UiText.Value(surgery.Title)</td>
                     <td><StatusBadge Status="@surgery.Status" /></td>
-                    <td>@surgery.VeterinarianFullName</td>
-                    <td>@surgery.AssistantFullName</td>
-                    <td>
+                    <td>@UiText.Value(surgery.VeterinarianFullName)</td>
+                    <td>@UiText.Value(surgery.AssistantFullName)</td>
+                    <td class="table-actions-cell">
                         @if (role == "Admin" || role == "Veterinarian")
                         {
-                            <button class="btn btn-primary btn-sm" @onclick="() => SetStatus(surgery.Id, VetClinic.Shared.Enums.SurgeryStatus.InProgress)" type="button">InProgress</button>
-                            <button class="btn btn-secondary btn-sm" @onclick="() => SetStatus(surgery.Id, VetClinic.Shared.Enums.SurgeryStatus.Completed)" type="button">Completed</button>
-                            <button class="btn btn-danger btn-sm" @onclick="() => SetStatus(surgery.Id, VetClinic.Shared.Enums.SurgeryStatus.Cancelled)" type="button">Cancelled</button>
+                            @if (surgery.Status == VetClinic.Shared.Enums.SurgeryStatus.Planned)
+                            {
+                                <button class="btn btn-primary btn-sm" @onclick="() => SetStatus(surgery.Id, VetClinic.Shared.Enums.SurgeryStatus.InProgress)" type="button">Начать</button>
+                                <button class="btn btn-danger btn-sm" @onclick="() => SetStatus(surgery.Id, VetClinic.Shared.Enums.SurgeryStatus.Cancelled)" type="button">Отменить</button>
+                            }
+                            else if (surgery.Status == VetClinic.Shared.Enums.SurgeryStatus.InProgress)
+                            {
+                                <button class="btn btn-secondary btn-sm" @onclick="() => SetStatus(surgery.Id, VetClinic.Shared.Enums.SurgeryStatus.Completed)" type="button">Завершить</button>
+                            }
                         }
                     </td>
                 </tr>
@@ -79,5 +87,10 @@ else
         message = result is null ? "Не удалось изменить статус." : "Статус изменён.";
 
         await LoadAsync();
+    }
+
+    private static string FormatSurgeryDate(DateTime value)
+    {
+        return value.ToString("dd.MM.yyyy");
     }
 }

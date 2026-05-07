@@ -81,6 +81,11 @@ public class MedicalRecordService : IMedicalRecordService
             return null;
         }
 
+        if (appointment.Status is AppointmentStatus.Completed or AppointmentStatus.Cancelled)
+        {
+            return null;
+        }
+
         if (await _context.MedicalRecords.AnyAsync(r => r.AppointmentId == request.AppointmentId.Value))
         {
             return null;
@@ -113,6 +118,9 @@ public class MedicalRecordService : IMedicalRecordService
         };
 
         _context.MedicalRecords.Add(record);
+        appointment.Status = AppointmentStatus.Completed;
+        appointment.UpdatedAt = DateTime.UtcNow;
+
         await _context.SaveChangesAsync();
 
         record.Pet = pet;

@@ -5,65 +5,91 @@
 
 <PageHeader Title="Календарь вакцинаций" Description="Ближайшие и просроченные вакцинации." />
 
-<section class="section-card">
-<h2>Ближайшие вакцинации</h2>
+<div class="vaccination-calendar-summary">
+    <section class="calendar-summary-card">
+        <span>Ближайшие</span>
+        <strong>@upcoming.Count</strong>
+    </section>
 
-@if (upcoming.Count == 0)
-{
-    <EmptyState Title="Ближайших вакцинаций нет" Message="На ближайший период вакцинации не запланированы." />
-}
-</section>
-else
-{
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Дата</th>
-                <th>Питомец</th>
-                <th>Вакцина</th>
-            </tr>
-        </thead>
-        <tbody>
+    <section class="calendar-summary-card calendar-summary-card-danger">
+        <span>Просроченные</span>
+        <strong>@overdue.Count</strong>
+    </section>
+</div>
+
+<section class="section-card vaccination-calendar-section">
+    <div class="calendar-section-header">
+        <div>
+            <h2>Ближайшие вакцинации</h2>
+            <p>Запланированные даты на ближайший период.</p>
+        </div>
+    </div>
+
+    @if (upcoming.Count == 0)
+    {
+        <EmptyState Title="Ближайших вакцинаций нет" Message="На ближайший период вакцинации не запланированы." />
+    }
+    else
+    {
+        <div class="vaccination-calendar-list">
             @foreach (var vaccination in upcoming)
             {
-                <tr>
-                    <td>@vaccination.NextDueAt?.ToLocalTime().ToString("dd.MM.yyyy")</td>
-                    <td>@vaccination.PetName</td>
-                    <td>@vaccination.Name</td>
-                </tr>
+                <article class="vaccination-calendar-card">
+                    <div class="vaccination-calendar-date">
+                        <small>план</small>
+                        <strong>@vaccination.NextDueAt?.ToString("dd")</strong>
+                        <span>@vaccination.NextDueAt?.ToString("MMM yyyy")</span>
+                    </div>
+
+                    <div class="vaccination-calendar-body">
+                        <span>Питомец</span>
+                        <strong>@UiText.Value(vaccination.PetName)</strong>
+                        <p>@UiText.Value(vaccination.Name)</p>
+                    </div>
+
+                    <StatusBadge Status="@vaccination.Status" />
+                </article>
             }
-        </tbody>
-    </table>
-}
+        </div>
+    }
+</section>
 
-<h2>Просроченные вакцинации</h2>
+<section class="section-card vaccination-calendar-section">
+    <div class="calendar-section-header">
+        <div>
+            <h2>Просроченные вакцинации</h2>
+            <p>Эти даты уже прошли и требуют внимания.</p>
+        </div>
+    </div>
 
-@if (overdue.Count == 0)
-{
-    <EmptyState Title="Просроченных вакцинаций нет" Message="Просроченных вакцинаций не найдено." />
-}
-else
-{
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Дата</th>
-                <th>Питомец</th>
-                <th>Вакцина</th>
-            </tr>
-        </thead>
-        <tbody>
+    @if (overdue.Count == 0)
+    {
+        <EmptyState Title="Просроченных вакцинаций нет" Message="Просроченные вакцинации будут отображаться здесь, чтобы их было легко отработать." />
+    }
+    else
+    {
+        <div class="vaccination-calendar-list">
             @foreach (var vaccination in overdue)
             {
-                <tr>
-                    <td>@vaccination.NextDueAt?.ToLocalTime().ToString("dd.MM.yyyy")</td>
-                    <td>@vaccination.PetName</td>
-                    <td>@vaccination.Name</td>
-                </tr>
+                <article class="vaccination-calendar-card vaccination-calendar-card-overdue">
+                    <div class="vaccination-calendar-date">
+                        <small>просрочено</small>
+                        <strong>@vaccination.NextDueAt?.ToString("dd")</strong>
+                        <span>@vaccination.NextDueAt?.ToString("MMM yyyy")</span>
+                    </div>
+
+                    <div class="vaccination-calendar-body">
+                        <span>Питомец</span>
+                        <strong>@UiText.Value(vaccination.PetName)</strong>
+                        <p>@UiText.Value(vaccination.Name)</p>
+                    </div>
+
+                    <StatusBadge Status="@vaccination.Status" />
+                </article>
             }
-        </tbody>
-    </table>
-}
+        </div>
+    }
+</section>
 
 @code {
     private List<VetClinic.Shared.Responses.VaccinationResponse> upcoming = [];

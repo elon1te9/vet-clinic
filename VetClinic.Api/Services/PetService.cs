@@ -91,7 +91,7 @@ public class PetService : IPetService
             Species = request.Species.Trim(),
             Breed = request.Breed,
             Gender = request.Gender,
-            BirthDate = request.BirthDate,
+            BirthDate = ToUtc(request.BirthDate),
             Weight = request.Weight,
             Color = request.Color,
             HealthNotes = request.HealthNotes
@@ -136,7 +136,7 @@ public class PetService : IPetService
         pet.Species = request.Species.Trim();
         pet.Breed = request.Breed;
         pet.Gender = request.Gender;
-        pet.BirthDate = request.BirthDate;
+        pet.BirthDate = ToUtc(request.BirthDate);
         pet.Weight = request.Weight;
         pet.Color = request.Color;
         pet.HealthNotes = request.HealthNotes;
@@ -199,6 +199,21 @@ public class PetService : IPetService
         return user.IsInRole(nameof(UserRole.Owner)) &&
                !string.IsNullOrWhiteSpace(userId) &&
                pet.OwnerId == userId;
+    }
+
+    private static DateTime? ToUtc(DateTime? value)
+    {
+        if (value is null)
+        {
+            return null;
+        }
+
+        if (value.Value.Kind == DateTimeKind.Utc)
+        {
+            return value;
+        }
+
+        return DateTime.SpecifyKind(value.Value, DateTimeKind.Utc);
     }
 
     private static PetResponse MapPet(Pet pet)

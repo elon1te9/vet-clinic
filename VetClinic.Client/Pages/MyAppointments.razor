@@ -9,7 +9,11 @@
     <Actions>
         @if (role == "Owner")
         {
-            <button class="btn btn-primary" @onclick="OpenCreatePage" type="button">Записаться на приём</button>
+            <button class="btn btn-primary" @onclick="() => OpenCreatePage()" type="button">Записаться на приём</button>
+        }
+        else if (role == "Veterinarian")
+        {
+            <button class="btn btn-primary" @onclick="() => OpenCreatePage()" type="button">Записать на приём</button>
         }
     </Actions>
 </PageHeader>
@@ -19,47 +23,68 @@
 <section class="section-card">
     @if (appointments.Count == 0)
     {
-        <EmptyState Title="Записей нет" Message="Список записей пока пуст." />
+        <EmptyState Title="Записей на приём пока нет" Message="Запишитесь на приём, чтобы увидеть дату, врача, услугу и статус визита." />
     }
     else
     {
-        <table class="table">
-            <thead>
-                <tr>
-                    <th>Дата</th>
-                    <th>Питомец</th>
-                    <th>Врач</th>
-                    <th>Услуга</th>
-                    <th>Причина</th>
-                    <th>Статус</th>
-                    <th></th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var appointment in appointments)
-                {
-                    <tr>
-                        <td>@FormatDate(appointment.StartAt)</td>
-                        <td>@appointment.PetName</td>
-                        <td>@appointment.VeterinarianFullName</td>
-                        <td>@appointment.ServiceName</td>
-                        <td>@appointment.Reason</td>
-                        <td><StatusBadge Status="@appointment.Status" /></td>
-                        <td>
+        <div class="appointment-list">
+            @foreach (var appointment in appointments)
+            {
+                <article class="appointment-card">
+                    <div class="appointment-date-tile">
+                        <span>@appointment.StartAt.ToString("dd.MM.yyyy")</span>
+                        <strong>@appointment.StartAt.ToString("HH:mm")</strong>
+                    </div>
+
+                    <div class="appointment-card-body">
+                        <div class="appointment-card-grid">
+                            <div>
+                                <span>Питомец</span>
+                                <strong>@UiText.Value(appointment.PetName)</strong>
+                            </div>
+
+                            <div>
+                                <span>Врач</span>
+                                <strong>@UiText.Value(appointment.VeterinarianFullName)</strong>
+                            </div>
+
+                            <div>
+                                <span>Услуга</span>
+                                <strong>@UiText.Value(appointment.ServiceName)</strong>
+                            </div>
+
+                            <div class="appointment-card-reason">
+                                <span>Причина</span>
+                                <p>@UiText.Value(appointment.Reason)</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="appointment-card-side">
+                        <StatusBadge Status="@appointment.Status" />
+
+                        <div class="appointment-card-actions">
                             @if (role == "Owner")
                             {
                                 <button class="btn btn-danger btn-sm" @onclick="() => CancelAppointment(appointment.Id)" type="button">Отменить</button>
                             }
                             @if (role == "Veterinarian")
                             {
-                                <button class="btn btn-primary btn-sm" @onclick="() => ChangeStatus(appointment.Id, VetClinic.Shared.Enums.AppointmentStatus.Confirmed)" type="button">Подтвердить</button>
-                                <button class="btn btn-secondary btn-sm" @onclick="() => ChangeStatus(appointment.Id, VetClinic.Shared.Enums.AppointmentStatus.Completed)" type="button">Завершить</button>
+                                @if (appointment.Status == VetClinic.Shared.Enums.AppointmentStatus.Planned)
+                                {
+                                    <button class="btn btn-primary btn-sm" @onclick="() => ChangeStatus(appointment.Id, VetClinic.Shared.Enums.AppointmentStatus.Confirmed)" type="button">Подтвердить</button>
+                                    <button class="btn btn-secondary btn-sm" @onclick="() => ChangeStatus(appointment.Id, VetClinic.Shared.Enums.AppointmentStatus.Completed)" type="button">Завершить</button>
+                                }
+                                else if (appointment.Status == VetClinic.Shared.Enums.AppointmentStatus.Confirmed)
+                                {
+                                    <button class="btn btn-secondary btn-sm" @onclick="() => ChangeStatus(appointment.Id, VetClinic.Shared.Enums.AppointmentStatus.Completed)" type="button">Завершить</button>
+                                }
                             }
-                        </td>
-                    </tr>
-                }
-            </tbody>
-        </table>
+                        </div>
+                    </div>
+                </article>
+            }
+        </div>
     }
 </section>
 
@@ -76,7 +101,10 @@
 
     private async Task LoadAppointmentsAsync()
     {
-        appointments = await AppointmentApiService.GetMyAsync();
+        appointments = (await AppointmentApiService.GetMyAsync())
+            .OrderBy(a => a.Status == VetClinic.Shared.Enums.AppointmentStatus.Completed)
+            .ThenBy(a => a.StartAt)
+            .ToList();
     }
 
     private void OpenCreatePage()
@@ -87,7 +115,7 @@
     private async Task CancelAppointment(int id)
     {
         var result = await AppointmentApiService.DeleteAsync(id);
-        message = result ? string.Empty : "Не удалось отменить запись.";
+        message = result ? string.Empty : "Не удалось отменить запись. Попробуйте обновить страницу.";
         await LoadAppointmentsAsync();
     }
 
@@ -98,12 +126,8 @@
             Status = status
         });
 
-        message = result is null ? "Не удалось изменить статус записи." : string.Empty;
+        message = result is null ? "Не удалось сохранить данные. Проверьте заполнение формы." : string.Empty;
         await LoadAppointmentsAsync();
     }
 
-    private static string FormatDate(DateTime value)
-    {
-        return value.ToLocalTime().ToString("dd.MM.yyyy HH:mm");
-    }
 }

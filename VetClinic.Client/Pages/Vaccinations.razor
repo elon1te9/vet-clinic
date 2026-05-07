@@ -2,163 +2,141 @@
 @inject VetClinic.Client.Services.VaccinationApiService VaccinationApiService
 @inject VetClinic.Client.Services.PetApiService PetApiService
 @inject VetClinic.Client.Services.LocalStorageService LocalStorageService
+@inject NavigationManager Navigation
 
 <PageTitle>Вакцинации</PageTitle>
 
-<PageHeader Title="Вакцинации" Description="История вакцинаций и план следующих дат." />
+<PageHeader Title="Вакцинации" Description="История вакцинаций питомцев и план следующих дат.">
+    <Actions>
+        @if (role == "Veterinarian")
+        {
+            <button class="btn btn-primary" @onclick="OpenCreatePage" type="button">Добавить вакцинацию</button>
+        }
+    </Actions>
+</PageHeader>
 
-<section class="section-card">
-@if (role == "Veterinarian")
-{
-    <h2>Новая вакцинация</h2>
-
-    <div>
-        <label>Питомец</label>
-        <select @bind="petId">
-            @foreach (var pet in pets)
-            {
-                <option value="@pet.Id">@pet.Name</option>
-            }
-        </select>
+<section class="section-card vaccinations-page">
+    <div class="vaccinations-toolbar">
+        <div class="vaccinations-filter">
+            <label>Питомец</label>
+            <select @bind="selectedPetId">
+                <option value="0">Все питомцы</option>
+                @foreach (var pet in pets)
+                {
+                    <option value="@pet.Id">@pet.Name</option>
+                }
+            </select>
+        </div>
     </div>
 
-    <div>
-        <label>Название вакцины</label>
-        <input @bind="name" placeholder="Название вакцины" />
-    </div>
+    <ErrorMessage Text="@message" />
 
-    <div>
-        <label>Дата вакцинации</label>
-        <InputDate @bind-Value="doneAt" />
-    </div>
-
-    <div>
-        <label>Следующая дата</label>
-        <InputDate @bind-Value="nextDueAt" />
-    </div>
-
-    <div>
-        <label>Статус</label>
-        <select @bind="statusText">
-            <option value="Completed">Completed</option>
-            <option value="Planned">Planned</option>
-            <option value="Overdue">Overdue</option>
-            <option value="Cancelled">Cancelled</option>
-        </select>
-    </div>
-
-    <div>
-        <label>Заметки</label>
-        <input @bind="notes" placeholder="Заметки по вакцинации" />
-    </div>
-
-    <button class="btn btn-primary" @onclick="CreateVaccination" type="button">Сохранить</button>
-}
-
-<ErrorMessage Text="@message" />
-
-@if (vaccinations.Count == 0)
-{
-    <EmptyState Title="Вакцинации не найдены" Message="Список вакцинаций пока пуст." />
-}
-else
-{
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Питомец</th>
-                <th>Вакцина</th>
-                <th>Дата</th>
-                <th>Следующая</th>
-                <th>Статус</th>
-                <th>Врач</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var vaccination in vaccinations)
-            {
+    @if (FilteredVaccinations.Count == 0)
+    {
+        <EmptyState Title="Вакцинации пока не добавлены" Message="Когда врач добавит вакцинацию, она появится в истории питомца." />
+    }
+    else
+    {
+        <table class="table vaccinations-table">
+            <thead>
                 <tr>
-                    <td>@vaccination.PetName</td>
-                    <td>@vaccination.Name</td>
-                    <td>@vaccination.DoneAt.ToLocalTime().ToString("dd.MM.yyyy")</td>
-                    <td>@vaccination.NextDueAt?.ToLocalTime().ToString("dd.MM.yyyy")</td>
-                    <td><StatusBadge Status="@vaccination.Status" /></td>
-                    <td>@vaccination.VeterinarianFullName</td>
+                    <th>Питомец</th>
+                    <th>Вакцина</th>
+                    <th>Дата вакцинации</th>
+                    <th>Следующая дата</th>
+                    <th>Статус</th>
+                    <th>Врач</th>
+                    <th>Заметки</th>
+                    @if (role == "Veterinarian")
+                    {
+                        <th class="table-actions-cell"></th>
+                    }
                 </tr>
-            }
-        </tbody>
-    </table>
-}
+            </thead>
+            <tbody>
+                @foreach (var vaccination in FilteredVaccinations)
+                {
+                    <tr>
+                        <td>@UiText.Value(vaccination.PetName)</td>
+                        <td>@UiText.Value(vaccination.Name)</td>
+                        <td>@UiText.Date(vaccination.DoneAt, withTime: false)</td>
+                        <td>@UiText.Date(vaccination.NextDueAt, withTime: false)</td>
+                        <td><StatusBadge Status="@vaccination.Status" /></td>
+                        <td>@UiText.Value(vaccination.VeterinarianFullName)</td>
+                        <td>@UiText.Value(vaccination.Notes)</td>
+                        @if (role == "Veterinarian")
+                        {
+                            <td class="table-actions-cell">
+                                @if (CanEditVaccination(vaccination))
+                                {
+                                    <button class="btn btn-secondary btn-sm" @onclick="() => OpenEditPage(vaccination.Id)" type="button">Изменить</button>
+                                }
+                            </td>
+                        }
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
 </section>
 
 @code {
     private List<VetClinic.Shared.Responses.VaccinationResponse> vaccinations = [];
     private List<VetClinic.Shared.Responses.PetResponse> pets = [];
     private string role = string.Empty;
-    private int petId;
-    private string name = string.Empty;
-    private DateTime? doneAt = DateTime.Today;
-    private DateTime? nextDueAt;
-    private string statusText = "Completed";
-    private string notes = string.Empty;
+    private string currentUserId = string.Empty;
+    private int selectedPetId;
     private string message = string.Empty;
+
+    private List<VetClinic.Shared.Responses.VaccinationResponse> FilteredVaccinations => vaccinations
+        .Where(vaccination => selectedPetId == 0 || vaccination.PetId == selectedPetId)
+        .OrderBy(vaccination => SortGroup(vaccination))
+        .ThenBy(vaccination => vaccination.NextDueAt ?? DateTime.MaxValue)
+        .ThenByDescending(vaccination => vaccination.DoneAt)
+        .ToList();
 
     protected override async Task OnInitializedAsync()
     {
         role = await LocalStorageService.GetItemAsync("role") ?? string.Empty;
+        currentUserId = await LocalStorageService.GetItemAsync("userId") ?? string.Empty;
 
-        pets = role == "Owner"
-            ? await PetApiService.GetMyAsync()
-            : await PetApiService.GetAllAsync();
+        pets = role is "Admin" or "Veterinarian"
+            ? await PetApiService.GetAllAsync()
+            : await PetApiService.GetMyAsync();
 
-        petId = pets.FirstOrDefault()?.Id ?? 0;
-
-        await LoadVaccinationsAsync();
-    }
-
-    private async Task LoadVaccinationsAsync()
-    {
-        vaccinations = role == "Admin"
+        vaccinations = role is "Admin" or "Veterinarian"
             ? await VaccinationApiService.GetAllAsync()
             : await VaccinationApiService.GetMyAsync();
 
-        if (vaccinations.Count == 0)
-        {
-            message = "Список вакцинаций пока пуст.";
-        }
+        message = string.Empty;
     }
 
-    private async Task CreateVaccination()
+    private void OpenCreatePage()
     {
-        if (petId <= 0 || string.IsNullOrWhiteSpace(name) || doneAt is null)
+        Navigation.NavigateTo("/vaccinations/create");
+    }
+
+    private void OpenEditPage(int id)
+    {
+        Navigation.NavigateTo($"/vaccinations/{id}/edit");
+    }
+
+    private bool CanEditVaccination(VetClinic.Shared.Responses.VaccinationResponse vaccination)
+    {
+        return role == "Veterinarian" &&
+               !string.IsNullOrWhiteSpace(currentUserId) &&
+               vaccination.VeterinarianId == currentUserId;
+    }
+
+    private static int SortGroup(VetClinic.Shared.Responses.VaccinationResponse vaccination)
+    {
+        return vaccination.Status switch
         {
-            message = "Выберите питомца, дату и название вакцины.";
-            return;
-        }
-
-        Enum.TryParse<VetClinic.Shared.Enums.VaccinationStatus>(statusText, out var status);
-
-        var result = await VaccinationApiService.CreateAsync(new VetClinic.Shared.Requests.CreateVaccinationRequest
-        {
-            PetId = petId,
-            Name = name,
-            DoneAt = doneAt.Value,
-            NextDueAt = nextDueAt,
-            Status = status,
-            Notes = string.IsNullOrWhiteSpace(notes) ? null : notes
-        });
-
-        if (result is null)
-        {
-            message = "Не удалось создать вакцинацию.";
-            return;
-        }
-
-        name = string.Empty;
-        nextDueAt = null;
-        notes = string.Empty;
-        message = "Вакцинация создана.";
-
-        await LoadVaccinationsAsync();
+            VetClinic.Shared.Enums.VaccinationStatus.Planned => 0,
+            VetClinic.Shared.Enums.VaccinationStatus.Cancelled => 2,
+            VetClinic.Shared.Enums.VaccinationStatus.Overdue => 3,
+            VetClinic.Shared.Enums.VaccinationStatus.Completed => 4,
+            _ => 1
+        };
     }
 }

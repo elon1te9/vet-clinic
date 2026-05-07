@@ -3,55 +3,58 @@
 
 <PageTitle>Главная</PageTitle>
 
-<div class="home-hero">
-    <section class="home-panel">
-        <PageHeader Title="VetClinic"
-                    Description="Учебная система управления ветеринарной клиникой: записи на приём, питомцы, медицинские карты, вакцинации, склад, стационар и финансы в одном интерфейсе." />
+@if (!isAuthorized)
+{
+    <section class="home-hero">
+        <div class="home-panel home-main-panel">
+            <PageHeader Title="VetClinic — система управления ветеринарной клиникой"
+                        Description="Единое рабочее пространство для записи на приём, ведения медицинских карт, учёта вакцинаций, склада и финансов клиники." />
 
-        @if (!isAuthorized)
-        {
             <div class="actions-row">
                 <a class="btn btn-primary" href="login">Войти</a>
                 <a class="btn btn-secondary" href="register">Зарегистрироваться</a>
             </div>
-        }
-        else
-        {
-            <p class="muted">Вы вошли как @role. Выберите быстрый раздел или пункт в левом меню.</p>
-        }
+        </div>
+
+        <div class="home-panel">
+            <h2>Для ежедневной работы клиники</h2>
+            <p>Интерфейс помогает администраторам, врачам, ассистентам и владельцам питомцев быстро находить нужные разделы и работать с актуальными данными.</p>
+        </div>
     </section>
 
-    <section class="home-panel">
-        <h2>Для клиники</h2>
-        <p>
-            Интерфейс сделан для ежедневной работы администратора, врача,
-            владельца питомца и ассистента.
-        </p>
-    </section>
-</div>
-
-<div class="feature-grid">
-    <div class="feature-card">
-        <h3>Расписание</h3>
-        <p>Создание и контроль записей на приём с понятными статусами.</p>
+    <div class="feature-grid">
+        <div class="feature-card">
+            <h3>Онлайн-запись на приём</h3>
+            <p>Выбор питомца, врача, услуги и удобного времени в одном понятном сценарии.</p>
+        </div>
+        <div class="feature-card">
+            <h3>Электронные медицинские карты</h3>
+            <p>История визитов, диагнозы, назначения и рекомендации по каждому питомцу.</p>
+        </div>
+        <div class="feature-card">
+            <h3>Вакцинации и напоминания</h3>
+            <p>Планирование следующих дат и контроль просроченных вакцинаций.</p>
+        </div>
+        <div class="feature-card">
+            <h3>Склад и финансы клиники</h3>
+            <p>Остатки, операции склада, счета и финансовые отчёты в едином стиле.</p>
+        </div>
     </div>
-    <div class="feature-card">
-        <h3>Медицинские карты</h3>
-        <p>История приёмов, диагнозы, лечение и рекомендации по питомцам.</p>
-    </div>
-    <div class="feature-card">
-        <h3>Склад</h3>
-        <p>Учёт остатков, операций склада и критических позиций.</p>
-    </div>
-    <div class="feature-card">
-        <h3>Уведомления</h3>
-        <p>Real-time события через SignalR для важных изменений.</p>
-    </div>
-</div>
-
-@if (isAuthorized)
+}
+else
 {
-    <h2>Быстрые ссылки</h2>
+    <section class="home-hero">
+        <div class="home-panel home-main-panel">
+            <PageHeader Title="@WelcomeTitle"
+                        Description="Выберите нужный раздел в меню или используйте быстрые действия." />
+        </div>
+
+        <div class="home-panel">
+            <h2>Быстрые действия</h2>
+            <p>Самые частые разделы собраны рядом, чтобы не искать их в меню.</p>
+        </div>
+    </section>
+
     <div class="quick-grid">
         @foreach (var link in quickLinks)
         {
@@ -66,13 +69,19 @@
 @code {
     private bool isAuthorized;
     private string role = string.Empty;
+    private string fullName = string.Empty;
     private List<QuickLink> quickLinks = [];
+
+    private string WelcomeTitle => string.IsNullOrWhiteSpace(fullName)
+        ? "Добро пожаловать"
+        : $"Здравствуйте, {fullName}";
 
     protected override async Task OnInitializedAsync()
     {
         var token = await LocalStorageService.GetItemAsync("token");
         isAuthorized = !string.IsNullOrWhiteSpace(token);
         role = await LocalStorageService.GetItemAsync("role") ?? string.Empty;
+        fullName = await LocalStorageService.GetItemAsync("fullName") ?? string.Empty;
         quickLinks = GetLinksForRole(role);
     }
 
@@ -82,10 +91,10 @@
         {
             return
             [
-                new("Админ-панель", "Главные показатели клиники.", "admin/dashboard"),
-                new("Пользователи", "Роли и сотрудники.", "users"),
-                new("Склад", "Остатки и позиции.", "inventory"),
-                new("Отчёты", "Финансовая аналитика.", "reports")
+                new("Админ-панель", "Сводка по клинике и ключевым показателям.", "admin/dashboard"),
+                new("Расписание", "Записи на приём и статусы визитов.", "appointments"),
+                new("Склад", "Остатки, сроки годности и позиции склада.", "inventory"),
+                new("Отчёты", "Финансы и операционная аналитика.", "reports")
             ];
         }
 
@@ -93,10 +102,10 @@
         {
             return
             [
-                new("Мои записи", "Приёмы врача.", "appointments/my"),
-                new("Медкарты", "История лечения.", "medical-records"),
-                new("Вакцинации", "План и факты вакцинаций.", "vaccinations"),
-                new("Стационар", "Госпитализации питомцев.", "hospitalizations")
+                new("Мои записи", "Приёмы, назначенные врачу.", "appointments/my"),
+                new("Медицинские карты", "История осмотров и назначений.", "medical-records"),
+                new("Вакцинации", "План и история вакцинаций.", "vaccinations"),
+                new("Операции", "Планирование и статусы операций.", "surgeries")
             ];
         }
 
@@ -104,10 +113,10 @@
         {
             return
             [
-                new("Мои питомцы", "Карточки питомцев.", "pets"),
-                new("Записаться", "Новый приём.", "appointments/create"),
-                new("Мои записи", "История приёмов.", "appointments/my"),
-                new("Счета", "Оплата услуг.", "invoices")
+                new("Мои питомцы", "Карточки и данные питомцев.", "pets"),
+                new("Записаться на приём", "Выбор врача, услуги и времени.", "appointments/create"),
+                new("Мои записи", "Предстоящие и прошедшие приёмы.", "appointments/my"),
+                new("Счета", "Счета за услуги клиники.", "invoices")
             ];
         }
 
@@ -115,10 +124,10 @@
         {
             return
             [
-                new("Расписание", "Приёмы клиники.", "appointments"),
-                new("Склад", "Материалы и препараты.", "inventory"),
-                new("Операции склада", "Журнал движений.", "inventory/transactions"),
-                new("Стационар", "Уход за питомцами.", "hospitalizations")
+                new("Расписание", "Приёмы клиники на выбранные дни.", "appointments"),
+                new("Склад", "Остатки и складские позиции.", "inventory"),
+                new("Стационар", "Госпитализации и уход за питомцами.", "hospitalizations"),
+                new("Уведомления", "Новые события и задачи.", "notifications")
             ];
         }
 

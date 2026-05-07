@@ -59,7 +59,7 @@ public class AppointmentService : IAppointmentService
         }
 
         var appointments = await query
-            .OrderByDescending(a => a.StartAt)
+            .OrderBy(a => a.StartAt)
             .ToListAsync();
 
         return appointments.Select(MapAppointment).ToList();
@@ -127,6 +127,11 @@ public class AppointmentService : IAppointmentService
         }
 
         var startAt = ToUtc(request.StartAt);
+        if (startAt < ToUtc(DateTime.Now))
+        {
+            return null;
+        }
+
         var service = await _context.ClinicServices.FirstOrDefaultAsync(s => s.Id == request.ServiceId && s.IsActive);
         var pet = await _context.Pets.Include(p => p.Owner).FirstOrDefaultAsync(p => p.Id == request.PetId);
         var doctor = await _userManager.FindByIdAsync(request.VeterinarianId);
@@ -143,6 +148,11 @@ public class AppointmentService : IAppointmentService
 
         var userId = _userManager.GetUserId(user);
         if (user.IsInRole(nameof(UserRole.Owner)) && pet.OwnerId != userId)
+        {
+            return null;
+        }
+
+        if (user.IsInRole(nameof(UserRole.Veterinarian)) && request.VeterinarianId != userId)
         {
             return null;
         }
@@ -215,14 +225,14 @@ public class AppointmentService : IAppointmentService
         await _notificationService.CreateAsync(
             appointment.OwnerId,
             "Статус приёма изменён",
-            $"Статус приёма для питомца {appointment.Pet?.Name ?? string.Empty}: {appointment.Status}.",
+            $"Статус приёма для питомца {appointment.Pet?.Name ?? string.Empty}: {FormatAppointmentStatus(appointment.Status)}.",
             NotificationType.Appointment,
             "AppointmentStatusChanged");
 
         await _notificationService.CreateForRoleAsync(
             nameof(UserRole.Admin),
             "Статус приёма изменён",
-            $"Статус приёма #{appointment.Id}: {appointment.Status}.",
+            $"Статус приёма #{appointment.Id}: {FormatAppointmentStatus(appointment.Status)}.",
             NotificationType.Appointment,
             "DashboardUpdated");
 
@@ -297,6 +307,18 @@ public class AppointmentService : IAppointmentService
         }
 
         return DateTime.SpecifyKind(value, DateTimeKind.Utc);
+    }
+
+    private static string FormatAppointmentStatus(AppointmentStatus status)
+    {
+        return status switch
+        {
+            AppointmentStatus.Planned => "Запланировано",
+            AppointmentStatus.Confirmed => "Подтверждено",
+            AppointmentStatus.Completed => "Завершено",
+            AppointmentStatus.Cancelled => "Отменено",
+            _ => status.ToString()
+        };
     }
 
     private static AppointmentResponse MapAppointment(Appointment appointment)

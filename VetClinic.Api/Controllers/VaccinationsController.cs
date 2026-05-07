@@ -18,7 +18,7 @@ public class VaccinationsController : ControllerBase
     }
 
     [HttpGet]
-    [Authorize(Roles = "Admin")]
+    [Authorize(Roles = "Admin,Veterinarian")]
     public async Task<IActionResult> GetAll()
     {
         return Ok(await _vaccinationService.GetAllAsync());
@@ -36,6 +36,14 @@ public class VaccinationsController : ControllerBase
     public async Task<IActionResult> GetByPet(int petId)
     {
         return Ok(await _vaccinationService.GetByPetAsync(petId, User));
+    }
+
+    [HttpGet("{id:int}")]
+    [Authorize(Roles = "Admin,Veterinarian")]
+    public async Task<IActionResult> GetById(int id)
+    {
+        var result = await _vaccinationService.GetByIdAsync(id, User);
+        return result is null ? NotFound() : Ok(result);
     }
 
     [HttpGet("upcoming")]

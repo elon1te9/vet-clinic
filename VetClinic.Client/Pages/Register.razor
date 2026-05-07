@@ -6,37 +6,37 @@
 
 <div class="auth-page">
     <div class="auth-card">
-        <PageHeader Title="Регистрация" Description="Создайте кабинет владельца питомца." />
+        <PageHeader Title="Регистрация" Description="Создайте аккаунт владельца питомца." />
 
         <div>
             <label>ФИО</label>
-            <input @bind="fullName" placeholder="Введите ФИО" autocomplete="name" />
+            <input @bind="fullName" autocomplete="name" />
         </div>
 
         <div>
-            <label>Email</label>
-            <input @bind="email" placeholder="Введите email" autocomplete="email" />
+            <label>Электронная почта</label>
+            <input @bind="email" autocomplete="email" />
         </div>
 
         <div>
             <label>Пароль</label>
-            <input type="password" @bind="password" placeholder="Введите пароль" autocomplete="new-password" />
+            <input type="password" @bind="password" autocomplete="new-password" />
         </div>
 
         <div>
             <label>Телефон</label>
-            <input @bind="phoneNumber" placeholder="Введите телефон" autocomplete="tel" />
+            <input @bind="phoneNumber" autocomplete="tel" />
         </div>
 
         <div>
             <label>Адрес</label>
-            <input @bind="address" placeholder="Введите адрес" />
+            <input @bind="address"/>
         </div>
 
         <ErrorMessage Text="@errorMessage" />
 
         <div class="actions-row">
-            <button class="btn btn-primary" @onclick="RegisterUser" type="button">Зарегистрироваться</button>
+            <button class="btn btn-primary" @onclick="RegisterUser" type="button">Создать аккаунт</button>
             <a class="btn btn-secondary" href="login">Уже есть аккаунт</a>
         </div>
     </div>
@@ -56,7 +56,7 @@
             string.IsNullOrWhiteSpace(email) ||
             string.IsNullOrWhiteSpace(password))
         {
-            errorMessage = "Заполните ФИО, email и пароль.";
+            errorMessage = "Заполните ФИО, электронную почту и пароль.";
             return;
         }
 
@@ -73,7 +73,7 @@
 
         if (result is null)
         {
-            errorMessage = "Не удалось выполнить регистрацию.";
+            errorMessage = "Не удалось сохранить данные. Проверьте заполнение формы.";
             return;
         }
 

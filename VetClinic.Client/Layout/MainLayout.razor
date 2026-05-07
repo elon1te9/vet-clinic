@@ -10,24 +10,15 @@
 
     <main>
         <div class="top-row app-topbar">
-            <div>
-                <div class="topbar-title">VetClinic</div>
-                <div class="topbar-subtitle">Система управления ветеринарной клиникой</div>
-            </div>
-
             <div class="topbar-actions">
                 @if (isAuthorized)
                 {
                     <div class="user-chip">
                         <span>@fullName</span>
-                        <small>@role</small>
+                        <small>@UiText.Role(role)</small>
                     </div>
                     <VetClinic.Client.Components.NotificationBell />
                     <button class="btn btn-secondary btn-sm" type="button" @onclick="Logout">Выйти</button>
-                }
-                else
-                {
-                    <a class="btn btn-secondary btn-sm" href="login">Войти</a>
                 }
             </div>
         </div>

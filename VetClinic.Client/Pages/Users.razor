@@ -15,7 +15,7 @@
         <thead>
             <tr>
                 <th>ФИО</th>
-                <th>Email</th>
+                <th>Электронная почта</th>
                 <th>Роль</th>
                 <th>Активен</th>
             </tr>
@@ -24,10 +24,10 @@
             @foreach (var user in users)
             {
                 <tr>
-                    <td>@user.FullName</td>
-                    <td>@user.Email</td>
-                    <td>@user.Role</td>
-                    <td>@(user.IsActive ? "Да" : "Нет")</td>
+                    <td>@UiText.Value(user.FullName)</td>
+                    <td>@UiText.Value(user.Email)</td>
+                    <td>@UiText.Role(user.Role)</td>
+                    <td><StatusBadge Status="@(user.IsActive ? "Active" : "Cancelled")" Text="@(user.IsActive ? "Активен" : "Неактивен")" /></td>
                 </tr>
             }
         </tbody>
@@ -35,7 +35,7 @@
 }
 else
 {
-    <EmptyState Title="Пользователи не найдены" Message="Список пользователей пуст или недоступен." />
+    <EmptyState Title="Пользователи не найдены" Message="Пользователи появятся здесь после регистрации или создания сотрудника." />
 }
 </section>
 
@@ -48,14 +48,14 @@ else
         var role = await LocalStorageService.GetItemAsync("role") ?? string.Empty;
         if (role != "Admin")
         {
-            message = "Эта страница доступна только администратору.";
+            message = "Недостаточно прав для выполнения действия.";
             return;
         }
 
         users = await UserApiService.GetUsersAsync();
         if (users.Count == 0)
         {
-            message = "Пользователи не найдены.";
+            message = string.Empty;
         }
     }
 }

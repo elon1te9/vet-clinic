@@ -22,18 +22,18 @@ else if (dashboard is null)
 else
 {
     <div class="dashboard-cards">
-        <DashboardCard Title="Приёмов сегодня" Value="@dashboard.AppointmentsTodayCount.ToString()" Description="Записи на текущий день" Icon="A" />
-        <DashboardCard Title="Выручка сегодня" Value="@dashboard.RevenueToday.ToString("0.00")" Description="Оплаченные счета" Icon="F" />
-        <DashboardCard Title="Стационар" Value="@dashboard.ActiveHospitalizationsCount.ToString()" Description="Активные госпитализации" Icon="H" />
-        <DashboardCard Title="Критические остатки" Value="@dashboard.LowStockItemsCount.ToString()" Description="Нужно проверить склад" Icon="S" />
-        <DashboardCard Title="Вакцинации" Value="@dashboard.UpcomingVaccinationsCount.ToString()" Description="Ближайшие 30 дней" Icon="V" />
+        <DashboardCard Title="Приёмов сегодня" Value="@dashboard.AppointmentsTodayCount.ToString()" Description="Записи на текущий день" />
+        <DashboardCard Title="Выручка сегодня" Value="@UiText.Money(dashboard.RevenueToday)" Description="Оплаченные счета" />
+        <DashboardCard Title="Стационар" Value="@dashboard.ActiveHospitalizationsCount.ToString()" Description="Активные госпитализации" />
+        <DashboardCard Title="Критические остатки" Value="@dashboard.LowStockItemsCount.ToString()" Description="Нужно проверить склад" />
+        <DashboardCard Title="Вакцинации" Value="@dashboard.UpcomingVaccinationsCount.ToString()" Description="Ближайшие 30 дней" />
     </div>
 
     <section class="section-card">
         <h2>Последние записи на приём</h2>
         @if (dashboard.RecentAppointments.Count == 0)
         {
-            <EmptyState Title="Записей нет" Message="Последние записи появятся здесь после создания приёмов." />
+            <EmptyState Title="Записей на приём пока нет" Message="Последние записи появятся здесь после создания приёмов." />
         }
         else
         {
@@ -51,10 +51,10 @@ else
                     @foreach (var appointment in dashboard.RecentAppointments)
                     {
                         <tr>
-                            <td>@appointment.StartAt.ToLocalTime().ToString("dd.MM.yyyy HH:mm")</td>
-                            <td>@appointment.PetName</td>
-                            <td>@appointment.VeterinarianFullName</td>
-                            <td>@appointment.ServiceName</td>
+                            <td>@appointment.StartAt.ToString("dd.MM.yyyy HH:mm")</td>
+                            <td>@UiText.Value(appointment.PetName)</td>
+                            <td>@UiText.Value(appointment.VeterinarianFullName)</td>
+                            <td>@UiText.Value(appointment.ServiceName)</td>
                             <td><StatusBadge Status="@appointment.Status" /></td>
                         </tr>
                     }
@@ -67,7 +67,7 @@ else
         <h2>Загрузка врачей сегодня</h2>
         @if (dashboard.DoctorsLoad.Count == 0)
         {
-            <EmptyState Title="Данных нет" Message="На сегодня нет записей по врачам." />
+            <EmptyState Title="На сегодня записей нет" Message="Нагрузка врачей появится после создания записей на приём." />
         }
         else
         {
@@ -82,7 +82,7 @@ else
                     @foreach (var item in dashboard.DoctorsLoad)
                     {
                         <tr>
-                            <td>@item.VeterinarianFullName</td>
+                            <td>@UiText.Value(item.VeterinarianFullName)</td>
                             <td>@item.AppointmentsCount</td>
                         </tr>
                     }
@@ -111,9 +111,9 @@ else
                     @foreach (var item in dashboard.LowStockItems)
                     {
                         <tr>
-                            <td>@item.Name</td>
-                            <td><StatusBadge Text="@($"{item.Quantity} {item.Unit}")" /></td>
-                            <td>@item.MinQuantity @item.Unit</td>
+                            <td>@UiText.Value(item.Name)</td>
+                            <td>@UiText.Quantity(item.Quantity, item.Unit)</td>
+                            <td>@UiText.Quantity(item.MinQuantity, item.Unit)</td>
                         </tr>
                     }
                 </tbody>
@@ -142,10 +142,10 @@ else
                     @foreach (var vaccination in dashboard.UpcomingVaccinations)
                     {
                         <tr>
-                            <td>@vaccination.NextDueAt?.ToLocalTime().ToString("dd.MM.yyyy")</td>
-                            <td>@vaccination.PetName</td>
-                            <td>@vaccination.Name</td>
-                            <td>@vaccination.OwnerFullName</td>
+                            <td>@UiText.Date(vaccination.NextDueAt, withTime: false)</td>
+                            <td>@UiText.Value(vaccination.PetName)</td>
+                            <td>@UiText.Value(vaccination.Name)</td>
+                            <td>@UiText.Value(vaccination.OwnerFullName)</td>
                         </tr>
                     }
                 </tbody>
@@ -168,7 +168,7 @@ else
     private async Task LoadDashboardAsync()
     {
         dashboard = await AdminDashboardApiService.GetDashboardAsync();
-        message = dashboard is null ? "Не удалось загрузить админ-панель." : string.Empty;
+        message = dashboard is null ? "Не удалось загрузить данные. Попробуйте обновить страницу." : string.Empty;
     }
 
     private void OnNotificationReceived(NotificationResponse notification)

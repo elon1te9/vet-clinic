@@ -12,7 +12,7 @@
 <section class="section-card">
     @if (appointments.Count == 0)
     {
-        <EmptyState Title="Записей нет" Message="Список записей пока пуст." />
+        <EmptyState Title="Записей на приём пока нет" Message="Когда владельцы питомцев запишутся на приём, расписание появится здесь." />
     }
     else
     {
@@ -25,7 +25,7 @@
                     <th>Врач</th>
                     <th>Услуга</th>
                     <th>Статус</th>
-                    <th></th>
+                    <th class="table-actions-cell"></th>
                 </tr>
             </thead>
             <tbody>
@@ -33,17 +33,25 @@
                 {
                     <tr>
                         <td>@FormatDate(appointment.StartAt)</td>
-                        <td>@appointment.PetName</td>
-                        <td>@appointment.OwnerFullName</td>
-                        <td>@appointment.VeterinarianFullName</td>
-                        <td>@appointment.ServiceName</td>
+                        <td>@UiText.Value(appointment.PetName)</td>
+                        <td>@UiText.Value(appointment.OwnerFullName)</td>
+                        <td>@UiText.Value(appointment.VeterinarianFullName)</td>
+                        <td>@UiText.Value(appointment.ServiceName)</td>
                         <td><StatusBadge Status="@appointment.Status" /></td>
-                        <td>
+                        <td class="table-actions-cell">
                             @if (canChangeStatus)
                             {
-                                <button class="btn btn-primary btn-sm" @onclick="() => ChangeStatus(appointment.Id, VetClinic.Shared.Enums.AppointmentStatus.Confirmed)" type="button">Подтвердить</button>
-                                <button class="btn btn-secondary btn-sm" @onclick="() => ChangeStatus(appointment.Id, VetClinic.Shared.Enums.AppointmentStatus.Completed)" type="button">Завершить</button>
-                                <button class="btn btn-danger btn-sm" @onclick="() => ChangeStatus(appointment.Id, VetClinic.Shared.Enums.AppointmentStatus.Cancelled)" type="button">Отменить</button>
+                                @if (appointment.Status == VetClinic.Shared.Enums.AppointmentStatus.Planned)
+                                {
+                                    <button class="btn btn-primary btn-sm" @onclick="() => ChangeStatus(appointment.Id, VetClinic.Shared.Enums.AppointmentStatus.Confirmed)" type="button">Подтвердить</button>
+                                    <button class="btn btn-secondary btn-sm" @onclick="() => ChangeStatus(appointment.Id, VetClinic.Shared.Enums.AppointmentStatus.Completed)" type="button">Завершить</button>
+                                    <button class="btn btn-danger btn-sm" @onclick="() => ChangeStatus(appointment.Id, VetClinic.Shared.Enums.AppointmentStatus.Cancelled)" type="button">Отменить</button>
+                                }
+                                else if (appointment.Status == VetClinic.Shared.Enums.AppointmentStatus.Confirmed)
+                                {
+                                    <button class="btn btn-secondary btn-sm" @onclick="() => ChangeStatus(appointment.Id, VetClinic.Shared.Enums.AppointmentStatus.Completed)" type="button">Завершить</button>
+                                    <button class="btn btn-danger btn-sm" @onclick="() => ChangeStatus(appointment.Id, VetClinic.Shared.Enums.AppointmentStatus.Cancelled)" type="button">Отменить</button>
+                                }
                             }
                         </td>
                     </tr>
@@ -82,12 +90,12 @@
             Status = status
         });
 
-        message = result is null ? "Не удалось изменить статус записи." : string.Empty;
+        message = result is null ? "Не удалось сохранить данные. Проверьте заполнение формы." : string.Empty;
         await LoadAppointmentsAsync();
     }
 
     private static string FormatDate(DateTime value)
     {
-        return value.ToLocalTime().ToString("dd.MM.yyyy HH:mm");
+        return value.ToString("dd.MM.yyyy HH:mm");
     }
 }

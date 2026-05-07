@@ -11,63 +11,70 @@
 <PageHeader Title="Записаться на приём"
             Description="Выберите питомца, врача, услугу и удобное время." />
 
-<section class="section-card">
-    <div>
-        <label>Питомец</label>
-        <select @bind="petId">
-            @foreach (var pet in pets)
-            {
-                <option value="@pet.Id">@pet.Name</option>
-            }
-        </select>
-    </div>
+<section class="section-card appointment-form-card">
+    <div class="appointment-form-layout">
+        <div class="appointment-fields">
+            <div>
+                <label>Питомец</label>
+                <select @bind="petId">
+                    @foreach (var pet in pets)
+                    {
+                        <option value="@pet.Id">@pet.Name</option>
+                    }
+                </select>
+            </div>
 
-    <div>
-        <label>Врач</label>
-        <select @bind="doctorId">
-            @foreach (var doctor in doctors)
-            {
-                <option value="@doctor.Id">@doctor.FullName</option>
-            }
-        </select>
-    </div>
+            <div>
+                <label>Врач</label>
+                <select @bind="doctorId">
+                    @foreach (var doctor in doctors)
+                    {
+                        <option value="@doctor.Id">@doctor.FullName</option>
+                    }
+                </select>
+            </div>
 
-    <div>
-        <label>Услуга</label>
-        <select @bind="serviceId">
-            @foreach (var service in services)
-            {
-                <option value="@service.Id">@service.Name (@service.Price руб.)</option>
-            }
-        </select>
-    </div>
+            <div>
+                <label>Услуга</label>
+                <select @bind="serviceId">
+                    @foreach (var service in services)
+                    {
+                        <option value="@service.Id">@service.Name (@UiText.Money(service.Price))</option>
+                    }
+                </select>
+            </div>
 
-    <div class="form-grid">
-        <div>
-            <label>Дата</label>
-            <InputDate @bind-Value="appointmentDate" />
+            <div class="appointment-time-grid">
+                <div>
+                    <label>Дата</label>
+                    <InputDate @bind-Value="appointmentDate" />
+                </div>
+
+                <div>
+                    <label>Время</label>
+                    <input type="time" @bind="appointmentTime" />
+                </div>
+            </div>
         </div>
 
-        <div>
-            <label>Время</label>
-            <input type="time" @bind="appointmentTime" />
+        <div class="appointment-reason">
+            <label>Причина визита</label>
+            <textarea @bind="reason" placeholder="Опишите симптомы, жалобы или цель визита"></textarea>
         </div>
-    </div>
-
-    <div>
-        <label>Причина визита</label>
-        <input @bind="reason" placeholder="Кратко опишите причину визита" />
     </div>
 
     <ErrorMessage Text="@message" />
 
     <div class="actions-row">
-        <button class="btn btn-primary" @onclick="CreateAppointment" type="button">Записаться</button>
+        <button class="btn btn-primary" @onclick="CreateAppointment" type="button">Создать запись</button>
         <a class="btn btn-secondary" href="appointments/my">Назад</a>
     </div>
 </section>
 
 @code {
+    [SupplyParameterFromQuery(Name = "petId")]
+    public int? RequestedPetId { get; set; }
+
     private List<VetClinic.Shared.Responses.PetResponse> pets = [];
     private List<VetClinic.Shared.Responses.UserResponse> doctors = [];
     private List<VetClinic.Shared.Responses.ClinicServiceResponse> services = [];
@@ -82,16 +89,28 @@
     protected override async Task OnInitializedAsync()
     {
         var role = await LocalStorageService.GetItemAsync("role") ?? string.Empty;
+        var currentUserId = await LocalStorageService.GetItemAsync("userId") ?? string.Empty;
 
-        pets = role == "Admin"
+        pets = role is "Admin" or "Veterinarian"
             ? await PetApiService.GetAllAsync()
             : await PetApiService.GetMyAsync();
 
         doctors = await UserApiService.GetDoctorsAsync();
+        if (role == "Veterinarian" && !string.IsNullOrWhiteSpace(currentUserId))
+        {
+            doctors = doctors.Where(doctor => doctor.Id == currentUserId).ToList();
+        }
+
         services = (await ClinicServiceApiService.GetAllAsync()).Where(s => s.IsActive).ToList();
 
-        petId = pets.FirstOrDefault()?.Id ?? 0;
-        doctorId = doctors.FirstOrDefault()?.Id ?? string.Empty;
+        petId = RequestedPetId.HasValue && pets.Any(pet => pet.Id == RequestedPetId.Value)
+            ? RequestedPetId.Value
+            : pets.FirstOrDefault()?.Id ?? 0;
+
+        doctorId = role == "Veterinarian" && doctors.Any(doctor => doctor.Id == currentUserId)
+            ? currentUserId
+            : doctors.FirstOrDefault()?.Id ?? string.Empty;
+
         serviceId = services.FirstOrDefault()?.Id ?? 0;
     }
 
@@ -104,6 +123,12 @@
         }
 
         var startAt = appointmentDate.Value.Date.Add(appointmentTime.Value.ToTimeSpan());
+        if (startAt < DateTime.Now)
+        {
+            message = "Введите корректную дату.";
+            return;
+        }
+
         var result = await AppointmentApiService.CreateAsync(new VetClinic.Shared.Requests.CreateAppointmentRequest
         {
             PetId = petId,
@@ -115,7 +140,7 @@
 
         if (result is null)
         {
-            message = "Не удалось создать запись. Возможно, выбранное время занято.";
+            message = "Не удалось сохранить данные. Возможно, выбранное время уже занято.";
             return;
         }
 

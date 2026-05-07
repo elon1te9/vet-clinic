@@ -20,7 +20,7 @@
     <h2>Критические остатки</h2>
     @if (lowStockItems.Count == 0)
     {
-        <EmptyState Title="Критических остатков нет" Message="Все активные позиции выше минимального остатка." />
+        <EmptyState Title="Критических остатков нет" Message="Все активные складские позиции выше минимального остатка." />
     }
     else
     {
@@ -36,9 +36,9 @@
                 @foreach (var item in lowStockItems)
                 {
                     <tr>
-                        <td>@item.Name</td>
-                        <td><StatusBadge Text="@($"{item.Quantity} {item.Unit}")" /></td>
-                        <td>@item.MinQuantity @item.Unit</td>
+                        <td>@UiText.Value(item.Name)</td>
+                        <td>@UiText.Quantity(item.Quantity, item.Unit)</td>
+                        <td>@UiText.Quantity(item.MinQuantity, item.Unit)</td>
                     </tr>
                 }
             </tbody>
@@ -50,7 +50,7 @@
     <h2>Истекающие сроки годности</h2>
     @if (expiringItems.Count == 0)
     {
-        <EmptyState Title="Истекающих позиций нет" Message="На ближайший период просроченных или истекающих позиций не найдено." />
+        <EmptyState Title="Истекающих позиций нет" Message="На ближайший период просроченных или истекающих складских позиций не найдено." />
     }
     else
     {
@@ -67,10 +67,10 @@
                 @foreach (var item in expiringItems)
                 {
                     <tr>
-                        <td>@item.Name</td>
-                        <td>@item.Category</td>
-                        <td>@item.ExpirationDate?.ToLocalTime().ToString("dd.MM.yyyy")</td>
-                        <td>@item.Quantity @item.Unit</td>
+                        <td>@UiText.Value(item.Name)</td>
+                        <td>@UiText.Category(item.Category)</td>
+                        <td>@UiText.Date(item.ExpirationDate, withTime: false)</td>
+                        <td>@UiText.Quantity(item.Quantity, item.Unit)</td>
                     </tr>
                 }
             </tbody>
@@ -82,7 +82,7 @@
     <h2>Все позиции</h2>
     @if (items.Count == 0)
     {
-        <EmptyState Title="Склад пуст" Message="Позиции появятся здесь после создания." />
+        <EmptyState Title="Складские позиции пока не добавлены" Message="Создайте позицию, чтобы вести остатки, сроки годности и операции склада." />
     }
     else
     {
@@ -96,21 +96,21 @@
                     <th>Срок годности</th>
                     <th>Цена</th>
                     <th>Активна</th>
-                    <th></th>
+                    <th class="table-actions-cell"></th>
                 </tr>
             </thead>
             <tbody>
                 @foreach (var item in items)
                 {
                     <tr>
-                        <td>@item.Name</td>
-                        <td>@item.Category</td>
-                        <td>@item.Quantity @item.Unit</td>
-                        <td>@item.MinQuantity @item.Unit</td>
-                        <td>@item.ExpirationDate?.ToLocalTime().ToString("dd.MM.yyyy")</td>
-                        <td>@item.Price</td>
+                        <td>@UiText.Value(item.Name)</td>
+                        <td>@UiText.Category(item.Category)</td>
+                        <td>@UiText.Quantity(item.Quantity, item.Unit)</td>
+                        <td>@UiText.Quantity(item.MinQuantity, item.Unit)</td>
+                        <td>@UiText.Date(item.ExpirationDate, withTime: false)</td>
+                        <td>@UiText.Money(item.Price)</td>
                         <td><StatusBadge Text="@(item.IsActive ? "Активна" : "Неактивна")" /></td>
-                        <td>
+                        <td class="table-actions-cell">
                             @if (role == "Admin")
                             {
                                 <a class="btn btn-secondary btn-sm" href="@($"inventory/edit/{item.Id}")">Изменить</a>

@@ -14,7 +14,7 @@
         <thead>
             <tr>
                 <th>ФИО</th>
-                <th>Email</th>
+                <th>Электронная почта</th>
                 <th>Телефон</th>
                 <th>Активен</th>
             </tr>
@@ -23,10 +23,10 @@
             @foreach (var owner in owners)
             {
                 <tr>
-                    <td>@owner.FullName</td>
-                    <td>@owner.Email</td>
-                    <td>@owner.PhoneNumber</td>
-                    <td>@(owner.IsActive ? "Да" : "Нет")</td>
+                    <td>@UiText.Value(owner.FullName)</td>
+                    <td>@UiText.Value(owner.Email)</td>
+                    <td>@UiText.Value(owner.PhoneNumber)</td>
+                    <td><StatusBadge Status="@(owner.IsActive ? "Active" : "Cancelled")" Text="@(owner.IsActive ? "Активен" : "Неактивен")" /></td>
                 </tr>
             }
         </tbody>
@@ -34,7 +34,7 @@
 }
 else
 {
-    <EmptyState Title="Владельцы не найдены" Message="Список владельцев пока пуст." />
+    <EmptyState Title="Владельцы пока не добавлены" Message="После регистрации владельцев питомцев они появятся в этом списке." />
 }
 </section>
 
@@ -48,7 +48,7 @@ else
 
         if (owners.Count == 0)
         {
-            message = "Владельцы не найдены.";
+            message = string.Empty;
         }
     }
 }

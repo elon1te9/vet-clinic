@@ -6,16 +6,16 @@
 
 <div class="auth-page">
     <div class="auth-card">
-        <PageHeader Title="Вход" Description="Введите email и пароль, чтобы открыть рабочий кабинет." />
+        <PageHeader Title="Вход" Description="Войдите в аккаунт, чтобы открыть рабочий кабинет." />
 
         <div>
-            <label>Email</label>
-            <input @bind="email" placeholder="Введите email" autocomplete="username" />
+            <label>Электронная почта</label>
+            <input @bind="email" autocomplete="username" />
         </div>
 
         <div>
             <label>Пароль</label>
-            <input type="password" @bind="password" placeholder="Введите пароль" autocomplete="current-password" />
+            <input type="password" @bind="password" autocomplete="current-password" />
         </div>
 
         <ErrorMessage Text="@errorMessage" />
@@ -50,7 +50,7 @@
 
         if (result is null)
         {
-            errorMessage = "Неверный email или пароль.";
+            errorMessage = "Неверная электронная почта или пароль.";
             return;
         }
 

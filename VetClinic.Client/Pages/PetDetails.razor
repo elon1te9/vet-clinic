@@ -12,15 +12,15 @@
 else
 {
     <section class="section-card details-list">
-        <p><strong>Имя:</strong> @pet.Name</p>
-        <p><strong>Вид:</strong> @pet.Species</p>
-        <p><strong>Порода:</strong> @pet.Breed</p>
-        <p><strong>Пол:</strong> @pet.Gender</p>
-        <p><strong>Дата рождения:</strong> @pet.BirthDate?.ToString("dd.MM.yyyy")</p>
-        <p><strong>Вес:</strong> @pet.Weight</p>
-        <p><strong>Окрас:</strong> @pet.Color</p>
-        <p><strong>Особенности здоровья:</strong> @pet.HealthNotes</p>
-        <p><strong>Владелец:</strong> @pet.OwnerFullName</p>
+        <p><strong>Имя:</strong> @UiText.Value(pet.Name)</p>
+        <p><strong>Вид:</strong> @UiText.Value(pet.Species)</p>
+        <p><strong>Порода:</strong> @UiText.Value(pet.Breed)</p>
+        <p><strong>Пол:</strong> @UiText.Gender(pet.Gender)</p>
+        <p><strong>Дата рождения:</strong> @UiText.Date(pet.BirthDate, withTime: false)</p>
+        <p><strong>Вес:</strong> @FormatWeight(pet.Weight)</p>
+        <p><strong>Окрас:</strong> @UiText.Value(pet.Color)</p>
+        <p><strong>Особенности здоровья:</strong> @UiText.Value(pet.HealthNotes)</p>
+        <p><strong>Владелец:</strong> @UiText.Value(pet.OwnerFullName)</p>
     </section>
 
     <a class="btn btn-secondary" href="pets">Назад</a>
@@ -39,5 +39,12 @@ else
         {
             message = "Питомец не найден.";
         }
+    }
+
+    private static string FormatWeight(decimal? weight)
+    {
+        return weight.HasValue
+            ? $"{weight.Value.ToString("0.00", System.Globalization.CultureInfo.GetCultureInfo("ru-RU"))} кг"
+            : UiText.Empty;
     }
 }

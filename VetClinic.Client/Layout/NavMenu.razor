@@ -5,7 +5,7 @@
         <span class="brand-mark">VC</span>
         <span>
             <strong>VetClinic</strong>
-            <small>Клиника</small>
+            <small>Ветеринарная клиника</small>
         </span>
     </a>
     <button title="Меню навигации" class="nav-toggle" @onclick="ToggleNavMenu">
@@ -33,10 +33,12 @@
             <NavItem Href="services" Text="Услуги" />
 
             <div class="nav-section">Клиника</div>
-            <NavItem Href="inventory" Text="Склад" />
+            <NavItem Href="inventory" Text="Склад" Match="NavLinkMatch.All" />
             <NavItem Href="inventory/transactions" Text="Операции склада" />
             <NavItem Href="surgeries" Text="Операции" />
             <NavItem Href="hospitalizations" Text="Стационар" />
+            <NavItem Href="vaccinations" Text="Вакцинации" Match="NavLinkMatch.All" />
+            <NavItem Href="vaccinations/calendar" Text="Календарь вакцинаций" />
             <NavItem Href="invoices" Text="Счета" />
             <NavItem Href="reports" Text="Отчёты" />
             <NavItem Href="notifications" Text="Уведомления" />
@@ -47,21 +49,20 @@
             <NavItem Href="appointments/my" Text="Мои записи" />
             <NavItem Href="pets" Text="Питомцы" />
             <NavItem Href="medical-records" Text="Медицинские карты" />
-            <NavItem Href="vaccinations" Text="Вакцинации" />
+            <NavItem Href="vaccinations" Text="Вакцинации" Match="NavLinkMatch.All" />
             <NavItem Href="vaccinations/calendar" Text="Календарь вакцинаций" />
             <NavItem Href="surgeries" Text="Операции" />
             <NavItem Href="hospitalizations" Text="Стационар" />
-            <NavItem Href="inventory" Text="Склад" />
+            <NavItem Href="inventory" Text="Склад" Match="NavLinkMatch.All" />
             <NavItem Href="notifications" Text="Уведомления" />
         }
         else if (role == "Owner")
         {
             <div class="nav-section">Мой кабинет</div>
             <NavItem Href="pets" Text="Мои питомцы" />
-            <NavItem Href="appointments/create" Text="Записаться на приём" />
             <NavItem Href="appointments/my" Text="Мои записи" />
             <NavItem Href="medical-records" Text="Медицинские карты" />
-            <NavItem Href="vaccinations" Text="Вакцинации" />
+            <NavItem Href="vaccinations" Text="Вакцинации" Match="NavLinkMatch.All" />
             <NavItem Href="vaccinations/calendar" Text="Календарь вакцинаций" />
             <NavItem Href="invoices" Text="Счета" />
             <NavItem Href="notifications" Text="Уведомления" />

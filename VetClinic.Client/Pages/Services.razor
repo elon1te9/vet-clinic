@@ -9,36 +9,48 @@
 <section class="section-card">
 @if (isAdmin)
 {
-    <h2>Новая услуга</h2>
+    <div class="inline-create-panel service-create-panel">
+        <div class="section-title-row">
+            <h2>Новая услуга</h2>
+        </div>
 
-    <div>
-        <label>Название</label>
-        <input @bind="name" placeholder="Название услуги" />
+        <div class="service-create-layout">
+            <div class="service-create-main">
+                <div>
+                    <label>Название</label>
+                    <input @bind="name" placeholder="Например: вакцинация" />
+                </div>
+
+                <div>
+                    <label>Описание</label>
+                    <textarea @bind="description" placeholder="Кратко опишите, что входит в услугу"></textarea>
+                </div>
+            </div>
+
+            <div class="service-create-side">
+                <div>
+                    <label>Цена, ₽</label>
+                    <input type="number" step="0.01" @bind="price" placeholder="0" />
+                </div>
+
+                <div>
+                    <label>Длительность, минут</label>
+                    <input type="number" @bind="durationMinutes" placeholder="30" />
+                </div>
+
+                <div class="actions-row">
+                    <button class="btn btn-primary" @onclick="CreateService" type="button">Создать</button>
+                </div>
+            </div>
+        </div>
     </div>
-
-    <div>
-        <label>Описание</label>
-        <input @bind="description" placeholder="Краткое описание" />
-    </div>
-
-    <div>
-        <label>Цена</label>
-        <input type="number" step="0.01" @bind="price" placeholder="0" />
-    </div>
-
-    <div>
-        <label>Длительность, минут</label>
-        <input type="number" @bind="durationMinutes" placeholder="30" />
-    </div>
-
-    <button class="btn btn-primary" @onclick="CreateService" type="button">Создать</button>
 }
 
 <ErrorMessage Text="@message" />
 
 @if (services.Count == 0)
 {
-    <EmptyState Title="Услуги не найдены" Message="Список услуг пока пуст." />
+    <EmptyState Title="Услуги пока не добавлены" Message="Создайте услуги клиники, чтобы использовать их при записи на приём и выставлении счетов." />
 }
 else
 {
@@ -55,10 +67,10 @@ else
             @foreach (var service in services)
             {
                 <tr>
-                    <td>@service.Name</td>
-                    <td>@service.Price</td>
+                    <td>@UiText.Value(service.Name)</td>
+                    <td>@UiText.Money(service.Price)</td>
                     <td>@service.DurationMinutes мин.</td>
-                    <td>@(service.IsActive ? "Да" : "Нет")</td>
+                    <td><StatusBadge Status="@(service.IsActive ? "Active" : "Cancelled")" Text="@(service.IsActive ? "Активна" : "Неактивна")" /></td>
                 </tr>
             }
         </tbody>
@@ -106,7 +118,7 @@ else
 
         if (result is null)
         {
-            message = "Не удалось создать услугу.";
+            message = "Не удалось сохранить данные. Проверьте заполнение формы.";
             return;
         }
 

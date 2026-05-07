@@ -65,6 +65,17 @@ public class VaccinationService : IVaccinationService
         return vaccinations.Select(MapVaccination).ToList();
     }
 
+    public async Task<VaccinationResponse?> GetByIdAsync(int id, ClaimsPrincipal user)
+    {
+        var vaccination = await VaccinationsWithDetails().FirstOrDefaultAsync(v => v.Id == id);
+        if (vaccination is null || !CanEditVaccination(user, vaccination))
+        {
+            return null;
+        }
+
+        return MapVaccination(vaccination);
+    }
+
     public async Task<List<VaccinationResponse>> GetByPetAsync(int petId, ClaimsPrincipal user)
     {
         var pet = await _context.Pets.AsNoTracking().FirstOrDefaultAsync(p => p.Id == petId);

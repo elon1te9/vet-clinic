@@ -1,0 +1,109 @@
+@page "/vaccinations/create"
+@inject VetClinic.Client.Services.VaccinationApiService VaccinationApiService
+@inject VetClinic.Client.Services.PetApiService PetApiService
+@inject NavigationManager Navigation
+
+<PageTitle>Новая вакцинация</PageTitle>
+
+<PageHeader Title="Новая вакцинация" Description="Добавьте запись о вакцинации питомца и следующей плановой дате." />
+
+<section class="section-card vaccination-form-card">
+    <div class="vaccination-form-layout">
+        <div class="vaccination-fields">
+            <div>
+                <label>Питомец</label>
+                <select @bind="petId">
+                    @foreach (var pet in pets)
+                    {
+                        <option value="@pet.Id">@pet.Name</option>
+                    }
+                </select>
+            </div>
+
+            <div>
+                <label>Название вакцины</label>
+                <input @bind="name" placeholder="Например: Нобивак" />
+            </div>
+
+            <div class="vaccination-date-grid">
+                <div>
+                    <label>Дата вакцинации</label>
+                    <InputDate @bind-Value="doneAt" />
+                </div>
+
+                <div>
+                    <label>Следующая дата</label>
+                    <InputDate @bind-Value="nextDueAt" />
+                </div>
+            </div>
+
+            <div>
+                <label>Статус</label>
+                <select @bind="statusText">
+                    <option value="Completed">Завершено</option>
+                    <option value="Planned">Запланировано</option>
+                    <option value="Overdue">Просрочено</option>
+                    <option value="Cancelled">Отменено</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="vaccination-notes">
+            <label>Заметки</label>
+            <textarea @bind="notes" placeholder="Укажите переносимость, серию вакцины или важные замечания"></textarea>
+        </div>
+    </div>
+
+    <ErrorMessage Text="@message" />
+
+    <div class="actions-row">
+        <button class="btn btn-primary" @onclick="CreateVaccination" type="button">Создать</button>
+        <a class="btn btn-secondary" href="vaccinations">Назад</a>
+    </div>
+</section>
+
+@code {
+    private List<VetClinic.Shared.Responses.PetResponse> pets = [];
+    private int petId;
+    private string name = string.Empty;
+    private DateTime? doneAt = DateTime.Today;
+    private DateTime? nextDueAt;
+    private string statusText = "Completed";
+    private string notes = string.Empty;
+    private string message = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        pets = await PetApiService.GetAllAsync();
+        petId = pets.FirstOrDefault()?.Id ?? 0;
+    }
+
+    private async Task CreateVaccination()
+    {
+        if (petId <= 0 || string.IsNullOrWhiteSpace(name) || doneAt is null)
+        {
+            message = "Выберите питомца, дату и название вакцины.";
+            return;
+        }
+
+        Enum.TryParse<VetClinic.Shared.Enums.VaccinationStatus>(statusText, out var status);
+
+        var result = await VaccinationApiService.CreateAsync(new VetClinic.Shared.Requests.CreateVaccinationRequest
+        {
+            PetId = petId,
+            Name = name.Trim(),
+            DoneAt = doneAt.Value,
+            NextDueAt = nextDueAt,
+            Status = status,
+            Notes = string.IsNullOrWhiteSpace(notes) ? null : notes
+        });
+
+        if (result is null)
+        {
+            message = "Не удалось сохранить данные. Проверьте заполнение формы.";
+            return;
+        }
+
+        Navigation.NavigateTo("/vaccinations");
+    }
+}

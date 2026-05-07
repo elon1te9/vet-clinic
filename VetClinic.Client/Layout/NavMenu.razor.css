@@ -1,5 +1,6 @@
 .nav-header {
-    min-height: 72px;
+    height: 96px;
+    min-height: 96px;
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -95,7 +96,7 @@ nav {
     }
 
     .nav-scrollable {
-        height: calc(100vh - 72px);
+        height: calc(100vh - 96px);
         overflow-y: auto;
     }
 }

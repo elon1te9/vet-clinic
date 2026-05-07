@@ -17,31 +17,33 @@
 
 @if (notifications.Count == 0)
 {
-    <EmptyState Title="Уведомлений нет" Message="Новые уведомления появятся здесь." />
+    <EmptyState Title="Новых уведомлений нет" Message="Когда появятся записи, вакцинации, складские события или счета, уведомления будут здесь." />
 }
 else
 {
-    <table class="table">
+    <table class="table notifications-table">
         <thead>
             <tr>
                 <th>Дата</th>
-                <th>Тип</th>
                 <th>Заголовок</th>
                 <th>Сообщение</th>
-                <th>Прочитано</th>
-                <th></th>
+                <th>Статус</th>
+                <th class="table-actions-cell"></th>
             </tr>
         </thead>
         <tbody>
             @foreach (var notification in notifications)
             {
                 <tr>
-                    <td>@notification.CreatedAt.ToLocalTime().ToString("dd.MM.yyyy HH:mm")</td>
-                    <td>@notification.Type</td>
-                    <td>@notification.Title</td>
-                    <td>@notification.Message</td>
-                    <td><StatusBadge Text="@(notification.IsRead ? "Прочитано" : "Новое")" /></td>
+                    <td>@UiText.Date(notification.CreatedAt)</td>
+                    <td>@UiText.Value(notification.Title)</td>
+                    <td>@UiText.Value(FormatNotificationMessage(notification.Message))</td>
                     <td>
+                        <span class="notification-status @(notification.IsRead ? "notification-status-read" : "notification-status-new")">
+                            @(notification.IsRead ? "Прочитано" : "Новое")
+                        </span>
+                    </td>
+                    <td class="table-actions-cell">
                         @if (!notification.IsRead)
                         {
                             <button class="btn btn-secondary btn-sm" @onclick="() => MarkAsRead(notification.Id)" type="button">Прочитать</button>
@@ -68,12 +70,13 @@ else
     private async Task LoadNotificationsAsync()
     {
         notifications = await NotificationApiService.GetMyAsync();
+        NotificationApiService.NotifyNotificationsChanged();
     }
 
     private async Task MarkAsRead(int id)
     {
         var result = await NotificationApiService.MarkAsReadAsync(id);
-        message = result ? "Уведомление прочитано." : "Не удалось прочитать уведомление.";
+        message = result ? string.Empty : "Не удалось прочитать уведомление.";
 
         await LoadNotificationsAsync();
     }
@@ -81,9 +84,23 @@ else
     private async Task MarkAllAsRead()
     {
         var result = await NotificationApiService.MarkAllAsReadAsync();
-        message = result ? "Все уведомления прочитаны." : "Не удалось прочитать уведомления.";
+        message = result ? string.Empty : "Не удалось прочитать уведомления.";
 
         await LoadNotificationsAsync();
+    }
+
+    private static string? FormatNotificationMessage(string? text)
+    {
+        if (string.IsNullOrWhiteSpace(text))
+        {
+            return text;
+        }
+
+        return text
+            .Replace(": Planned.", ": Запланировано.")
+            .Replace(": Confirmed.", ": Подтверждено.")
+            .Replace(": Completed.", ": Завершено.")
+            .Replace(": Cancelled.", ": Отменено.");
     }
 
     private void OnNotificationReceived(VetClinic.Shared.Responses.NotificationResponse notification)
@@ -91,6 +108,7 @@ else
         if (!notifications.Any(n => n.Id == notification.Id))
         {
             notifications.Insert(0, notification);
+            NotificationApiService.NotifyNotificationsChanged();
             _ = InvokeAsync(StateHasChanged);
         }
     }
