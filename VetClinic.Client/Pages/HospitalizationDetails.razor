@@ -4,16 +4,14 @@
 
 <PageTitle>Госпитализация</PageTitle>
 
-<h1>Госпитализация</h1>
+<PageHeader Title="Госпитализация" Description="Детали стационара и записи ухода." />
 
-@if (!string.IsNullOrWhiteSpace(message))
-{
-    <p>@message</p>
-}
+<ErrorMessage Text="@message" />
 
+<section class="section-card">
 @if (hospitalization is null)
 {
-    <p>Госпитализация не найдена.</p>
+    <EmptyState Title="Госпитализация не найдена" Message="Проверьте идентификатор госпитализации." />
 }
 else
 {
@@ -58,7 +56,7 @@ else
     <h2>Записи ухода</h2>
     @if (careLogs.Count == 0)
     {
-        <p>Записей ухода нет.</p>
+        <EmptyState Title="Записей ухода нет" Message="Записи появятся после добавления ухода." />
     }
     else
     {
@@ -91,6 +89,7 @@ else
         </table>
     }
 }
+</section>
 
 @code {
     [Parameter] public int Id { get; set; }

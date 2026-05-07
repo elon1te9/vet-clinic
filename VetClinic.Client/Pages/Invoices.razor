@@ -8,13 +8,11 @@
 
 <PageTitle>Счета</PageTitle>
 
-<h1>Счета</h1>
+<PageHeader Title="Счета" Description="Создание, просмотр и оплата счетов по приёмам." />
 
-@if (!string.IsNullOrWhiteSpace(message))
-{
-    <p>@message</p>
-}
+<ErrorMessage Text="@message" />
 
+<section class="section-card">
 @if (role == "Admin")
 {
     <h2>Создать счёт</h2>
@@ -35,7 +33,7 @@
 
 @if (invoices.Count == 0)
 {
-    <p>Счетов нет.</p>
+    <EmptyState Title="Счетов нет" Message="Счета появятся здесь после создания." />
 }
 else
 {
@@ -77,6 +75,7 @@ else
         </tbody>
     </table>
 }
+</section>
 
 @code {
     private List<InvoiceResponse> invoices = [];

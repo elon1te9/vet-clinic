@@ -4,8 +4,9 @@
 
 <PageTitle>Услуги</PageTitle>
 
-<h1>Услуги</h1>
+<PageHeader Title="Услуги" Description="Список услуг клиники, цены и длительность приёма." />
 
+<section class="section-card">
 @if (isAdmin)
 {
     <h2>Новая услуга</h2>
@@ -33,14 +34,11 @@
     <button @onclick="CreateService" type="button">Создать</button>
 }
 
-@if (!string.IsNullOrWhiteSpace(message))
-{
-    <p>@message</p>
-}
+<ErrorMessage Text="@message" />
 
 @if (services.Count == 0)
 {
-    <p>Услуги не найдены.</p>
+    <EmptyState Title="Услуги не найдены" Message="Список услуг пока пуст." />
 }
 else
 {
@@ -66,6 +64,7 @@ else
         </tbody>
     </table>
 }
+</section>
 
 @code {
     private List<VetClinic.Shared.Responses.ClinicServiceResponse> services = [];

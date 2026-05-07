@@ -5,62 +5,63 @@
 
 <PageTitle>Мои записи</PageTitle>
 
-<h1>Мои записи</h1>
+<PageHeader Title="Мои записи" Description="Записи на приём, доступные текущему пользователю.">
+    <Actions>
+        @if (role == "Owner")
+        {
+            <button class="btn btn-primary" @onclick="OpenCreatePage" type="button">Записаться на приём</button>
+        }
+    </Actions>
+</PageHeader>
 
-@if (role == "Owner")
-{
-    <button @onclick="OpenCreatePage" type="button">Записаться на приём</button>
-}
+<ErrorMessage Text="@message" />
 
-@if (!string.IsNullOrWhiteSpace(message))
-{
-    <p>@message</p>
-}
-
-@if (appointments.Count == 0)
-{
-    <p>Записи не найдены.</p>
-}
-else
-{
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Дата</th>
-                <th>Питомец</th>
-                <th>Врач</th>
-                <th>Услуга</th>
-                <th>Причина</th>
-                <th>Статус</th>
-                <th></th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var appointment in appointments)
-            {
+<section class="section-card">
+    @if (appointments.Count == 0)
+    {
+        <EmptyState Title="Записей нет" Message="Список записей пока пуст." />
+    }
+    else
+    {
+        <table class="table">
+            <thead>
                 <tr>
-                    <td>@FormatDate(appointment.StartAt)</td>
-                    <td>@appointment.PetName</td>
-                    <td>@appointment.VeterinarianFullName</td>
-                    <td>@appointment.ServiceName</td>
-                    <td>@appointment.Reason</td>
-                    <td><StatusBadge Status="@appointment.Status" /></td>
-                    <td>
-                        @if (role == "Owner")
-                        {
-                            <button class="btn-danger btn-sm" @onclick="() => CancelAppointment(appointment.Id)" type="button">Отменить</button>
-                        }
-                        @if (role == "Veterinarian")
-                        {
-                            <button class="btn-sm" @onclick="() => ChangeStatus(appointment.Id, VetClinic.Shared.Enums.AppointmentStatus.Confirmed)" type="button">Подтвердить</button>
-                            <button class="btn-secondary btn-sm" @onclick="() => ChangeStatus(appointment.Id, VetClinic.Shared.Enums.AppointmentStatus.Completed)" type="button">Завершить</button>
-                        }
-                    </td>
+                    <th>Дата</th>
+                    <th>Питомец</th>
+                    <th>Врач</th>
+                    <th>Услуга</th>
+                    <th>Причина</th>
+                    <th>Статус</th>
+                    <th></th>
                 </tr>
-            }
-        </tbody>
-    </table>
-}
+            </thead>
+            <tbody>
+                @foreach (var appointment in appointments)
+                {
+                    <tr>
+                        <td>@FormatDate(appointment.StartAt)</td>
+                        <td>@appointment.PetName</td>
+                        <td>@appointment.VeterinarianFullName</td>
+                        <td>@appointment.ServiceName</td>
+                        <td>@appointment.Reason</td>
+                        <td><StatusBadge Status="@appointment.Status" /></td>
+                        <td>
+                            @if (role == "Owner")
+                            {
+                                <button class="btn btn-danger btn-sm" @onclick="() => CancelAppointment(appointment.Id)" type="button">Отменить</button>
+                            }
+                            @if (role == "Veterinarian")
+                            {
+                                <button class="btn btn-primary btn-sm" @onclick="() => ChangeStatus(appointment.Id, VetClinic.Shared.Enums.AppointmentStatus.Confirmed)" type="button">Подтвердить</button>
+                                <button class="btn btn-secondary btn-sm" @onclick="() => ChangeStatus(appointment.Id, VetClinic.Shared.Enums.AppointmentStatus.Completed)" type="button">Завершить</button>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+</section>
 
 @code {
     private List<VetClinic.Shared.Responses.AppointmentResponse> appointments = [];
@@ -76,11 +77,6 @@ else
     private async Task LoadAppointmentsAsync()
     {
         appointments = await AppointmentApiService.GetMyAsync();
-
-        if (appointments.Count == 0)
-        {
-            message = "Список записей пока пуст.";
-        }
     }
 
     private void OpenCreatePage()
@@ -91,7 +87,7 @@ else
     private async Task CancelAppointment(int id)
     {
         var result = await AppointmentApiService.DeleteAsync(id);
-        message = result ? "Запись отменена." : "Не удалось отменить запись.";
+        message = result ? string.Empty : "Не удалось отменить запись.";
         await LoadAppointmentsAsync();
     }
 
@@ -102,7 +98,7 @@ else
             Status = status
         });
 
-        message = result is null ? "Не удалось изменить статус записи." : "Статус записи изменён.";
+        message = result is null ? "Не удалось изменить статус записи." : string.Empty;
         await LoadAppointmentsAsync();
     }
 

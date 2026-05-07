@@ -4,133 +4,145 @@
 
 <PageTitle>Отчёты</PageTitle>
 
-<h1>Отчёты</h1>
+<PageHeader Title="Отчёты"
+            Description="Финансовая и операционная сводка клиники за выбранный период." />
 
-<div>
-    <label>С</label>
-    <input type="date" @bind="from" />
-</div>
-<div>
-    <label>По</label>
-    <input type="date" @bind="to" />
-</div>
-<button type="button" @onclick="LoadReportsAsync">Показать</button>
+<section class="section-card">
+    <h2>Период отчёта</h2>
+    <div class="form-grid">
+        <div>
+            <label>С</label>
+            <input type="date" @bind="from" />
+        </div>
+        <div>
+            <label>По</label>
+            <input type="date" @bind="to" />
+        </div>
+    </div>
+    <button class="btn btn-primary" type="button" @onclick="LoadReportsAsync">Показать</button>
+</section>
 
-@if (!string.IsNullOrWhiteSpace(message))
-{
-    <p>@message</p>
-}
+<ErrorMessage Text="@message" />
 
 @if (revenue is not null)
 {
-    <h2>Выручка</h2>
-    <p>Оплаченных счетов: @revenue.PaidInvoicesCount</p>
-    <p>Сумма: @revenue.TotalRevenue</p>
+    <div class="dashboard-cards">
+        <DashboardCard Title="Выручка" Value="@revenue.TotalRevenue.ToString("0.00")" Description="Сумма оплаченных счетов" Icon="F" />
+        <DashboardCard Title="Оплаченных счетов" Value="@revenue.PaidInvoicesCount.ToString()" Description="За выбранный период" Icon="I" />
+    </div>
 }
 
-<h2>Нагрузка врачей</h2>
-@if (doctorLoad.Count == 0)
-{
-    <p>Данных нет.</p>
-}
-else
-{
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Врач</th>
-                <th>Приёмов</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var item in doctorLoad)
-            {
+<section class="section-card">
+    <h2>Нагрузка врачей</h2>
+    @if (doctorLoad.Count == 0)
+    {
+        <EmptyState Title="Данных нет" Message="За выбранный период нет данных по нагрузке врачей." />
+    }
+    else
+    {
+        <table class="table">
+            <thead>
                 <tr>
-                    <td>@item.VeterinarianFullName</td>
-                    <td>@item.AppointmentsCount</td>
+                    <th>Врач</th>
+                    <th>Приёмов</th>
                 </tr>
-            }
-        </tbody>
-    </table>
-}
+            </thead>
+            <tbody>
+                @foreach (var item in doctorLoad)
+                {
+                    <tr>
+                        <td>@item.VeterinarianFullName</td>
+                        <td>@item.AppointmentsCount</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+</section>
 
-<h2>Популярные услуги</h2>
-@if (popularServices.Count == 0)
-{
-    <p>Данных нет.</p>
-}
-else
-{
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Услуга</th>
-                <th>Приёмов</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var item in popularServices)
-            {
+<section class="section-card">
+    <h2>Популярные услуги</h2>
+    @if (popularServices.Count == 0)
+    {
+        <EmptyState Title="Данных нет" Message="За выбранный период услуги не найдены." />
+    }
+    else
+    {
+        <table class="table">
+            <thead>
                 <tr>
-                    <td>@item.ServiceName</td>
-                    <td>@item.AppointmentsCount</td>
+                    <th>Услуга</th>
+                    <th>Приёмов</th>
                 </tr>
-            }
-        </tbody>
-    </table>
-}
+            </thead>
+            <tbody>
+                @foreach (var item in popularServices)
+                {
+                    <tr>
+                        <td>@item.ServiceName</td>
+                        <td>@item.AppointmentsCount</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+</section>
 
-<h2>Расход склада</h2>
-@if (inventoryUsage.Count == 0)
-{
-    <p>Данных нет.</p>
-}
-else
-{
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Позиция</th>
-                <th>Количество</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var item in inventoryUsage)
-            {
+<section class="section-card">
+    <h2>Расход склада</h2>
+    @if (inventoryUsage.Count == 0)
+    {
+        <EmptyState Title="Данных нет" Message="Расходов склада за выбранный период нет." />
+    }
+    else
+    {
+        <table class="table">
+            <thead>
                 <tr>
-                    <td>@item.InventoryItemName</td>
-                    <td>@item.QuantityUsed</td>
+                    <th>Позиция</th>
+                    <th>Количество</th>
                 </tr>
-            }
-        </tbody>
-    </table>
-}
+            </thead>
+            <tbody>
+                @foreach (var item in inventoryUsage)
+                {
+                    <tr>
+                        <td>@item.InventoryItemName</td>
+                        <td>@item.QuantityUsed</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+</section>
 
-<h2>Сводка приёмов</h2>
-@if (appointmentsSummary.Count == 0)
-{
-    <p>Данных нет.</p>
-}
-else
-{
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Статус</th>
-                <th>Количество</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var item in appointmentsSummary)
-            {
+<section class="section-card">
+    <h2>Сводка приёмов</h2>
+    @if (appointmentsSummary.Count == 0)
+    {
+        <EmptyState Title="Данных нет" Message="Приёмов за выбранный период нет." />
+    }
+    else
+    {
+        <table class="table">
+            <thead>
                 <tr>
-                    <td>@item.Status</td>
-                    <td>@item.Count</td>
+                    <th>Статус</th>
+                    <th>Количество</th>
                 </tr>
-            }
-        </tbody>
-    </table>
-}
+            </thead>
+            <tbody>
+                @foreach (var item in appointmentsSummary)
+                {
+                    <tr>
+                        <td><StatusBadge Status="@item.Status" /></td>
+                        <td>@item.Count</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+</section>
 
 @code {
     private DateTime from = DateTime.Today.AddMonths(-1);
@@ -155,6 +167,7 @@ else
             return;
         }
 
+        message = string.Empty;
         revenue = await ReportApiService.GetRevenueAsync(from, to);
         doctorLoad = await ReportApiService.GetDoctorLoadAsync(from, to);
         popularServices = await ReportApiService.GetPopularServicesAsync(from, to);

@@ -4,13 +4,11 @@
 
 <PageTitle>Новая складская позиция</PageTitle>
 
-<h1>Новая складская позиция</h1>
+<PageHeader Title="Новая складская позиция" Description="Добавьте препарат, вакцину, корм или расходный материал на склад." />
 
-@if (!string.IsNullOrWhiteSpace(message))
-{
-    <p>@message</p>
-}
+<ErrorMessage Text="@message" />
 
+<section class="section-card">
 <div>
     <label>Название</label>
     <input @bind="name" placeholder="Название позиции" />
@@ -56,7 +54,8 @@
     <input @bind="supplier" placeholder="Поставщик" />
 </div>
 
-<button @onclick="CreateItem" type="button">Сохранить</button>
+<button class="btn btn-primary" @onclick="CreateItem" type="button">Сохранить</button>
+</section>
 
 @code {
     private string name = string.Empty;

@@ -3,23 +3,27 @@
 
 <PageTitle>Карточка питомца</PageTitle>
 
-<h1>Карточка питомца</h1>
+<PageHeader Title="Карточка питомца" Description="Основная информация о питомце и владельце." />
 
 @if (pet is null)
 {
-    <p>@message</p>
+    <EmptyState Title="Питомец не найден" Message="@message" />
 }
 else
 {
-    <p><strong>Имя:</strong> @pet.Name</p>
-    <p><strong>Вид:</strong> @pet.Species</p>
-    <p><strong>Порода:</strong> @pet.Breed</p>
-    <p><strong>Пол:</strong> @pet.Gender</p>
-    <p><strong>Дата рождения:</strong> @pet.BirthDate?.ToString("dd.MM.yyyy")</p>
-    <p><strong>Вес:</strong> @pet.Weight</p>
-    <p><strong>Окрас:</strong> @pet.Color</p>
-    <p><strong>Особенности здоровья:</strong> @pet.HealthNotes</p>
-    <p><strong>Владелец:</strong> @pet.OwnerFullName</p>
+    <section class="section-card details-list">
+        <p><strong>Имя:</strong> @pet.Name</p>
+        <p><strong>Вид:</strong> @pet.Species</p>
+        <p><strong>Порода:</strong> @pet.Breed</p>
+        <p><strong>Пол:</strong> @pet.Gender</p>
+        <p><strong>Дата рождения:</strong> @pet.BirthDate?.ToString("dd.MM.yyyy")</p>
+        <p><strong>Вес:</strong> @pet.Weight</p>
+        <p><strong>Окрас:</strong> @pet.Color</p>
+        <p><strong>Особенности здоровья:</strong> @pet.HealthNotes</p>
+        <p><strong>Владелец:</strong> @pet.OwnerFullName</p>
+    </section>
+
+    <a class="btn btn-secondary" href="pets">Назад</a>
 }
 
 @code {

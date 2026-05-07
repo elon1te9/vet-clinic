@@ -4,13 +4,11 @@
 
 <PageTitle>Редактирование склада</PageTitle>
 
-<h1>Редактирование склада</h1>
+<PageHeader Title="Редактирование склада" Description="Обновите данные складской позиции." />
 
-@if (!string.IsNullOrWhiteSpace(message))
-{
-    <p>@message</p>
-}
+<ErrorMessage Text="@message" />
 
+<section class="section-card">
 @if (loaded)
 {
     <div>
@@ -67,6 +65,7 @@
 
     <button @onclick="UpdateItem" type="button">Сохранить</button>
 }
+</section>
 
 @code {
     [Parameter] public int Id { get; set; }

@@ -6,16 +6,14 @@
 
 <PageTitle>Счёт</PageTitle>
 
-<h1>Счёт</h1>
+<PageHeader Title="Счёт" Description="Подробная информация по счёту." />
 
-@if (!string.IsNullOrWhiteSpace(message))
-{
-    <p>@message</p>
-}
+<ErrorMessage Text="@message" />
 
+<section class="section-card">
 @if (invoice is null)
 {
-    <p>Счёт не найден.</p>
+    <EmptyState Title="Счёт не найден" Message="Проверьте идентификатор счёта." />
 }
 else
 {
@@ -34,7 +32,8 @@ else
     }
 }
 
-<p><a href="invoices">Назад к счетам</a></p>
+<p><a class="btn btn-secondary" href="invoices">Назад к счетам</a></p>
+</section>
 
 @code {
     [Parameter]

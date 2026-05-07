@@ -4,13 +4,11 @@
 
 <PageTitle>Пользователи</PageTitle>
 
-<h1>Пользователи</h1>
+<PageHeader Title="Пользователи" Description="Пользователи системы и их роли." />
 
-@if (!string.IsNullOrWhiteSpace(message))
-{
-    <p>@message</p>
-}
+<ErrorMessage Text="@message" />
 
+<section class="section-card">
 @if (users.Count > 0)
 {
     <table class="table">
@@ -35,6 +33,11 @@
         </tbody>
     </table>
 }
+else
+{
+    <EmptyState Title="Пользователи не найдены" Message="Список пользователей пуст или недоступен." />
+}
+</section>
 
 @code {
     private List<VetClinic.Shared.Responses.UserResponse> users = [];

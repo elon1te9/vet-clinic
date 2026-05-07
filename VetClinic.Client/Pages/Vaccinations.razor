@@ -5,8 +5,9 @@
 
 <PageTitle>Вакцинации</PageTitle>
 
-<h1>Вакцинации</h1>
+<PageHeader Title="Вакцинации" Description="История вакцинаций и план следующих дат." />
 
+<section class="section-card">
 @if (role == "Veterinarian")
 {
     <h2>Новая вакцинация</h2>
@@ -54,14 +55,11 @@
     <button @onclick="CreateVaccination" type="button">Сохранить</button>
 }
 
-@if (!string.IsNullOrWhiteSpace(message))
-{
-    <p>@message</p>
-}
+<ErrorMessage Text="@message" />
 
 @if (vaccinations.Count == 0)
 {
-    <p>Вакцинации не найдены.</p>
+    <EmptyState Title="Вакцинации не найдены" Message="Список вакцинаций пока пуст." />
 }
 else
 {
@@ -91,6 +89,7 @@ else
         </tbody>
     </table>
 }
+</section>
 
 @code {
     private List<VetClinic.Shared.Responses.VaccinationResponse> vaccinations = [];

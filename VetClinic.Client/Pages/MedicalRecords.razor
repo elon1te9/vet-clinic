@@ -6,8 +6,9 @@
 
 <PageTitle>Медицинские карты</PageTitle>
 
-<h1>Медицинские карты</h1>
+<PageHeader Title="Медицинские карты" Description="История медицинских записей питомцев." />
 
+<section class="section-card">
 @if (role == "Veterinarian" || role == "Admin")
 {
     <button @onclick="OpenCreatePage" type="button">Создать запись</button>
@@ -27,14 +28,11 @@
     </div>
 }
 
-@if (!string.IsNullOrWhiteSpace(message))
-{
-    <p>@message</p>
-}
+<ErrorMessage Text="@message" />
 
 @if (records.Count == 0)
 {
-    <p>Медицинские записи не найдены.</p>
+    <EmptyState Title="Медицинские записи не найдены" Message="Записи появятся после создания врачом или администратором." />
 }
 else
 {
@@ -66,6 +64,7 @@ else
         </tbody>
     </table>
 }
+</section>
 
 @code {
     private List<VetClinic.Shared.Responses.MedicalRecordResponse> records = [];

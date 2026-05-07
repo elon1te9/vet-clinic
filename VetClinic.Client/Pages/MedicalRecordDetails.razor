@@ -3,11 +3,12 @@
 
 <PageTitle>Медицинская запись</PageTitle>
 
-<h1>Медицинская запись</h1>
+<PageHeader Title="Медицинская запись" Description="Подробности осмотра, диагноз, лечение и рекомендации." />
 
+<section class="section-card">
 @if (record is null)
 {
-    <p>@message</p>
+    <EmptyState Title="Медицинская запись не найдена" Message="@message" />
 }
 else
 {
@@ -23,6 +24,7 @@ else
     <p><strong>Температура:</strong> @record.Temperature</p>
     <p><strong>Вес:</strong> @record.Weight</p>
 }
+</section>
 
 @code {
     [Parameter] public int Id { get; set; }

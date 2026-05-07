@@ -5,13 +5,11 @@
 
 <PageTitle>Уведомления</PageTitle>
 
-<h1>Уведомления</h1>
+<PageHeader Title="Уведомления" Description="Системные уведомления текущего пользователя." />
 
-@if (!string.IsNullOrWhiteSpace(message))
-{
-    <p>@message</p>
-}
+<ErrorMessage Text="@message" />
 
+<section class="section-card">
 @if (notifications.Count > 0)
 {
     <button @onclick="MarkAllAsRead" type="button">Прочитать все</button>
@@ -19,7 +17,7 @@
 
 @if (notifications.Count == 0)
 {
-    <p>Уведомлений нет.</p>
+    <EmptyState Title="Уведомлений нет" Message="Новые уведомления появятся здесь." />
 }
 else
 {
@@ -54,6 +52,7 @@ else
         </tbody>
     </table>
 }
+</section>
 
 @code {
     private List<VetClinic.Shared.Responses.NotificationResponse> notifications = [];

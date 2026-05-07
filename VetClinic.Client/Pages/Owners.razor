@@ -3,13 +3,11 @@
 
 <PageTitle>Владельцы</PageTitle>
 
-<h1>Владельцы</h1>
+<PageHeader Title="Владельцы" Description="Список владельцев питомцев." />
 
-@if (!string.IsNullOrWhiteSpace(message))
-{
-    <p>@message</p>
-}
+<ErrorMessage Text="@message" />
 
+<section class="section-card">
 @if (owners.Count > 0)
 {
     <table class="table">
@@ -34,6 +32,11 @@
         </tbody>
     </table>
 }
+else
+{
+    <EmptyState Title="Владельцы не найдены" Message="Список владельцев пока пуст." />
+}
+</section>
 
 @code {
     private List<VetClinic.Shared.Responses.UserResponse> owners = [];

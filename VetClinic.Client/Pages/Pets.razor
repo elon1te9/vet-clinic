@@ -5,55 +5,56 @@
 
 <PageTitle>Питомцы</PageTitle>
 
-<h1>Питомцы</h1>
+<PageHeader Title="Питомцы" Description="Карточки питомцев и основные данные владельцев.">
+    <Actions>
+        @if (canCreate)
+        {
+            <button class="btn btn-primary" @onclick="OpenCreatePage" type="button">Добавить питомца</button>
+        }
+    </Actions>
+</PageHeader>
 
-@if (!string.IsNullOrWhiteSpace(message))
-{
-    <p>@message</p>
-}
+<ErrorMessage Text="@message" />
 
-@if (canCreate)
-{
-    <button @onclick="OpenCreatePage" type="button">Добавить питомца</button>
-}
-
-@if (pets.Count == 0)
-{
-    <p>Питомцы не найдены.</p>
-}
-else
-{
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Имя</th>
-                <th>Вид</th>
-                <th>Порода</th>
-                <th>Владелец</th>
-                <th></th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var pet in pets)
-            {
+<section class="section-card">
+    @if (pets.Count == 0)
+    {
+        <EmptyState Title="Питомцев нет" Message="Список питомцев пока пуст." />
+    }
+    else
+    {
+        <table class="table">
+            <thead>
                 <tr>
-                    <td>@pet.Name</td>
-                    <td>@pet.Species</td>
-                    <td>@pet.Breed</td>
-                    <td>@pet.OwnerFullName</td>
-                    <td>
-                        <button @onclick="() => OpenDetails(pet.Id)" type="button">Открыть</button>
-                        @if (canEdit)
-                        {
-                            <button @onclick="() => OpenEdit(pet.Id)" type="button">Изменить</button>
-                            <button class="btn-danger btn-sm" @onclick="() => DeletePet(pet.Id)" type="button">Удалить</button>
-                        }
-                    </td>
+                    <th>Имя</th>
+                    <th>Вид</th>
+                    <th>Порода</th>
+                    <th>Владелец</th>
+                    <th></th>
                 </tr>
-            }
-        </tbody>
-    </table>
-}
+            </thead>
+            <tbody>
+                @foreach (var pet in pets)
+                {
+                    <tr>
+                        <td>@pet.Name</td>
+                        <td>@pet.Species</td>
+                        <td>@pet.Breed</td>
+                        <td>@pet.OwnerFullName</td>
+                        <td>
+                            <button class="btn btn-secondary btn-sm" @onclick="() => OpenDetails(pet.Id)" type="button">Открыть</button>
+                            @if (canEdit)
+                            {
+                                <button class="btn btn-secondary btn-sm" @onclick="() => OpenEdit(pet.Id)" type="button">Изменить</button>
+                                <button class="btn btn-danger btn-sm" @onclick="() => DeletePet(pet.Id)" type="button">Удалить</button>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+</section>
 
 @code {
     private List<VetClinic.Shared.Responses.PetResponse> pets = [];
@@ -75,11 +76,6 @@ else
         pets = role == "Owner"
             ? await PetApiService.GetMyAsync()
             : await PetApiService.GetAllAsync();
-
-        if (pets.Count == 0)
-        {
-            message = "Список питомцев пока пуст.";
-        }
     }
 
     private void OpenCreatePage()
@@ -100,7 +96,7 @@ else
     private async Task DeletePet(int id)
     {
         var result = await PetApiService.DeleteAsync(id);
-        message = result ? "Питомец удалён." : "Не удалось удалить питомца.";
+        message = result ? string.Empty : "Не удалось удалить питомца.";
         await LoadPetsAsync();
     }
 }

@@ -4,13 +4,11 @@
 
 <PageTitle>Операции склада</PageTitle>
 
-<h1>Операции склада</h1>
+<PageHeader Title="Операции склада" Description="Журнал поступлений, списаний, выдач и корректировок." />
 
-@if (!string.IsNullOrWhiteSpace(message))
-{
-    <p>@message</p>
-}
+<ErrorMessage Text="@message" />
 
+<section class="section-card">
 @if (role == "Admin" || role == "Assistant")
 {
     <h2>Новая операция</h2>
@@ -56,7 +54,7 @@
 <h2>Журнал операций</h2>
 @if (transactions.Count == 0)
 {
-    <p>Операций нет.</p>
+    <EmptyState Title="Операций нет" Message="Журнал операций склада пока пуст." />
 }
 else
 {
@@ -86,6 +84,7 @@ else
         </tbody>
     </table>
 }
+</section>
 
 @code {
     private List<VetClinic.Shared.Responses.InventoryItemResponse> items = [];

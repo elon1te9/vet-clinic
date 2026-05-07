@@ -7,8 +7,9 @@
 
 <PageTitle>Новая медицинская запись</PageTitle>
 
-<h1>Новая медицинская запись</h1>
+<PageHeader Title="Новая медицинская запись" Description="Создайте запись осмотра по выбранному питомцу и приёму." />
 
+<section class="section-card">
 <div>
     <label>Питомец</label>
     <select @bind="petId">
@@ -65,12 +66,10 @@
     <input type="number" step="0.1" @bind="weight" placeholder="Вес питомца" />
 </div>
 
-@if (!string.IsNullOrWhiteSpace(message))
-{
-    <p>@message</p>
-}
+<ErrorMessage Text="@message" />
 
-<button @onclick="CreateRecord" type="button">Сохранить</button>
+<button class="btn btn-primary" @onclick="CreateRecord" type="button">Сохранить</button>
+</section>
 
 @code {
     private List<VetClinic.Shared.Responses.PetResponse> pets = [];

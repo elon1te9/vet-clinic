@@ -4,54 +4,54 @@
 
 <PageTitle>Записи на приём</PageTitle>
 
-<h1>Записи на приём</h1>
+<PageHeader Title="Записи на приём"
+            Description="Расписание клиники и управление статусами приёмов." />
 
-@if (!string.IsNullOrWhiteSpace(message))
-{
-    <p>@message</p>
-}
+<ErrorMessage Text="@message" />
 
-@if (appointments.Count == 0)
-{
-    <p>Записи не найдены.</p>
-}
-else
-{
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Дата</th>
-                <th>Питомец</th>
-                <th>Владелец</th>
-                <th>Врач</th>
-                <th>Услуга</th>
-                <th>Статус</th>
-                <th></th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var appointment in appointments)
-            {
+<section class="section-card">
+    @if (appointments.Count == 0)
+    {
+        <EmptyState Title="Записей нет" Message="Список записей пока пуст." />
+    }
+    else
+    {
+        <table class="table">
+            <thead>
                 <tr>
-                    <td>@FormatDate(appointment.StartAt)</td>
-                    <td>@appointment.PetName</td>
-                    <td>@appointment.OwnerFullName</td>
-                    <td>@appointment.VeterinarianFullName</td>
-                    <td>@appointment.ServiceName</td>
-                    <td><StatusBadge Status="@appointment.Status" /></td>
-                    <td>
-                        @if (canChangeStatus)
-                        {
-                            <button class="btn-sm" @onclick="() => ChangeStatus(appointment.Id, VetClinic.Shared.Enums.AppointmentStatus.Confirmed)" type="button">Подтвердить</button>
-                            <button class="btn-secondary btn-sm" @onclick="() => ChangeStatus(appointment.Id, VetClinic.Shared.Enums.AppointmentStatus.Completed)" type="button">Завершить</button>
-                            <button class="btn-danger btn-sm" @onclick="() => ChangeStatus(appointment.Id, VetClinic.Shared.Enums.AppointmentStatus.Cancelled)" type="button">Отменить</button>
-                        }
-                    </td>
+                    <th>Дата</th>
+                    <th>Питомец</th>
+                    <th>Владелец</th>
+                    <th>Врач</th>
+                    <th>Услуга</th>
+                    <th>Статус</th>
+                    <th></th>
                 </tr>
-            }
-        </tbody>
-    </table>
-}
+            </thead>
+            <tbody>
+                @foreach (var appointment in appointments)
+                {
+                    <tr>
+                        <td>@FormatDate(appointment.StartAt)</td>
+                        <td>@appointment.PetName</td>
+                        <td>@appointment.OwnerFullName</td>
+                        <td>@appointment.VeterinarianFullName</td>
+                        <td>@appointment.ServiceName</td>
+                        <td><StatusBadge Status="@appointment.Status" /></td>
+                        <td>
+                            @if (canChangeStatus)
+                            {
+                                <button class="btn btn-primary btn-sm" @onclick="() => ChangeStatus(appointment.Id, VetClinic.Shared.Enums.AppointmentStatus.Confirmed)" type="button">Подтвердить</button>
+                                <button class="btn btn-secondary btn-sm" @onclick="() => ChangeStatus(appointment.Id, VetClinic.Shared.Enums.AppointmentStatus.Completed)" type="button">Завершить</button>
+                                <button class="btn btn-danger btn-sm" @onclick="() => ChangeStatus(appointment.Id, VetClinic.Shared.Enums.AppointmentStatus.Cancelled)" type="button">Отменить</button>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+</section>
 
 @code {
     private List<VetClinic.Shared.Responses.AppointmentResponse> appointments = [];
@@ -73,11 +73,6 @@ else
         appointments = role == "Veterinarian"
             ? await AppointmentApiService.GetMyAsync()
             : await AppointmentApiService.GetAllAsync();
-
-        if (appointments.Count == 0)
-        {
-            message = "Список записей пока пуст.";
-        }
     }
 
     private async Task ChangeStatus(int id, VetClinic.Shared.Enums.AppointmentStatus status)
@@ -87,7 +82,7 @@ else
             Status = status
         });
 
-        message = result is null ? "Не удалось изменить статус записи." : "Статус записи изменён.";
+        message = result is null ? "Не удалось изменить статус записи." : string.Empty;
         await LoadAppointmentsAsync();
     }
 

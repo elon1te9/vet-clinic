@@ -3,18 +3,16 @@
 
 <PageTitle>Операции</PageTitle>
 
-<h1>Операции</h1>
+<PageHeader Title="Операции" Description="Планирование и статусы хирургических операций." />
 
-<p><a href="surgeries/create">Создать операцию</a></p>
+<ErrorMessage Text="@message" />
 
-@if (!string.IsNullOrWhiteSpace(message))
-{
-    <p>@message</p>
-}
+<section class="section-card">
+<p><a class="btn btn-primary" href="surgeries/create">Создать операцию</a></p>
 
 @if (surgeries.Count == 0)
 {
-    <p>Операций нет.</p>
+    <EmptyState Title="Операций нет" Message="Операции появятся после создания." />
 }
 else
 {
@@ -50,6 +48,7 @@ else
         </tbody>
     </table>
 }
+</section>
 
 @code {
     private List<VetClinic.Shared.Responses.SurgeryResponse> surgeries = [];

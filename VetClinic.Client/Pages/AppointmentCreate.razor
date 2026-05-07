@@ -8,59 +8,64 @@
 
 <PageTitle>Записаться на приём</PageTitle>
 
-<h1>Записаться на приём</h1>
+<PageHeader Title="Записаться на приём"
+            Description="Выберите питомца, врача, услугу и удобное время." />
 
-<div>
-    <label>Питомец</label>
-    <select @bind="petId">
-        @foreach (var pet in pets)
-        {
-            <option value="@pet.Id">@pet.Name</option>
-        }
-    </select>
-</div>
+<section class="section-card">
+    <div>
+        <label>Питомец</label>
+        <select @bind="petId">
+            @foreach (var pet in pets)
+            {
+                <option value="@pet.Id">@pet.Name</option>
+            }
+        </select>
+    </div>
 
-<div>
-    <label>Врач</label>
-    <select @bind="doctorId">
-        @foreach (var doctor in doctors)
-        {
-            <option value="@doctor.Id">@doctor.FullName</option>
-        }
-    </select>
-</div>
+    <div>
+        <label>Врач</label>
+        <select @bind="doctorId">
+            @foreach (var doctor in doctors)
+            {
+                <option value="@doctor.Id">@doctor.FullName</option>
+            }
+        </select>
+    </div>
 
-<div>
-    <label>Услуга</label>
-    <select @bind="serviceId">
-        @foreach (var service in services)
-        {
-            <option value="@service.Id">@service.Name (@service.Price руб.)</option>
-        }
-    </select>
-</div>
+    <div>
+        <label>Услуга</label>
+        <select @bind="serviceId">
+            @foreach (var service in services)
+            {
+                <option value="@service.Id">@service.Name (@service.Price руб.)</option>
+            }
+        </select>
+    </div>
 
-<div>
-    <label>Дата</label>
-    <InputDate @bind-Value="appointmentDate" />
-</div>
+    <div class="form-grid">
+        <div>
+            <label>Дата</label>
+            <InputDate @bind-Value="appointmentDate" />
+        </div>
 
-<div>
-    <label>Время</label>
-    <input type="time" @bind="appointmentTime" />
-</div>
+        <div>
+            <label>Время</label>
+            <input type="time" @bind="appointmentTime" />
+        </div>
+    </div>
 
-<div>
-    <label>Причина визита</label>
-    <input @bind="reason" placeholder="Кратко опишите причину визита" />
-</div>
+    <div>
+        <label>Причина визита</label>
+        <input @bind="reason" placeholder="Кратко опишите причину визита" />
+    </div>
 
-@if (!string.IsNullOrWhiteSpace(message))
-{
-    <p>@message</p>
-}
+    <ErrorMessage Text="@message" />
 
-<button @onclick="CreateAppointment" type="button">Записаться</button>
+    <div class="actions-row">
+        <button class="btn btn-primary" @onclick="CreateAppointment" type="button">Записаться</button>
+        <a class="btn btn-secondary" href="appointments/my">Назад</a>
+    </div>
+</section>
 
 @code {
     private List<VetClinic.Shared.Responses.PetResponse> pets = [];

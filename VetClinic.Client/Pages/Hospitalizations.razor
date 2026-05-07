@@ -4,13 +4,11 @@
 
 <PageTitle>Стационар</PageTitle>
 
-<h1>Стационар</h1>
+<PageHeader Title="Стационар" Description="Госпитализации питомцев и текущие записи ухода." />
 
-@if (!string.IsNullOrWhiteSpace(message))
-{
-    <p>@message</p>
-}
+<ErrorMessage Text="@message" />
 
+<section class="section-card">
 <h2>Новая госпитализация</h2>
 
 <div>
@@ -43,7 +41,7 @@
 <h2>Госпитализации</h2>
 @if (hospitalizations.Count == 0)
 {
-    <p>Госпитализаций нет.</p>
+    <EmptyState Title="Госпитализаций нет" Message="Активные и завершённые госпитализации появятся здесь." />
 }
 else
 {
@@ -79,6 +77,7 @@ else
         </tbody>
     </table>
 }
+</section>
 
 @code {
     private List<VetClinic.Shared.Responses.PetResponse> pets = [];

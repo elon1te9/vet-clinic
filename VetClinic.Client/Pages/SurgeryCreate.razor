@@ -5,13 +5,11 @@
 
 <PageTitle>Новая операция</PageTitle>
 
-<h1>Новая операция</h1>
+<PageHeader Title="Новая операция" Description="Запланируйте операцию для выбранного питомца." />
 
-@if (!string.IsNullOrWhiteSpace(message))
-{
-    <p>@message</p>
-}
+<ErrorMessage Text="@message" />
 
+<section class="section-card">
 <div>
     <label>Питомец</label>
     <select @bind="petId">
@@ -47,7 +45,8 @@
     <input @bind="anesthesia" placeholder="Тип наркоза" />
 </div>
 
-<button @onclick="CreateSurgery" type="button">Сохранить</button>
+<button class="btn btn-primary" @onclick="CreateSurgery" type="button">Сохранить</button>
+</section>
 
 @code {
     private List<VetClinic.Shared.Responses.PetResponse> pets = [];

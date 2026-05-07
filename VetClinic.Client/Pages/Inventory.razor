@@ -4,91 +4,125 @@
 
 <PageTitle>Склад</PageTitle>
 
-<h1>Склад</h1>
-
-@if (!string.IsNullOrWhiteSpace(message))
-{
-    <p>@message</p>
-}
-
-@if (role == "Admin")
-{
-    <p><a href="inventory/create">Создать складскую позицию</a></p>
-}
-
-<h2>Критические остатки</h2>
-@if (lowStockItems.Count == 0)
-{
-    <p>Критических остатков нет.</p>
-}
-else
-{
-    <ul>
-        @foreach (var item in lowStockItems)
+<PageHeader Title="Склад"
+            Description="Остатки препаратов, вакцин, кормов и расходных материалов.">
+    <Actions>
+        @if (role == "Admin")
         {
-            <li>@item.Name: @item.Quantity @item.Unit, минимум @item.MinQuantity</li>
+            <a class="btn btn-primary" href="inventory/create">Создать позицию</a>
         }
-    </ul>
-}
+    </Actions>
+</PageHeader>
 
-<h2>Истекающие сроки годности</h2>
-@if (expiringItems.Count == 0)
-{
-    <p>Истекающих позиций нет.</p>
-}
-else
-{
-    <ul>
-        @foreach (var item in expiringItems)
-        {
-            <li>@item.Name: @item.ExpirationDate?.ToLocalTime().ToString("dd.MM.yyyy")</li>
-        }
-    </ul>
-}
+<ErrorMessage Text="@message" />
 
-<h2>Все позиции</h2>
-@if (items.Count == 0)
-{
-    <p>Склад пуст.</p>
-}
-else
-{
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Название</th>
-                <th>Категория</th>
-                <th>Остаток</th>
-                <th>Минимум</th>
-                <th>Срок годности</th>
-                <th>Цена</th>
-                <th>Активна</th>
-                <th></th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var item in items)
-            {
+<section class="section-card">
+    <h2>Критические остатки</h2>
+    @if (lowStockItems.Count == 0)
+    {
+        <EmptyState Title="Критических остатков нет" Message="Все активные позиции выше минимального остатка." />
+    }
+    else
+    {
+        <table class="table">
+            <thead>
                 <tr>
-                    <td>@item.Name</td>
-                    <td>@item.Category</td>
-                    <td>@item.Quantity @item.Unit</td>
-                    <td>@item.MinQuantity @item.Unit</td>
-                    <td>@item.ExpirationDate?.ToLocalTime().ToString("dd.MM.yyyy")</td>
-                    <td>@item.Price</td>
-                    <td>@(item.IsActive ? "Да" : "Нет")</td>
-                    <td>
-                        @if (role == "Admin")
-                        {
-                            <a href="@($"inventory/edit/{item.Id}")">Редактировать</a>
-                            <button class="btn-danger btn-sm" @onclick="() => DeleteItem(item.Id)" type="button">Удалить</button>
-                        }
-                    </td>
+                    <th>Позиция</th>
+                    <th>Остаток</th>
+                    <th>Минимум</th>
                 </tr>
-            }
-        </tbody>
-    </table>
-}
+            </thead>
+            <tbody>
+                @foreach (var item in lowStockItems)
+                {
+                    <tr>
+                        <td>@item.Name</td>
+                        <td><StatusBadge Text="@($"{item.Quantity} {item.Unit}")" /></td>
+                        <td>@item.MinQuantity @item.Unit</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+</section>
+
+<section class="section-card">
+    <h2>Истекающие сроки годности</h2>
+    @if (expiringItems.Count == 0)
+    {
+        <EmptyState Title="Истекающих позиций нет" Message="На ближайший период просроченных или истекающих позиций не найдено." />
+    }
+    else
+    {
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Позиция</th>
+                    <th>Категория</th>
+                    <th>Срок годности</th>
+                    <th>Остаток</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in expiringItems)
+                {
+                    <tr>
+                        <td>@item.Name</td>
+                        <td>@item.Category</td>
+                        <td>@item.ExpirationDate?.ToLocalTime().ToString("dd.MM.yyyy")</td>
+                        <td>@item.Quantity @item.Unit</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+</section>
+
+<section class="section-card">
+    <h2>Все позиции</h2>
+    @if (items.Count == 0)
+    {
+        <EmptyState Title="Склад пуст" Message="Позиции появятся здесь после создания." />
+    }
+    else
+    {
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Название</th>
+                    <th>Категория</th>
+                    <th>Остаток</th>
+                    <th>Минимум</th>
+                    <th>Срок годности</th>
+                    <th>Цена</th>
+                    <th>Активна</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in items)
+                {
+                    <tr>
+                        <td>@item.Name</td>
+                        <td>@item.Category</td>
+                        <td>@item.Quantity @item.Unit</td>
+                        <td>@item.MinQuantity @item.Unit</td>
+                        <td>@item.ExpirationDate?.ToLocalTime().ToString("dd.MM.yyyy")</td>
+                        <td>@item.Price</td>
+                        <td><StatusBadge Text="@(item.IsActive ? "Активна" : "Неактивна")" /></td>
+                        <td>
+                            @if (role == "Admin")
+                            {
+                                <a class="btn btn-secondary btn-sm" href="@($"inventory/edit/{item.Id}")">Изменить</a>
+                                <button class="btn btn-danger btn-sm" @onclick="() => DeleteItem(item.Id)" type="button">Удалить</button>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+</section>
 
 @code {
     private List<VetClinic.Shared.Responses.InventoryItemResponse> items = [];
@@ -113,7 +147,7 @@ else
     private async Task DeleteItem(int id)
     {
         var result = await InventoryApiService.DeleteAsync(id);
-        message = result ? "Позиция отключена." : "Не удалось удалить позицию.";
+        message = result ? string.Empty : "Не удалось удалить позицию.";
 
         await LoadAsync();
     }

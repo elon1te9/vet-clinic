@@ -4,60 +4,68 @@
 
 <PageTitle>Редактирование питомца</PageTitle>
 
-<h1>Редактирование питомца</h1>
+<PageHeader Title="Редактирование питомца" Description="Обновите карточку питомца." />
+
+<ErrorMessage Text="@message" />
 
 @if (petLoaded)
 {
-    <div>
-        <label>Имя</label>
-        <input @bind="name" placeholder="Например: Барсик" />
-    </div>
+    <section class="section-card">
+        <div class="form-grid">
+            <div>
+                <label>Имя</label>
+                <input @bind="name" placeholder="Например: Барсик" />
+            </div>
 
-    <div>
-        <label>Вид</label>
-        <input @bind="species" placeholder="Кошка, собака, попугай" />
-    </div>
+            <div>
+                <label>Вид</label>
+                <input @bind="species" placeholder="Кошка, собака, попугай" />
+            </div>
+        </div>
 
-    <div>
-        <label>Порода</label>
-        <input @bind="breed" placeholder="Порода" />
-    </div>
+        <div class="form-grid">
+            <div>
+                <label>Порода</label>
+                <input @bind="breed" placeholder="Порода" />
+            </div>
 
-    <div>
-        <label>Пол</label>
-        <select @bind="gender">
-            <option value="Unknown">Не указан</option>
-            <option value="Male">Самец</option>
-            <option value="Female">Самка</option>
-        </select>
-    </div>
+            <div>
+                <label>Пол</label>
+                <select @bind="gender">
+                    <option value="Unknown">Не указан</option>
+                    <option value="Male">Самец</option>
+                    <option value="Female">Самка</option>
+                </select>
+            </div>
+        </div>
 
-    <div>
-        <label>Дата рождения</label>
-        <InputDate @bind-Value="birthDate" />
-    </div>
+        <div class="form-grid">
+            <div>
+                <label>Дата рождения</label>
+                <InputDate @bind-Value="birthDate" />
+            </div>
 
-    <div>
-        <label>Вес</label>
-        <input @bind="weightText" placeholder="Например: 4,5" />
-    </div>
+            <div>
+                <label>Вес</label>
+                <input @bind="weightText" placeholder="Например: 4,5" />
+            </div>
+        </div>
 
-    <div>
-        <label>Окрас</label>
-        <input @bind="color" placeholder="Окрас" />
-</div>
+        <div>
+            <label>Окрас</label>
+            <input @bind="color" placeholder="Окрас" />
+        </div>
 
-    <div>
-        <label>Особенности здоровья</label>
-        <input @bind="healthNotes" placeholder="Краткие особенности здоровья" />
-    </div>
+        <div>
+            <label>Особенности здоровья</label>
+            <input @bind="healthNotes" placeholder="Краткие особенности здоровья" />
+        </div>
 
-    <button @onclick="SavePet" type="button">Сохранить</button>
-}
-
-@if (!string.IsNullOrWhiteSpace(message))
-{
-    <p>@message</p>
+        <div class="actions-row">
+            <button class="btn btn-primary" @onclick="SavePet" type="button">Сохранить</button>
+            <a class="btn btn-secondary" href="pets">Назад</a>
+        </div>
+    </section>
 }
 
 @code {

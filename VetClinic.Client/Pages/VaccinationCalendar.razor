@@ -3,14 +3,16 @@
 
 <PageTitle>Календарь вакцинаций</PageTitle>
 
-<h1>Календарь вакцинаций</h1>
+<PageHeader Title="Календарь вакцинаций" Description="Ближайшие и просроченные вакцинации." />
 
+<section class="section-card">
 <h2>Ближайшие вакцинации</h2>
 
 @if (upcoming.Count == 0)
 {
-    <p>Ближайших вакцинаций нет.</p>
+    <EmptyState Title="Ближайших вакцинаций нет" Message="На ближайший период вакцинации не запланированы." />
 }
+</section>
 else
 {
     <table class="table">
@@ -38,7 +40,7 @@ else
 
 @if (overdue.Count == 0)
 {
-    <p>Просроченных вакцинаций нет.</p>
+    <EmptyState Title="Просроченных вакцинаций нет" Message="Просроченных вакцинаций не найдено." />
 }
 else
 {
