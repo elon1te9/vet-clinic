@@ -28,7 +28,7 @@
             }
         </select>
     </div>
-    <button type="button" @onclick="CreateInvoice">Создать</button>
+    <button class="btn btn-primary" type="button" @onclick="CreateInvoice">Создать</button>
 }
 
 @if (invoices.Count == 0)
@@ -64,10 +64,10 @@ else
                     <td>@invoice.CreatedAt.ToLocalTime().ToString("dd.MM.yyyy HH:mm")</td>
                     <td>@invoice.PaidAt?.ToLocalTime().ToString("dd.MM.yyyy HH:mm")</td>
                     <td>
-                        <a href="@($"invoices/{invoice.Id}")">Открыть</a>
+                        <a class="btn btn-secondary btn-sm" href="@($"invoices/{invoice.Id}")">Открыть</a>
                         @if (role == "Admin" && invoice.Status == InvoiceStatus.Unpaid)
                         {
-                            <button class="btn-sm" type="button" @onclick="() => PayInvoice(invoice.Id)">Оплатить</button>
+                            <button class="btn btn-primary btn-sm" type="button" @onclick="() => PayInvoice(invoice.Id)">Оплатить</button>
                         }
                     </td>
                 </tr>

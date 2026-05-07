@@ -1,5 +1,6 @@
 @page "/surgeries"
 @inject VetClinic.Client.Services.SurgeryApiService SurgeryApiService
+@inject VetClinic.Client.Services.LocalStorageService LocalStorageService
 
 <PageTitle>Операции</PageTitle>
 
@@ -8,7 +9,10 @@
 <ErrorMessage Text="@message" />
 
 <section class="section-card">
-<p><a class="btn btn-primary" href="surgeries/create">Создать операцию</a></p>
+@if (role == "Veterinarian")
+{
+    <p><a class="btn btn-primary" href="surgeries/create">Создать операцию</a></p>
+}
 
 @if (surgeries.Count == 0)
 {
@@ -39,9 +43,12 @@ else
                     <td>@surgery.VeterinarianFullName</td>
                     <td>@surgery.AssistantFullName</td>
                     <td>
-                        <button class="btn-sm" @onclick="() => SetStatus(surgery.Id, VetClinic.Shared.Enums.SurgeryStatus.InProgress)" type="button">InProgress</button>
-                        <button class="btn-secondary btn-sm" @onclick="() => SetStatus(surgery.Id, VetClinic.Shared.Enums.SurgeryStatus.Completed)" type="button">Completed</button>
-                        <button class="btn-danger btn-sm" @onclick="() => SetStatus(surgery.Id, VetClinic.Shared.Enums.SurgeryStatus.Cancelled)" type="button">Cancelled</button>
+                        @if (role == "Admin" || role == "Veterinarian")
+                        {
+                            <button class="btn btn-primary btn-sm" @onclick="() => SetStatus(surgery.Id, VetClinic.Shared.Enums.SurgeryStatus.InProgress)" type="button">InProgress</button>
+                            <button class="btn btn-secondary btn-sm" @onclick="() => SetStatus(surgery.Id, VetClinic.Shared.Enums.SurgeryStatus.Completed)" type="button">Completed</button>
+                            <button class="btn btn-danger btn-sm" @onclick="() => SetStatus(surgery.Id, VetClinic.Shared.Enums.SurgeryStatus.Cancelled)" type="button">Cancelled</button>
+                        }
                     </td>
                 </tr>
             }
@@ -52,10 +59,12 @@ else
 
 @code {
     private List<VetClinic.Shared.Responses.SurgeryResponse> surgeries = [];
+    private string role = string.Empty;
     private string message = string.Empty;
 
     protected override async Task OnInitializedAsync()
     {
+        role = await LocalStorageService.GetItemAsync("role") ?? string.Empty;
         await LoadAsync();
     }
 

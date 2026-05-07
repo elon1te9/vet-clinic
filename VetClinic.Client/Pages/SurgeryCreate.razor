@@ -1,6 +1,7 @@
 @page "/surgeries/create"
 @inject VetClinic.Client.Services.SurgeryApiService SurgeryApiService
 @inject VetClinic.Client.Services.PetApiService PetApiService
+@inject VetClinic.Client.Services.UserApiService UserApiService
 @inject NavigationManager NavigationManager
 
 <PageTitle>Новая операция</PageTitle>
@@ -21,8 +22,20 @@
 </div>
 
 <div>
-    <label>AssistantId</label>
-    <input @bind="assistantId" placeholder="Id ассистента" />
+    <label>Ассистент</label>
+    @if (assistants.Count == 0)
+    {
+        <EmptyState Title="Ассистенты не найдены" Message="Добавьте сотрудника с ролью Assistant, чтобы выбрать его для операции." />
+    }
+    else
+    {
+        <select @bind="assistantId">
+            @foreach (var assistant in assistants)
+            {
+                <option value="@assistant.Id">@assistant.FullName</option>
+            }
+        </select>
+    }
 </div>
 
 <div>
@@ -45,11 +58,15 @@
     <input @bind="anesthesia" placeholder="Тип наркоза" />
 </div>
 
-<button class="btn btn-primary" @onclick="CreateSurgery" type="button">Сохранить</button>
+<div class="form-actions">
+    <button class="btn btn-primary" @onclick="CreateSurgery" type="button">Сохранить</button>
+    <a class="btn btn-secondary" href="/surgeries">Назад</a>
+</div>
 </section>
 
 @code {
     private List<VetClinic.Shared.Responses.PetResponse> pets = [];
+    private List<VetClinic.Shared.Responses.UserResponse> assistants = [];
     private int petId;
     private string assistantId = string.Empty;
     private DateTime? scheduledDate = DateTime.Today;
@@ -61,14 +78,20 @@
     protected override async Task OnInitializedAsync()
     {
         pets = await PetApiService.GetAllAsync();
+        var staff = await UserApiService.GetStaffAsync();
+        assistants = staff
+            .Where(u => u.Role == "Assistant")
+            .ToList();
+
         petId = pets.FirstOrDefault()?.Id ?? 0;
+        assistantId = assistants.FirstOrDefault()?.Id ?? string.Empty;
     }
 
     private async Task CreateSurgery()
     {
         if (petId <= 0 || string.IsNullOrWhiteSpace(assistantId) || string.IsNullOrWhiteSpace(title) || scheduledDate is null)
         {
-            message = "Выберите питомца, укажите AssistantId, дату и название.";
+            message = "Выберите питомца, ассистента, дату и название.";
             return;
         }
 

@@ -13,42 +13,49 @@
 {
     <h2>Новая операция</h2>
 
-    <div>
-        <label>Позиция</label>
-        <select @bind="inventoryItemId">
-            @foreach (var item in items)
-            {
-                <option value="@item.Id">@item.Name (@item.Quantity @item.Unit)</option>
-            }
-        </select>
-    </div>
+    @if (items.Count == 0)
+    {
+        <EmptyState Title="Сначала создайте складскую позицию" Message="После создания позиции можно будет добавить операцию склада." />
+    }
+    else
+    {
+        <div>
+            <label>Позиция</label>
+            <select @bind="inventoryItemId">
+                @foreach (var item in items)
+                {
+                    <option value="@item.Id">@item.Name (@item.Quantity @item.Unit)</option>
+                }
+            </select>
+        </div>
 
-    <div>
-        <label>Тип</label>
-        <select @bind="typeText">
-            @foreach (var type in Enum.GetValues<VetClinic.Shared.Enums.InventoryTransactionType>())
-            {
-                <option value="@type">@type</option>
-            }
-        </select>
-    </div>
+        <div>
+            <label>Тип</label>
+            <select @bind="typeText">
+                @foreach (var type in Enum.GetValues<VetClinic.Shared.Enums.InventoryTransactionType>())
+                {
+                    <option value="@type">@type</option>
+                }
+            </select>
+        </div>
 
-    <div>
-        <label>Количество</label>
-        <input type="number" step="0.01" @bind="quantity" placeholder="Количество" />
-    </div>
+        <div>
+            <label>Количество</label>
+            <input type="number" step="0.01" @bind="quantity" placeholder="Количество" />
+        </div>
 
-    <div>
-        <label>Причина</label>
-        <input @bind="reason" placeholder="Причина операции" />
-    </div>
+        <div>
+            <label>Причина</label>
+            <input @bind="reason" placeholder="Причина операции" />
+        </div>
 
-    <div>
-        <label>MedicalRecordId</label>
-        <input type="number" @bind="relatedMedicalRecordId" placeholder="Необязательно" />
-    </div>
+        <div>
+            <label>MedicalRecordId</label>
+            <input type="number" @bind="relatedMedicalRecordId" placeholder="Необязательно" />
+        </div>
 
-    <button @onclick="CreateTransaction" type="button">Сохранить</button>
+        <button class="btn btn-primary" @onclick="CreateTransaction" type="button">Сохранить</button>
+    }
 }
 
 <h2>Журнал операций</h2>

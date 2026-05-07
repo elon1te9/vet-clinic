@@ -28,11 +28,11 @@ else
 
     @if (role == "Admin" && invoice.Status == InvoiceStatus.Unpaid)
     {
-        <button class="btn-sm" type="button" @onclick="PayInvoice">Оплатить</button>
+        <button class="btn btn-primary btn-sm" type="button" @onclick="PayInvoice">Оплатить</button>
     }
 }
 
-<p><a class="btn btn-secondary" href="invoices">Назад к счетам</a></p>
+<p><a class="btn btn-secondary" href="/invoices">Назад к счетам</a></p>
 </section>
 
 @code {

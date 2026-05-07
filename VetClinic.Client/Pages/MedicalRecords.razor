@@ -11,7 +11,7 @@
 <section class="section-card">
 @if (role == "Veterinarian" || role == "Admin")
 {
-    <button @onclick="OpenCreatePage" type="button">Создать запись</button>
+    <button class="btn btn-primary" @onclick="OpenCreatePage" type="button">Создать запись</button>
 }
 
 @if (role != "Admin")
@@ -24,7 +24,7 @@
                 <option value="@pet.Id">@pet.Name</option>
             }
         </select>
-        <button @onclick="LoadByPet" type="button">Показать историю</button>
+        <button class="btn btn-secondary" @onclick="LoadByPet" type="button">Показать историю</button>
     </div>
 }
 
@@ -57,7 +57,7 @@ else
                     <td>@record.Diagnosis</td>
                     <td>@record.Treatment</td>
                     <td>
-                        <button @onclick="() => OpenDetails(record.Id)" type="button">Открыть</button>
+                        <button class="btn btn-secondary btn-sm" @onclick="() => OpenDetails(record.Id)" type="button">Открыть</button>
                     </td>
                 </tr>
             }
