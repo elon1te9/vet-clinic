@@ -11,9 +11,12 @@ main {
 
 .sidebar {
     width: 270px;
-    min-height: 100vh;
+    height: 100vh;
+    min-height: 0;
+    flex: 0 0 270px;
     position: sticky;
     top: 0;
+    overflow: hidden;
     background: var(--sidebar-bg);
     border-right: 1px solid var(--border-color);
 }
@@ -88,8 +91,10 @@ main {
 
     .sidebar {
         width: 100%;
+        height: auto;
         min-height: auto;
         position: relative;
+        overflow: visible;
     }
 
     .app-topbar {

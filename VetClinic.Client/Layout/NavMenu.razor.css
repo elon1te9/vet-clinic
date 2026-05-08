@@ -52,7 +52,7 @@
 }
 
 nav {
-    padding: 14px 12px 24px;
+    padding: 14px 12px 56px;
 }
 
 .nav-section {
@@ -98,6 +98,31 @@ nav {
     .nav-scrollable {
         height: calc(100vh - 96px);
         overflow-y: auto;
+        overflow-x: hidden;
+        scrollbar-gutter: stable;
+        scrollbar-width: thin;
+        scrollbar-color: transparent transparent;
+    }
+
+    .nav-scrollable:hover {
+        scrollbar-color: #cbd5e1 transparent;
+    }
+
+    .nav-scrollable::-webkit-scrollbar {
+        width: 8px;
+    }
+
+    .nav-scrollable::-webkit-scrollbar-track {
+        background: transparent;
+    }
+
+    .nav-scrollable::-webkit-scrollbar-thumb {
+        border-radius: 999px;
+        background: transparent;
+    }
+
+    .nav-scrollable:hover::-webkit-scrollbar-thumb {
+        background: #cbd5e1;
     }
 }
 
