@@ -2,13 +2,23 @@
 
 **VetClinic** — учебное fullstack веб-приложение для управления ветеринарной клиникой.
 
-Проект демонстрирует backend-разработку на **ASP.NET Core Web API** с использованием **PostgreSQL**, **Entity Framework Core**, **ASP.NET Core Identity**, **JWT-аутентификации**, ролевой модели доступа и **SignalR** для уведомлений. Клиентская часть реализована на **Blazor WebAssembly**, общие DTO и enum-типы вынесены в отдельную shared-библиотеку.
+Проект демонстрирует backend-разработку на **ASP.NET Core Web API** с использованием
+**PostgreSQL**, **Entity Framework Core**, **ASP.NET Core Identity**,
+**JWT-аутентификации**, ролевой модели доступа и **SignalR** для уведомлений.
+
+Клиентская часть реализована на **Blazor WebAssembly**. Общие DTO и enum-типы
+вынесены в отдельную shared-библиотеку.
 
 ## Статус проекта
 
-Проект находится в учебном статусе и предназначен для портфолио начинающего .NET/backend-разработчика.
+Проект находится в учебном статусе и предназначен для портфолио начинающего
+.NET/backend-разработчика.
 
-В репозитории есть рабочая структура backend, frontend и shared-моделей, миграции EF Core, seed-инициализация для тестовых пользователей и скриншоты интерфейса. CI/CD, Docker-конфигурация и автотесты в проекте сейчас не настроены.
+В репозитории есть рабочая структура backend, frontend и shared-моделей,
+миграции EF Core, seed-инициализация для тестовых пользователей и скриншоты
+интерфейса.
+
+CI/CD, Docker-конфигурация и автотесты в проекте сейчас не настроены.
 
 ## Скриншоты
 
@@ -38,11 +48,14 @@
 
 ### Администратор
 
-- Просмотр административной панели со сводкой по приемам, выручке, стационару, складу и вакцинациям.
+- Просмотр административной панели со сводкой по приемам, выручке, стационару,
+  складу и вакцинациям.
 - Управление пользователями, владельцами, сотрудниками и ролями.
 - Управление питомцами, расписанием приемов и услугами клиники.
-- Работа со складом, складскими операциями, операциями, стационаром, вакцинациями и счетами.
-- Просмотр отчетов по выручке, загрузке врачей, популярным услугам, использованию склада и приемам.
+- Работа со складом, складскими операциями, операциями, стационаром,
+  вакцинациями и счетами.
+- Просмотр отчетов по выручке, загрузке врачей, популярным услугам,
+  использованию склада и приемам.
 
 ### Ветеринарный врач
 
@@ -100,17 +113,23 @@
 
 Решение разделено на три основных проекта:
 
-- `VetClinic.Api` — backend на ASP.NET Core Web API. Здесь находятся контроллеры, EF Core DbContext, модели БД, сервисы бизнес-логики, миграции, Identity, JWT и SignalR Hub.
-- `VetClinic.Client` — frontend на Blazor WebAssembly. Клиент обращается к API через typed-сервисы и хранит данные авторизации в localStorage.
-- `VetClinic.Shared` — общая библиотека с DTO, request/response-моделями и enum-типами, которые используются и API, и клиентом.
+- `VetClinic.Api` — backend на ASP.NET Core Web API. Здесь находятся
+  контроллеры, EF Core DbContext, модели БД, сервисы бизнес-логики, миграции,
+  Identity, JWT и SignalR Hub.
+- `VetClinic.Client` — frontend на Blazor WebAssembly. Клиент обращается к API
+  через typed-сервисы и хранит данные авторизации в localStorage.
+- `VetClinic.Shared` — общая библиотека с DTO, request/response-моделями и
+  enum-типами, которые используются и API, и клиентом.
 
 Основной поток работы:
 
 1. Пользователь проходит регистрацию или авторизацию через `api/Auth`.
 2. API выдает JWT-токен с ролью пользователя.
 3. Blazor-клиент сохраняет токен и добавляет его к запросам.
-4. Backend проверяет доступ через `[Authorize]` и роли `Admin`, `Veterinarian`, `Owner`, `Assistant`.
-5. Уведомления доставляются через REST API и SignalR Hub `/hubs/notifications`.
+4. Backend проверяет доступ через `[Authorize]` и роли `Admin`,
+   `Veterinarian`, `Owner`, `Assistant`.
+5. Уведомления доставляются через REST API и SignalR Hub
+   `/hubs/notifications`.
 
 ## Структура проекта
 
@@ -162,13 +181,16 @@ dotnet tool install --global dotnet-ef
 ### 1. Клонировать репозиторий
 
 ```bash
-git clone https://github.com/elon1te9/VetClinic.git
-cd VetClinic
+git clone https://github.com/elon1te9/vet-clinic.git
+cd vet-clinic
 ```
 
 ### 2. Настроить подключение к PostgreSQL
 
-В файле `VetClinic.Api/appsettings.json` укажите локальную строку подключения и JWT-настройки. Не храните реальные пароли и приватные ключи в публичном репозитории.
+В файле `VetClinic.Api/appsettings.json` укажите локальную строку подключения
+и JWT-настройки.
+
+Не храните реальные пароли и приватные ключи в публичном репозитории.
 
 ```json
 {
@@ -215,11 +237,16 @@ dotnet run --launch-profile https
 
 - `https://localhost:7131`
 
-В `VetClinic.Client/Program.cs` базовый адрес API сейчас задан как `https://localhost:7096`.
+В `VetClinic.Client/Program.cs` базовый адрес API сейчас задан как
+`https://localhost:7096`.
 
 ## Тестовые пользователи
 
-Тестовые пользователи создаются через seed-инициализацию в `VetClinic.Api/Data/DbInitializer.cs` при запуске API. Пароль seed-пользователей намеренно не дублируется в README; для локального запуска его можно посмотреть или изменить в seed-коде проекта.
+Тестовые пользователи создаются через seed-инициализацию в
+`VetClinic.Api/Data/DbInitializer.cs` при запуске API.
+
+Пароль seed-пользователей намеренно не дублируется в README. Для локального
+запуска его можно посмотреть или изменить в seed-коде проекта.
 
 | Роль | Email |
 | --- | --- |
@@ -238,36 +265,159 @@ https://localhost:7096/swagger
 
 Маршруты ниже сверены с атрибутами `Route` и `Http*` в контроллерах проекта.
 
-| Контроллер | Реальные маршруты |
-| --- | --- |
-| `AuthController` | `POST /api/Auth/register-owner`, `POST /api/Auth/register-staff`, `POST /api/Auth/login`, `GET /api/Auth/me` |
-| `UsersController` | `GET /api/users`, `GET /api/users/{id}`, `PUT /api/users/{id}/block`, `PUT /api/users/{id}/role`, `GET /api/owners`, `GET /api/owners/my`, `GET /api/owners/{id}`, `GET /api/staff`, `GET /api/staff/doctors`, `GET /api/staff/assistants`, `GET /api/staff/{id}` |
-| `PetsController` | `GET /api/Pets`, `GET /api/Pets/my`, `GET /api/Pets/{id}`, `POST /api/Pets`, `PUT /api/Pets/{id}`, `DELETE /api/Pets/{id}` |
-| `AppointmentsController` | `GET /api/appointments`, `GET /api/appointments/my`, `GET /api/appointments/today`, `GET /api/appointments/doctor/{doctorId}`, `GET /api/appointments/{id}`, `POST /api/appointments`, `PUT /api/appointments/{id}/status`, `DELETE /api/appointments/{id}` |
-| `MedicalRecordsController` | `GET /api/medical-records`, `GET /api/medical-records/{id}`, `GET /api/medical-records/pet/{petId}`, `POST /api/medical-records`, `PUT /api/medical-records/{id}` |
-| `VaccinationsController` | `GET /api/vaccinations`, `GET /api/vaccinations/my`, `GET /api/vaccinations/pet/{petId}`, `GET /api/vaccinations/{id}`, `GET /api/vaccinations/upcoming`, `GET /api/vaccinations/overdue`, `POST /api/vaccinations`, `PUT /api/vaccinations/{id}` |
-| `ServicesController` | `GET /api/services`, `POST /api/services`, `PUT /api/services/{id}`, `DELETE /api/services/{id}` |
-| `InventoryController` | `GET /api/inventory`, `GET /api/inventory/low-stock`, `GET /api/inventory/expiring`, `GET /api/inventory/{id}`, `POST /api/inventory`, `PUT /api/inventory/{id}`, `DELETE /api/inventory/{id}` |
-| `InventoryTransactionsController` | `GET /api/inventory-transactions`, `GET /api/inventory-transactions/item/{itemId}`, `POST /api/inventory-transactions` |
-| `SurgeriesController` | `GET /api/surgeries`, `GET /api/surgeries/{id}`, `GET /api/surgeries/pet/{petId}`, `POST /api/surgeries`, `PUT /api/surgeries/{id}`, `PUT /api/surgeries/{id}/status` |
-| `HospitalizationsController` | `GET /api/hospitalizations`, `GET /api/hospitalizations/active`, `GET /api/hospitalizations/{id}`, `GET /api/hospitalizations/pet/{petId}`, `POST /api/hospitalizations`, `PUT /api/hospitalizations/{id}`, `PUT /api/hospitalizations/{id}/close` |
-| `CareLogsController` | `GET /api/care-logs/hospitalization/{hospitalizationId}`, `POST /api/care-logs` |
-| `FinanceController` | `GET /api/invoices`, `GET /api/invoices/my`, `GET /api/invoices/{id}`, `POST /api/invoices`, `PUT /api/invoices/{id}/pay` |
-| `ReportsController` | `GET /api/reports/revenue`, `GET /api/reports/doctor-load`, `GET /api/reports/popular-services`, `GET /api/reports/inventory-usage`, `GET /api/reports/appointments-summary` |
-| `NotificationsController` | `GET /api/notifications/my`, `PUT /api/notifications/{id}/read`, `PUT /api/notifications/read-all` |
-| `AdminDashboardController` | `GET /api/admin/dashboard`, `GET /api/admin/dashboard/today` |
-| `NotificationHub` | `/hubs/notifications` |
+### AuthController
+
+- `POST /api/Auth/register-owner`
+- `POST /api/Auth/register-staff`
+- `POST /api/Auth/login`
+- `GET /api/Auth/me`
+
+### UsersController
+
+- `GET /api/users`
+- `GET /api/users/{id}`
+- `PUT /api/users/{id}/block`
+- `PUT /api/users/{id}/role`
+- `GET /api/owners`
+- `GET /api/owners/my`
+- `GET /api/owners/{id}`
+- `GET /api/staff`
+- `GET /api/staff/doctors`
+- `GET /api/staff/assistants`
+- `GET /api/staff/{id}`
+
+### PetsController
+
+- `GET /api/Pets`
+- `GET /api/Pets/my`
+- `GET /api/Pets/{id}`
+- `POST /api/Pets`
+- `PUT /api/Pets/{id}`
+- `DELETE /api/Pets/{id}`
+
+### AppointmentsController
+
+- `GET /api/appointments`
+- `GET /api/appointments/my`
+- `GET /api/appointments/today`
+- `GET /api/appointments/doctor/{doctorId}`
+- `GET /api/appointments/{id}`
+- `POST /api/appointments`
+- `PUT /api/appointments/{id}/status`
+- `DELETE /api/appointments/{id}`
+
+### MedicalRecordsController
+
+- `GET /api/medical-records`
+- `GET /api/medical-records/{id}`
+- `GET /api/medical-records/pet/{petId}`
+- `POST /api/medical-records`
+- `PUT /api/medical-records/{id}`
+
+### VaccinationsController
+
+- `GET /api/vaccinations`
+- `GET /api/vaccinations/my`
+- `GET /api/vaccinations/pet/{petId}`
+- `GET /api/vaccinations/{id}`
+- `GET /api/vaccinations/upcoming`
+- `GET /api/vaccinations/overdue`
+- `POST /api/vaccinations`
+- `PUT /api/vaccinations/{id}`
+
+### ServicesController
+
+- `GET /api/services`
+- `POST /api/services`
+- `PUT /api/services/{id}`
+- `DELETE /api/services/{id}`
+
+### InventoryController
+
+- `GET /api/inventory`
+- `GET /api/inventory/low-stock`
+- `GET /api/inventory/expiring`
+- `GET /api/inventory/{id}`
+- `POST /api/inventory`
+- `PUT /api/inventory/{id}`
+- `DELETE /api/inventory/{id}`
+
+### InventoryTransactionsController
+
+- `GET /api/inventory-transactions`
+- `GET /api/inventory-transactions/item/{itemId}`
+- `POST /api/inventory-transactions`
+
+### SurgeriesController
+
+- `GET /api/surgeries`
+- `GET /api/surgeries/{id}`
+- `GET /api/surgeries/pet/{petId}`
+- `POST /api/surgeries`
+- `PUT /api/surgeries/{id}`
+- `PUT /api/surgeries/{id}/status`
+
+### HospitalizationsController
+
+- `GET /api/hospitalizations`
+- `GET /api/hospitalizations/active`
+- `GET /api/hospitalizations/{id}`
+- `GET /api/hospitalizations/pet/{petId}`
+- `POST /api/hospitalizations`
+- `PUT /api/hospitalizations/{id}`
+- `PUT /api/hospitalizations/{id}/close`
+
+### CareLogsController
+
+- `GET /api/care-logs/hospitalization/{hospitalizationId}`
+- `POST /api/care-logs`
+
+### FinanceController
+
+- `GET /api/invoices`
+- `GET /api/invoices/my`
+- `GET /api/invoices/{id}`
+- `POST /api/invoices`
+- `PUT /api/invoices/{id}/pay`
+
+### ReportsController
+
+- `GET /api/reports/revenue`
+- `GET /api/reports/doctor-load`
+- `GET /api/reports/popular-services`
+- `GET /api/reports/inventory-usage`
+- `GET /api/reports/appointments-summary`
+
+### NotificationsController
+
+- `GET /api/notifications/my`
+- `PUT /api/notifications/{id}/read`
+- `PUT /api/notifications/read-all`
+
+### AdminDashboardController
+
+- `GET /api/admin/dashboard`
+- `GET /api/admin/dashboard/today`
+
+### NotificationHub
+
+- `/hubs/notifications`
 
 ## Особенности реализации
 
-- Ролевая модель доступа построена на ASP.NET Core Identity и `[Authorize(Roles = "...")]`.
+- Ролевая модель доступа построена на ASP.NET Core Identity и
+  `[Authorize(Roles = "...")]`.
 - JWT используется для авторизации REST-запросов и подключения к SignalR Hub.
 - EF Core migrations описывают структуру PostgreSQL-базы.
-- Seed-инициализация создает роли, тестовых пользователей, базовые услуги клиники и складские позиции.
-- DTO вынесены в `VetClinic.Shared`, чтобы API и Blazor-клиент использовали общий контракт данных.
-- Blazor WebAssembly клиент разделен на страницы, переиспользуемые UI-компоненты и сервисы для обращения к API.
+- Seed-инициализация создает роли, тестовых пользователей, базовые услуги
+  клиники и складские позиции.
+- DTO вынесены в `VetClinic.Shared`, чтобы API и Blazor-клиент использовали
+  общий контракт данных.
+- Blazor WebAssembly клиент разделен на страницы, переиспользуемые
+  UI-компоненты и сервисы для обращения к API.
 - Навигация клиента меняется в зависимости от роли пользователя.
-- Для уведомлений используется отдельный `NotificationHub` и клиентский `SignalRNotificationService`.
+- Для уведомлений используется отдельный `NotificationHub` и клиентский
+  `SignalRNotificationService`.
 
 ## Что я изучил в процессе
 
@@ -277,7 +427,8 @@ https://localhost:7096/swagger
 - Разделение fullstack-решения на API, клиент и shared-библиотеку.
 - Организацию DTO-контрактов между backend и frontend.
 - Реализацию SignalR-уведомлений.
-- Построение интерфейса на Blazor WebAssembly с учетом разных ролей пользователей.
+- Построение интерфейса на Blazor WebAssembly с учетом разных ролей
+  пользователей.
 
 ## Возможные улучшения
 
